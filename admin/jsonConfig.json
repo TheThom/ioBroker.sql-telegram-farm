@@ -1,0 +1,155 @@
+{
+	"type": "tabs",
+	"i18n": false,
+	"tabsStyle": {
+		"width": "calc(100% - 100px)"
+	},
+	"items": {
+		"tabDatabase": {
+			"type": "panel",
+			"label": "MySQL",
+			"items": {
+				"database.server": {
+					"type": "text",
+					"label": "Server",
+					"maxLength": 15,
+					"sm": 2
+				},
+				"database.port": {
+					"type": "number",
+					"label": "Port",
+					"max": 65535,
+					"sm": 2
+				},
+				"database.database": {
+					"type": "text",
+					"label": "Database",
+					"maxLength": 20,
+					"sm": 4
+				},
+				"database.user": {
+					"newLine": true,
+					"type": "text",
+					"label": "User",
+					"maxLength": 20,
+					"sm": 4
+				},
+				"database.password": {
+					"type": "password",
+					"label": "Password",
+					"repeat": true,
+					"maxLength": 100,
+					"sm": 4
+				}
+			}
+		},
+		"tabTelegramOptions": {
+			"type": "panel",
+			"label": "Telegram - Options",
+			"items": {
+				"telegram.instance": {
+					"newLine": true,
+					"type": "number",
+					"label": "Telegram instance",
+					"max": 10,
+					"sm": 1
+				},
+				"divider123": {
+					"type": "header",
+					"text": "Following Settings Not used",
+					"size": 1
+				},
+				"telegram.pollingInterval": {
+					"newLine": true,
+					"type": "number",
+					"label": "Polling interval",
+					"max": 10000,
+					"sm": 3
+				},
+				"telegram.token": {
+					"newLine": true,
+					"type": "text",
+					"label": "token",
+					"maxLength": 200,
+					"sm": 12,
+					"help": "Link to telegram: How to get Token",
+					"helpLink": "https://github.com/iobroker-community-adapters/ioBroker.telegram#iobroker-telegram-adapter"
+				},
+				"telegram.baseApiUrl": {
+					"newLine": true,
+					"type": "text",
+					"label": "API URL",
+					"maxLength": 300,
+					"sm": 12
+				},
+				"telegram.password": {
+					"newLine": true,
+					"type": "password",
+					"repeat": true,
+					"visible": true,
+					"label": "password",
+					"maxLength": 20,
+					"sm": 12
+				},
+				"telegram.doNotAcceptNewUsers": {
+					"newLine": true,
+					"type": "checkbox",
+					"label": "Do not authenticate new users",
+					"sm": 6
+				}
+			}
+		},
+		"tabTelegramMessages": {
+			"type": "panel",
+			"label": "Telegram - Messages",
+			"items": {
+				"telegram.restarted": {
+					"newLine": true,
+					"type": "text",
+					"label": "restarted",
+					"help": "Message to the client after a restart of the adapter",
+					"maxLength": 100,
+					"sm": 6
+				},
+				"telegram.restarting": {
+					"newLine": false,
+					"type": "text",
+					"label": "restarting",
+					"help": "Message to the client if the adapter is stopped",
+					"maxLength": 100,
+					"sm": 6
+				},
+				"telegram.answerTimeoutSec": {
+					"newLine": true,
+					"type": "number",
+					"label": "Answer timeout (in seconds)",
+					"help": "The limit for users to answer questions",
+					"max": 180,
+					"sm": 6
+				},
+				"headerUsers": {
+					"newLine": true,
+					"type": "header",
+					"size": 2,
+					"text": "Users"
+				},
+				"telegram.users": {
+					"newLine": true,
+					"type": "table",
+					"sm": 12,
+					"items": [
+						{
+							"type": "text",
+							"width": "40%",
+							"title": "Name",
+							"attr": "name",
+							"filter": false,
+							"sort": true,
+							"default": "0"
+						}
+					]
+				}
+			}
+		}
+	}
+}
