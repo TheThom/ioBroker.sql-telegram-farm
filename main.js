@@ -32,55 +32,51 @@ const MENU = {
 		NEW: {
 			_: 'firewood.new',
 			_text: 'Neues Brennholz',
-			NUMBER: {
-				_: 'firewood.new.number',
-				_text: 'Welche Nummer wurde angebracht',
-			},
-			AMOUNT: {
-				_: 'firewood.new.amount',
-				_text: 'Anzahl in Ster',
-			},
-			AMOUNT_DETAILED: {
-				_: 'firewood.new.amountDetailed',
-				_text: 'Detaillierte Anzahl in Ster',
-			},
-			TYPE: {
-				_: 'firewood.new.type',
-				_text: 'Holzart',
-			},
-			HUMIDITY: {
-				_: 'firewood.new.humidity',
-				_text: 'Feuchtigkeit',
-			},
-			DATE: {
-				_: 'firewood.new.date',
-				_text: 'Wann wurde das Holz gemacht?',
-			},
-			LOCATION: {
-				_: 'firewood.new.location',
-				_text: 'Lagerort',
-			},
-			NOTES: {
-				_: 'firewood.new.notes',
-				_text: 'Notizen',
-			},
-			REVIEW: {
-				_: 'firewood.new.review',
-				_text: 'Zusammenfassung',
-			},
+			NUMBER: 'firewood.new.number',
+			AMOUNT: 'firewood.new.amount',
+			AMOUNT_DETAILED: 'firewood.new.amountDetailed',
+			TYPE: 'firewood.new.type',
+			HUMIDITY: 'firewood.new.humidity',
+			DATE: 'firewood.new.date',
+			LOCATION: 'firewood.new.location',
+			NOTES: 'firewood.new.notes',
+			REVIEW: 'firewood.new.review',
 			SAVE: 'firewood.new.save',
 		},
 		EDIT: {
 			_: 'firewood.edit',
 			_text: 'Brennholz bearbeiten',
-			NUMBER: 'firewood.edit.number',
+			ID: 'firewood.edit.id',
+			NUMBER: {
+				_: 'firewood.edit.number',
+				_text: 'Nr.',
+			},
 			AMOUNT: 'firewood.edit.amount',
-			AMOUNT_DETAILED: 'firewood.edit.amountDetailed',
-			TYPE: 'firewood.edit.type',
-			HUMIDITY: 'firewood.edit.humidity',
+			AMOUNT_DETAILED: {
+				_: 'firewood.edit.amountDetailed',
+				_text: 'Menge',
+			},
+			TYPE: {
+				_: 'firewood.edit.type',
+				_text: 'Art',
+			},
+			HUMIDITY: {
+				_: 'firewood.edit.humidity',
+				_text: 'Feuchte',
+			},
 			DATE: 'firewood.edit.date',
-			LOCATION: 'firewood.edit.location',
-			DELETE: 'firewood.edit.delete',
+			LOCATION: {
+				_: 'firewood.edit.location',
+				_text: 'Lagerort',
+			},
+			NOTES: {
+				_: 'firewood.edit.notes',
+				_text: 'Notiz',
+			},
+			DELETE: {
+				_: 'firewood.edit.delete',
+				_text: 'auflösen',
+			},
 		},
 		STATUS: {
 			_: 'firewood.status',
@@ -95,6 +91,25 @@ const MENU = {
 		ABORT: 'Abbruch',
 		BACK: 'Zurück',
 		SAVE: 'Speichern',
+		SKIP: 'überspringen',
+	},
+};
+
+const MYSQL = {
+	GET: {
+		FIREWOOD: {
+			USED_NUMBERS: 'get.firewood.usedNumbers',
+			VALID_TYPES: 'get.firewood.validTypes',
+			VALID_LOCATIONS: 'get.firewood.validLocations',
+			STATUS: 'get.firewood.status',
+			DATASET_BY_NUMBER: 'get.firewood.dataset-by-number',
+		},
+	},
+	SET: {
+		FIREWOOD: {
+			SAVE_NEW: 'set.firewood.saveNew',
+			SAVE_EDIT: 'set.firewood.saveEdit',
+		},
 	},
 };
 
@@ -144,10 +159,10 @@ class SqlTelegramFarm extends utils.Adapter {
 				},
 				native: {},
 			});
-			await this.setObjectNotExistsAsync('users.' + user['name'] + '.Cache', {
+			await this.setObjectNotExistsAsync('users.' + user['name'] + '.cache', {
 				type: 'state',
 				common: {
-					name: 'Cache',
+					name: 'cache',
 					type: 'string',
 					role: 'json',
 					read: true,
@@ -213,20 +228,6 @@ class SqlTelegramFarm extends utils.Adapter {
 		// this.subscribeStates('lights.*');
 		// Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
 		// this.subscribeStates('*');
-
-		/*
-			setState examples
-			you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
-		*/
-		// the variable testVariable is set to true as command (ack=false)
-		await this.setStateAsync('testVariable', true);
-
-		// same thing, but the value is flagged "ack"
-		// ack should be always set to true if the value is received from or acknowledged from the target system
-		await this.setStateAsync('testVariable', { val: true, ack: true });
-
-		// same thing, but the state is deleted after 30s (getState will return null afterwards)
-		await this.setStateAsync('testVariable', { val: true, ack: true, expire: 30 });
 
 		// examples for the checkPassword/checkGroup functions
 		let result = await this.checkPasswordAsync('admin', 'iobroker');
@@ -307,10 +308,10 @@ class SqlTelegramFarm extends utils.Adapter {
 		//let commandText = command.replace(/[^\x00-\xFF]/g,'').trim();                   //remove the emojis from the command (used to switch the command)
 		//const commandText = command;
 		const userMenuState = await this.getStateAsync('users.' + user + '.menu');
-		const userMenu = userMenuState ? userMenuState.val : 'undefined';
+		let userMenu = userMenuState ? userMenuState.val : 'undefined';
 		let newUserMenu = '';
 		const emtyUserCache = JSON.parse('{"emty": "true"}');
-		const userCacheState = await this.getStateAsync('users.' + user + '.Cache');
+		const userCacheState = await this.getStateAsync('users.' + user + '.cache');
 		let userCache = emtyUserCache;
 		try {
 			userCache = userCacheState ? JSON.parse(String(userCacheState.val)) : emtyUserCache;
@@ -320,6 +321,18 @@ class SqlTelegramFarm extends utils.Adapter {
 
 		this.log.debug('userMenu: "' + userMenu + '" - userCache: "' + JSON.stringify(userCache) + '"');
 
+		const validateInput = await this.validateUserInput(user, userMenu, command); //true, if the input e.g. number is in the correct format. MENU.SPECIAL is handled below.
+		let validInput = false;
+		if (validateInput.substring(0, 1) != '!') {
+			validInput = true;
+			command = validateInput;
+		}
+
+		if (command == MENU._text) {
+			//If Main Menu is called: Always go to main menu; It doesn't matter in which menu you are at the moment
+			userMenu = MENU._;
+			userCache = emtyUserCache;
+		}
 		switch (userMenu) {
 			case MENU._:
 				if (command == MENU.FIREWOOD._text) {
@@ -337,175 +350,176 @@ class SqlTelegramFarm extends utils.Adapter {
 			case MENU.FIREWOOD._:
 				if (command == MENU.FIREWOOD.NEW._text) {
 					userCache = emtyUserCache;
-					newUserMenu = MENU.FIREWOOD.NEW.NUMBER._;
-					await this.sendMySqlToUser(user, MENU.FIREWOOD.NEW.NUMBER._);
+					newUserMenu = MENU.FIREWOOD.NEW.NUMBER;
+					await this.sendMenuToUser(user, MENU.FIREWOOD.NEW.NUMBER);
 				} else if (command == MENU.FIREWOOD.EDIT._text) {
-					newUserMenu = MENU.FIREWOOD.EDIT.NUMBER;
-					this.sendMySqlToUser(user, MENU.FIREWOOD.EDIT.NUMBER);
+					newUserMenu = MENU.FIREWOOD.EDIT.NUMBER._;
+					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.NUMBER);
 				} else if (command == MENU.FIREWOOD.STATUS._text) {
-					newUserMenu = MENU.FIREWOOD.STATUS._;
-					this.sendMySqlToUser(user, MENU.FIREWOOD.STATUS._);
+					newUserMenu = MENU.FIREWOOD._;
+					this.sendTextToUser(user, await this.getMySql(user, MYSQL.GET.FIREWOOD.STATUS));
 				} else {
 					newUserMenu = MENU._;
 					this.sendMenuToUser(user, MENU._);
 				}
 				break;
 			// #region FIREWOOD.New
-			case MENU.FIREWOOD.NEW.NUMBER._: //Sequence - 1 - Number
+			case MENU.FIREWOOD.NEW.NUMBER: //Sequence - 1 - Number
 				if (command == MENU.SPECIALS.ABORT) {
 					newUserMenu = MENU.FIREWOOD._;
 					this.sendMenuToUser(user, MENU.FIREWOOD._);
 					userCache = emtyUserCache;
-				} else if (parseInt(command) != 0) {
-					userCache[MENU.FIREWOOD.NEW.NUMBER._] = parseInt(command);
-					newUserMenu = MENU.FIREWOOD.NEW.AMOUNT._;
-					this.sendKeyboardToUser(user, MENU.FIREWOOD.NEW.AMOUNT._);
-				} else {
-					newUserMenu = MENU.FIREWOOD.NEW.NUMBER._;
-					this.sendTextToUser(user, 'Ungültige Nummer: "' + command + '"');
+				} else if (validInput) {
+					userCache[MENU.FIREWOOD.NEW.NUMBER] = parseInt(command);
+					newUserMenu = MENU.FIREWOOD.NEW.AMOUNT;
+					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.AMOUNT);
 				}
 				break;
-			case MENU.FIREWOOD.NEW.AMOUNT._: //Sequence - 2 - Amount
+			case MENU.FIREWOOD.NEW.AMOUNT: //Sequence - 2 - Amount
 				if (command == MENU.SPECIALS.BACK) {
-					newUserMenu = MENU.FIREWOOD.NEW.NUMBER._;
-					this.sendMySqlToUser(user, MENU.FIREWOOD.NEW.NUMBER._);
+					newUserMenu = MENU.FIREWOOD.NEW.NUMBER;
+					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.NUMBER);
 					userCache = emtyUserCache;
-				} else if (parseInt(command) != null) {
-					userCache[MENU.FIREWOOD.NEW.AMOUNT._] = parseInt(command);
-					newUserMenu = MENU.FIREWOOD.NEW.AMOUNT_DETAILED._;
-					this.sendKeyboardToUser(user, MENU.FIREWOOD.NEW.AMOUNT_DETAILED._);
-				} else {
-					newUserMenu = MENU.FIREWOOD.NEW.AMOUNT._;
-					this.sendTextToUser(user, 'Ungültige Nummer: "' + command + '"');
+				} else if (validInput) {
+					userCache[MENU.FIREWOOD.NEW.AMOUNT] = parseInt(command);
+					newUserMenu = MENU.FIREWOOD.NEW.AMOUNT_DETAILED;
+					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.AMOUNT_DETAILED, userCache[MENU.FIREWOOD.NEW.AMOUNT]);
 				}
 				break;
-			case MENU.FIREWOOD.NEW.AMOUNT_DETAILED._: //Sequence - 3 - Amount Detailed
+			case MENU.FIREWOOD.NEW.AMOUNT_DETAILED: //Sequence - 3 - Amount Detailed
 				if (command == MENU.SPECIALS.BACK) {
-					newUserMenu = MENU.FIREWOOD.NEW.AMOUNT._;
-					this.sendKeyboardToUser(user, MENU.FIREWOOD.NEW.AMOUNT._);
-				} else if (parseInt(command) != null) {
-					userCache[MENU.FIREWOOD.NEW.AMOUNT_DETAILED._] = parseInt(command);
-					newUserMenu = MENU.FIREWOOD.NEW.TYPE._;
-					this.sendMySqlToUser(user, MENU.FIREWOOD.NEW.TYPE._);
-				} else {
-					newUserMenu = MENU.FIREWOOD.NEW.AMOUNT_DETAILED._;
-					this.sendTextToUser(user, 'Ungültige Nummer: "' + command + '"');
+					newUserMenu = MENU.FIREWOOD.NEW.AMOUNT;
+					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.AMOUNT);
+				} else if (validInput) {
+					userCache[MENU.FIREWOOD.NEW.AMOUNT_DETAILED] = parseFloat(command);
+					newUserMenu = MENU.FIREWOOD.NEW.TYPE;
+					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.TYPE);
 				}
 				break;
-			case MENU.FIREWOOD.NEW.TYPE._: //Sequence - 4 - Type
+			case MENU.FIREWOOD.NEW.TYPE: //Sequence - 4 - Type
 				if (command == MENU.SPECIALS.BACK) {
-					newUserMenu = MENU.FIREWOOD.NEW.AMOUNT_DETAILED._;
-					this.sendKeyboardToUser(user, MENU.FIREWOOD.NEW.AMOUNT_DETAILED._);
-				} else if (command != null) {
-					userCache[MENU.FIREWOOD.NEW.TYPE._] = command;
-					newUserMenu = MENU.FIREWOOD.NEW.HUMIDITY._;
-					this.sendKeyboardToUser(user, MENU.FIREWOOD.NEW.HUMIDITY._);
-				} else {
-					newUserMenu = MENU.FIREWOOD.NEW.TYPE._;
-					this.sendTextToUser(user, 'Ungültige Nummer: "' + command + '"');
+					newUserMenu = MENU.FIREWOOD.NEW.AMOUNT_DETAILED;
+					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.AMOUNT_DETAILED);
+				} else if (validInput) {
+					userCache[MENU.FIREWOOD.NEW.TYPE] = command;
+					newUserMenu = MENU.FIREWOOD.NEW.HUMIDITY;
+					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.HUMIDITY);
 				}
 				break;
-			case MENU.FIREWOOD.NEW.HUMIDITY._: //Sequence - 5 - Humidity
+			case MENU.FIREWOOD.NEW.HUMIDITY: //Sequence - 5 - Humidity
 				if (command == MENU.SPECIALS.BACK) {
-					newUserMenu = MENU.FIREWOOD.NEW.TYPE._;
-					this.sendMySqlToUser(user, MENU.FIREWOOD.NEW.TYPE._);
-				} else if (parseInt(command) != null) {
-					userCache[MENU.FIREWOOD.NEW.HUMIDITY._] = parseInt(command);
-					newUserMenu = MENU.FIREWOOD.NEW.DATE._;
-					this.sendKeyboardToUser(user, MENU.FIREWOOD.NEW.DATE._);
-				} else {
-					newUserMenu = MENU.FIREWOOD.NEW.HUMIDITY._;
-					this.sendTextToUser(user, 'Ungültige Nummer: "' + command + '"');
+					newUserMenu = MENU.FIREWOOD.NEW.TYPE;
+					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.TYPE);
+				} else if (validInput) {
+					userCache[MENU.FIREWOOD.NEW.HUMIDITY] = parseInt(command);
+					newUserMenu = MENU.FIREWOOD.NEW.DATE;
+					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.DATE);
 				}
 				break;
-			case MENU.FIREWOOD.NEW.DATE._: //Sequence - 6 - Date
+			case MENU.FIREWOOD.NEW.DATE: //Sequence - 6 - Date
 				if (command == MENU.SPECIALS.BACK) {
-					newUserMenu = MENU.FIREWOOD.NEW.HUMIDITY._;
-					this.sendKeyboardToUser(user, MENU.FIREWOOD.NEW.HUMIDITY._);
-				} else if (command != null) {
-					userCache[MENU.FIREWOOD.NEW.DATE._] = textToDate(command);
-					newUserMenu = MENU.FIREWOOD.NEW.LOCATION._;
-					this.sendMySqlToUser(user, MENU.FIREWOOD.NEW.LOCATION._);
-				} else {
-					newUserMenu = MENU.FIREWOOD.NEW.DATE._;
-					this.sendTextToUser(user, 'Ungültige Nummer: "' + command + '"');
+					newUserMenu = MENU.FIREWOOD.NEW.HUMIDITY;
+					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.HUMIDITY);
+				} else if (validInput) {
+					userCache[MENU.FIREWOOD.NEW.DATE] = textToDate(command);
+					newUserMenu = MENU.FIREWOOD.NEW.LOCATION;
+					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.LOCATION);
 				}
 				break;
-			case MENU.FIREWOOD.NEW.LOCATION._: //Sequence - 7 - Location
+			case MENU.FIREWOOD.NEW.LOCATION: //Sequence - 7 - Location
 				if (command == MENU.SPECIALS.BACK) {
-					newUserMenu = MENU.FIREWOOD.NEW.DATE._;
-					this.sendKeyboardToUser(user, MENU.FIREWOOD.NEW.DATE._);
-				} else if (command != null) {
-					userCache[MENU.FIREWOOD.NEW.LOCATION._] = command;
-					newUserMenu = MENU.FIREWOOD.NEW.NOTES._;
-					this.sendKeyboardToUser(user, MENU.FIREWOOD.NEW.NOTES._);
-				} else {
-					newUserMenu = MENU.FIREWOOD.NEW.LOCATION._;
-					this.sendTextToUser(user, 'Ungültige Nummer: "' + command + '"');
+					newUserMenu = MENU.FIREWOOD.NEW.DATE;
+					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.DATE);
+				} else if (validInput) {
+					userCache[MENU.FIREWOOD.NEW.LOCATION] = command;
+					newUserMenu = MENU.FIREWOOD.NEW.NOTES;
+					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.NOTES);
 				}
 				break;
-			case MENU.FIREWOOD.NEW.NOTES._: //Sequence - 8 - Notes
+			case MENU.FIREWOOD.NEW.NOTES: //Sequence - 8 - Notes
 				if (command == MENU.SPECIALS.BACK) {
-					newUserMenu = MENU.FIREWOOD.NEW.LOCATION._;
-					this.sendMySqlToUser(user, MENU.FIREWOOD.NEW.LOCATION._);
-				} else if (command != null) {
-					userCache[MENU.FIREWOOD.NEW.NOTES._] = command;
-					newUserMenu = MENU.FIREWOOD.NEW.REVIEW._;
+					newUserMenu = MENU.FIREWOOD.NEW.LOCATION;
+					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.LOCATION);
+				} else if (validInput) {
+					userCache[MENU.FIREWOOD.NEW.NOTES] = command;
+					newUserMenu = MENU.FIREWOOD.NEW.REVIEW;
 					const text = [];
-					text[0] = MENU.FIREWOOD.NEW.REVIEW._text;
-					text[1] = 'Nr.           : ' + userCache[MENU.FIREWOOD.NEW.NUMBER._];
-					text[2] = 'Menge    : ' + userCache[MENU.FIREWOOD.NEW.AMOUNT._] + '[Ster]';
-					text[3] = 'Art           : ' + userCache[MENU.FIREWOOD.NEW.TYPE._];
-					text[4] = 'Feuchte  : ' + userCache[MENU.FIREWOOD.NEW.HUMIDITY._] + '%';
-					text[5] = 'Lagerort : ' + userCache[MENU.FIREWOOD.NEW.LOCATION._];
-					text[6] = 'Erstellt    : ' + userCache[MENU.FIREWOOD.NEW.DATE._];
-					text[7] = 'Notiz       : ' + userCache[MENU.FIREWOOD.NEW.NOTES._];
+					text[0] = 'Zusammenfassung';
+					text[1] = 'Nr.           : ' + userCache[MENU.FIREWOOD.NEW.NUMBER];
+					text[2] = 'Menge    : ' + userCache[MENU.FIREWOOD.NEW.AMOUNT_DETAILED] + '[Ster]';
+					text[3] = 'Art           : ' + userCache[MENU.FIREWOOD.NEW.TYPE];
+					text[4] = 'Feuchte  : ' + userCache[MENU.FIREWOOD.NEW.HUMIDITY] + '%';
+					text[5] = 'Lagerort : ' + userCache[MENU.FIREWOOD.NEW.LOCATION];
+					text[6] = 'Erstellt    : ' + userCache[MENU.FIREWOOD.NEW.DATE];
+					text[7] = 'Notiz       : ' + userCache[MENU.FIREWOOD.NEW.NOTES];
 					this.sendKeyboardToUser(user, text, [
 						[MENU.SPECIALS.SAVE],
 						[MENU.SPECIALS.BACK],
 						[MENU.SPECIALS.ABORT],
 					]);
-				} else {
-					newUserMenu = MENU.FIREWOOD.NEW.NOTES._;
-					this.sendTextToUser(user, 'Ungültige Eingabe: "' + command + '"');
 				}
 				break;
-			case MENU.FIREWOOD.NEW.REVIEW._: //Sequence - 8 - Review
+			case MENU.FIREWOOD.NEW.REVIEW: //Sequence - 9 - Review
 				if (command == MENU.SPECIALS.BACK) {
-					newUserMenu = MENU.FIREWOOD.NEW.NOTES._;
-					this.sendKeyboardToUser(user, MENU.FIREWOOD.NEW.NOTES._);
+					newUserMenu = MENU.FIREWOOD.NEW.NOTES;
+					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.NOTES);
 				} else if (command == MENU.SPECIALS.ABORT) {
 					userCache = emtyUserCache;
 					newUserMenu = MENU.FIREWOOD._;
 					this.sendMenuToUser(user, MENU.FIREWOOD._);
 				} else if (command == MENU.SPECIALS.SAVE) {
-					if (await this.sendMySqlToUser(user, MENU.FIREWOOD.NEW.SAVE, userCache)) {
+					if (await this.setMySql(user, MYSQL.SET.FIREWOOD.SAVE_NEW, userCache)) {
+						this.sendTextToUser(user, 'Neuer Eintrag wurde erfolgreich gespeichert');
 						this.sendMenuToUser(user, MENU.FIREWOOD._);
 						userCache = emtyUserCache;
 						newUserMenu = MENU.FIREWOOD._;
 					} else {
-						newUserMenu = MENU.FIREWOOD.NEW.REVIEW._;
+						newUserMenu = MENU.FIREWOOD.NEW.REVIEW;
 					}
-				} else {
-					newUserMenu = MENU.FIREWOOD.NEW.DATE._;
-					this.sendTextToUser(user, 'Ungültige Nummer: "' + command + '"');
 				}
+
 				break;
 			// #endregion
 			// #region Firewood - Edit
-			case MENU.FIREWOOD.EDIT.NUMBER:
+			case MENU.FIREWOOD.EDIT.NUMBER._:
 				if (command == MENU.SPECIALS.BACK) {
 					newUserMenu = MENU.FIREWOOD.EDIT._;
-					this.sendKeyboardToUser(user, MENU.FIREWOOD.EDIT._);
-				} else if (parseInt(command) != null) {
-					userCache[MENU.FIREWOOD.EDIT.NUMBER] = command;
+					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT._);
+				} else if (validInput) {
+					userCache = await this.getMySql(user, MYSQL.GET.FIREWOOD.DATASET_BY_NUMBER, command);
 					newUserMenu = MENU.FIREWOOD.EDIT._;
-					this.sendKeyboardToUser(user, MENU.FIREWOOD.EDIT._);
-				} else {
-					newUserMenu = MENU.FIREWOOD.EDIT.NUMBER;
-					this.sendTextToUser(user, 'Ungültige Nummer: "' + command + '"');
+					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT._, userCache);
 				}
 				break;
+			case MENU.FIREWOOD.EDIT._: {
+				if (command == MENU.SPECIALS.ABORT) {
+					newUserMenu = MENU.FIREWOOD._;
+					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT._);
+					userCache = emtyUserCache;
+				} else if (command == MENU.SPECIALS.SAVE) {
+					break;
+				} else if (command.includes(MENU.FIREWOOD.EDIT.NUMBER._text)) {
+					newUserMenu = MENU.FIREWOOD.EDIT.NUMBER._;
+					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.NUMBER._);
+				} else if (command.includes(MENU.FIREWOOD.EDIT.TYPE._text)) {
+					newUserMenu = MENU.FIREWOOD.EDIT.TYPE._;
+					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.TYPE._);
+				} else if (command.includes(MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._text)) {
+					newUserMenu = MENU.FIREWOOD.EDIT.AMOUNT;
+					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.AMOUNT);
+				} else if (command.includes(MENU.FIREWOOD.EDIT.HUMIDITY._text)) {
+					newUserMenu = MENU.FIREWOOD.EDIT.HUMIDITY._;
+					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.HUMIDITY._);
+				} else if (command.includes(MENU.FIREWOOD.EDIT.LOCATION._text)) {
+					newUserMenu = MENU.FIREWOOD.EDIT.LOCATION._;
+					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.LOCATION._);
+				} else if (command.includes(MENU.FIREWOOD.EDIT.DELETE._text)) {
+					newUserMenu = MENU.FIREWOOD.EDIT.DELETE._;
+					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.DELETE._);
+				}
+				break;
+			}
+
 			// #endregion
 			// #endregion
 			default:
@@ -516,28 +530,32 @@ class SqlTelegramFarm extends utils.Adapter {
 				break;
 		}
 		if (newUserMenu == '') {
-			const WARNING =
-				'handleRequest - request: "' +
-				command +
-				'" could not be handled; User: "' +
-				user +
-				'", Menu: "' +
-				userMenu +
-				'", Cache: "' +
-				userCache;
-			newUserMenu = MENU._;
-			userCache = emtyUserCache;
-			this.log.warn(WARNING);
-			await this.sendTextToUser(user, WARNING);
-			await this.sendMenuToUser(user, MENU._);
+			if (!validInput) {
+				this.sendTextToUser(user, validateInput);
+			} else {
+				const WARNING =
+					'handleRequest - request: "' +
+					command +
+					'" could not be handled; User: "' +
+					user +
+					'", Menu: "' +
+					userMenu +
+					'", cache: "' +
+					userCache;
+				newUserMenu = MENU._;
+				userCache = emtyUserCache;
+				this.log.warn(WARNING);
+				await this.sendTextToUser(user, WARNING);
+				await this.sendMenuToUser(user, MENU._);
+			}
 		}
 		await this.setState('users.' + user + '.menu', { val: newUserMenu, ack: true });
 		//console.warn(userCache);
 		//console.warn(JSON.stringify(userCache));
-		await this.setState('users.' + user + '.Cache', { val: JSON.stringify(userCache), ack: true });
+		await this.setState('users.' + user + '.cache', { val: JSON.stringify(userCache), ack: true });
 	}
 
-	async sendMenuToUser(user, menu) {
+	async sendMenuToUser(user, menu, parameters) {
 		let keyboard = [];
 		let text = ' ';
 		switch (menu) {
@@ -553,15 +571,95 @@ class SqlTelegramFarm extends utils.Adapter {
 				keyboard.push([MENU.FIREWOOD.NEW._text]);
 				keyboard.push([MENU.FIREWOOD.EDIT._text]);
 				break;
-
-			case MENU.FIREWOOD.NEW.NUMBER._:
-				text = 'Welche Nummer wurde angebracht';
-				keyboard = generateNumberedChoiseKeyboard(0, 20, 1, '', '', 3, MENU.FIREWOOD._);
+			case MENU.FIREWOOD.NEW.NUMBER: {
+				const result = await this.getMySql(user, MYSQL.GET.FIREWOOD.USED_NUMBERS);
+				const arrAnswers = [];
+				let resultCount = 0;
+				let answersCount = 0;
+				let testedInt = 1;
+				while (answersCount < 20) {
+					//Generate 20 free numers, that are not active in use
+					if (result[resultCount] != String(testedInt)) {
+						arrAnswers[answersCount] = testedInt;
+						answersCount++;
+					} else if (result[resultCount] == String(testedInt) && result.length > resultCount + 1) {
+						resultCount++;
+					}
+					testedInt++;
+				}
+				text = 'Welche Nummer wurde angebraucht?';
+				keyboard = generateKeyboard(arrAnswers, 3, MENU.SPECIALS.ABORT);
 				break;
+			}
+			case MENU.FIREWOOD.EDIT.NUMBER: {
+				const result = await this.getMySql(user, MYSQL.GET.FIREWOOD.USED_NUMBERS);
+				text = 'Welche Nummer wurde angebraucht?';
+				keyboard = generateKeyboard(result, 3, MENU.SPECIALS.ABORT);
+				break;
+			}
+			case MENU.FIREWOOD.EDIT._: {
+				text = 'Holz Nr. ' + parameters.nr + ' bearbeiten';
+				keyboard.push([
+					'Id  : ' + parameters[MENU.FIREWOOD.EDIT.ID],
+					'Nr  : ' + parameters[MENU.FIREWOOD.EDIT.NUMBER._],
+					'Art  : ' + parameters[MENU.FIREWOOD.EDIT.TYPE._],
+				]);
+				keyboard.push(['Menge  : ' + parameters[MENU.FIREWOOD.EDIT.AMOUNT] + '[Ster]']);
+				keyboard.push(['Feuchte  : ' + parameters[MENU.FIREWOOD.EDIT.HUMIDITY._] + '%']);
+				keyboard.push(['Lagerort : ' + parameters[MENU.FIREWOOD.EDIT.LOCATION._]]);
+				keyboard.push(['auflösen']);
+				keyboard.push([MENU.SPECIALS.SAVE, MENU.SPECIALS.ABORT]);
+				break;
+			}
+			case MENU.FIREWOOD.NEW.AMOUNT:
+				text = 'Menge in Ster';
+				keyboard = generateNumberedChoiseKeyboard(0, 20, 1, '', '', 3, MENU.SPECIALS.BACK);
+				break;
+			case MENU.FIREWOOD.NEW.AMOUNT_DETAILED:
+			case MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._:
+				text = 'Detaillierte Menge in Ster';
+				keyboard = generateNumberedChoiseKeyboard(0, 75, 25, parameters + '.', '', 2, MENU.SPECIALS.BACK);
+				break;
+			case MENU.FIREWOOD.NEW.TYPE:
+			case MENU.FIREWOOD.EDIT.TYPE._:
+				text = 'Holzart';
+				keyboard = generateKeyboard(
+					await this.getMySql(user, MYSQL.GET.FIREWOOD.VALID_TYPES),
+					2,
+					MENU.SPECIALS.BACK,
+				);
+				break;
+			case MENU.FIREWOOD.NEW.HUMIDITY:
+			case MENU.FIREWOOD.EDIT.HUMIDITY._:
+				text = 'Feuchtigkeit in %';
+				keyboard = generateNumberedChoiseKeyboard(5, 30, 1, '', '%', 5, MENU.SPECIALS.BACK);
+				break;
+			case MENU.FIREWOOD.NEW.DATE:
+				text = 'Anlage / Änderungsdatum';
+				keyboard = generateKeyboard(
+					['heute', 'gestern', 'letzteWoche', 'vorletzteWoche', 'letztenMonat', MENU.SPECIALS.BACK],
+					1,
+				);
+				break;
+			case MENU.FIREWOOD.NEW.LOCATION:
+			case MENU.FIREWOOD.EDIT.LOCATION._:
+				text = 'Lagerort';
+				keyboard = generateKeyboard(
+					await this.getMySql(user, MYSQL.GET.FIREWOOD.VALID_LOCATIONS),
+					2,
+					MENU.SPECIALS.BACK,
+				);
+				break;
+			case MENU.FIREWOOD.NEW.NOTES:
+			case MENU.FIREWOOD.EDIT.NOTES._:
+				text = 'Notizen (optional)';
+				keyboard = generateKeyboard([MENU.SPECIALS.SKIP, MENU.SPECIALS.BACK], 1);
+				break;
+
 			default:
 				text = 'sendMenuToUser: menu: "' + menu + '" is not defined';
+				keyboard = generateKeyboard([MENU.SPECIALS.BACK, MENU.SPECIALS.ABORT, MENU._text], 1);
 				this.log.error(text);
-				return;
 		}
 		this.sendKeyboardToUser(user, text, keyboard);
 	}
@@ -571,48 +669,13 @@ class SqlTelegramFarm extends utils.Adapter {
 			this.log.warn('sendTextToUser: No user defined; text: "' + text + '"');
 		}
 
-		switch (
-			text //Special keyboards
-		) {
-			case MENU.FIREWOOD.NEW.AMOUNT._:
-				text = 'Menge in Ster';
-				keyboard = generateNumberedChoiseKeyboard(0, 20, 1, '', '', 3, MENU.SPECIALS.BACK);
-				break;
-			case MENU.FIREWOOD.NEW.AMOUNT_DETAILED._:
-				text = 'Detaillierte Menge in Ster';
-				keyboard = generateNumberedChoiseKeyboard(0, 75, 25, '', '', 2, MENU.SPECIALS.BACK);
-				break;
-			case MENU.FIREWOOD.NEW.HUMIDITY._:
-				text = 'Feuchtigkeit in %';
-				keyboard = generateNumberedChoiseKeyboard(5, 30, 1, '', '%', 5, MENU.SPECIALS.BACK);
-				break;
-			case MENU.FIREWOOD.NEW.DATE._:
-				text = 'Anlage / Änderungsdatum';
-				keyboard = generateKeyboard(
-					['heute', 'gestern', 'letzteWoche', 'vorletzteWoche', 'letztenMonat', MENU.SPECIALS.BACK],
-					1,
-				);
-				break;
-			case MENU.FIREWOOD.NEW.NOTES._:
-				text = 'Notizen (optional)';
-				keyboard = generateKeyboard(['Überspringen', MENU.SPECIALS.BACK], 1);
-				break;
-			default:
-				if (!keyboard) {
-					this.sendTextToUser(user, 'Spezial Keyboard: "' + text + '" is not existing');
-					return;
-				}
-				break;
-		}
 		let displayText = '';
-		console.log(text);
 		if (Array.isArray(text)) {
 			for (let i = 0; i < text.length; i++) {
 				displayText += text[i] + '\n';
 			}
 			text = displayText; //To avoid using the unformatted "text" variable
 		}
-		console.log(displayText);
 
 		this.sendTo(
 			TELEGRAM_NODE + this.config.telegram.instance,
@@ -663,6 +726,7 @@ class SqlTelegramFarm extends utils.Adapter {
 		if (!user) {
 			this.log.warn('sendTextToUser: No user defined; text: "' + text + '"');
 		}
+		console.log(text);
 
 		if (Array.isArray(text)) {
 			for (let i = 0; i < text.length; i++) {
@@ -688,95 +752,63 @@ class SqlTelegramFarm extends utils.Adapter {
 	}
 	//-------------------------------------
 
-	async sendMySqlToUser(user, sqlFunction, parameters) {
+	async setMySql(user, sqlFunction, parameters) {
 		try {
 			switch (sqlFunction) {
-				case MENU.FIREWOOD.NEW.NUMBER._: {
-					//Show the menue to select a free number
-					const [result] = await mySqlCon.query('SELECT DISTINCT nr FROM wood WHERE activ > 0 ORDER BY nr');
-					const arrAnswers = [];
-					let resultCount = 0;
-					let answersCount = 0;
-					let testedInt = 1;
-					while (answersCount < 20) {
-						//Generate 20 free numers, that are not active in use
-						if (result[resultCount].nr != testedInt) {
-							arrAnswers[answersCount] = testedInt;
-							answersCount++;
-						} else if ((result[resultCount].nr = testedInt && result.length > resultCount + 1)) {
-							resultCount++;
-						}
-						testedInt++;
-					}
-					const keyboard = generateKeyboard(arrAnswers, 3, MENU.SPECIALS.ABORT);
-					await this.sendKeyboardToUser(user, 'Welche Nummer wurde angebraucht?', keyboard);
-					break;
-				}
-				case MENU.FIREWOOD.EDIT.NUMBER: {
-					//Edit a wood Number: => Update the row, if the latest dateMod is today; add a new row if not
-					const [result] = await mySqlCon.query('SELECT DISTINCT nr FROM wood WHERE activ > 0 ORDER BY nr');
-					const arrAnswers = [];
-					for (let i = 0; i < result.length; i++) {
-						//Select all used Numbers
-						arrAnswers[i] = result[i].nr;
-					}
-					const keyboard = generateKeyboard(arrAnswers, 3, MENU.SPECIALS.ABORT);
-
-					this.sendKeyboardToUser(user, 'welche Nummer wurde angebracht?', keyboard);
-					break;
-				}
-				case MENU.FIREWOOD.NEW.TYPE._: {
-					// Ask for the type
-					const [result] = await mySqlCon.query(
-						'SELECT propertyText FROM wood_datapoints WHERE propertyInt < 100',
-					);
-					const arrAnswers = [];
-					for (let i = 0; i < result.length; i++) {
-						arrAnswers[i] = result[i].propertyText;
-					}
-					const keyboard = generateKeyboard(arrAnswers, 1, MENU.SPECIALS.BACK);
-					this.sendKeyboardToUser(user, 'Holzart', keyboard);
-					break;
-				}
-				case MENU.FIREWOOD.NEW.SAVE: {
+				case MYSQL.SET.FIREWOOD.SAVE_NEW: {
 					//Create the new entry
 					const [maxId] = await mySqlCon.query('SELECT MAX(id) As id FROM wood');
 					const sql = 'INSERT INTO wood (id, activ, nr, amount, typ, dateMod, humidity, notes, location) ';
 					const arrValues = [
 						String(maxId[0].id + 1),
 						'2',
-						String(parameters[MENU.FIREWOOD.NEW.NUMBER._]),
-						String(parameters[MENU.FIREWOOD.NEW.AMOUNT._]),
-						String(parameters[MENU.FIREWOOD.NEW.TYPE._]),
-						String(parameters[MENU.FIREWOOD.NEW.DATE._]),
-						String(parameters[MENU.FIREWOOD.NEW.HUMIDITY._]),
-						String(parameters[MENU.FIREWOOD.NEW.NOTES._]),
-						String(parameters[MENU.FIREWOOD.NEW.LOCATION._]),
+						String(parameters[MENU.FIREWOOD.NEW.NUMBER]),
+						String(parameters[MENU.FIREWOOD.NEW.AMOUNT_DETAILED]),
+						String(parameters[MENU.FIREWOOD.NEW.TYPE]),
+						String(parameters[MENU.FIREWOOD.NEW.DATE]),
+						String(parameters[MENU.FIREWOOD.NEW.HUMIDITY]),
+						String(parameters[MENU.FIREWOOD.NEW.NOTES]),
+						String(parameters[MENU.FIREWOOD.NEW.LOCATION]),
 					];
 					const values = generateSqlValues(arrValues);
-					console.log(sql);
-					console.log(values);
 					const [result] = await mySqlCon.query(sql + values);
-					console.log(result);
 					if (result.warningStatus == '') {
-						this.sendTextToUser(user, 'Neuer Eintrag wurde erfolgreich gespeichert');
+						return true;
 					}
-					break;
+					return false;
 				}
-				case MENU.FIREWOOD.NEW.LOCATION._: {
-					//Ask for the location
-					const [result] = await mySqlCon.query(
-						'SELECT propertyText FROM wood_datapoints WHERE propertyInt > 100 AND propertyInt < 200',
-					);
-					const arrAnswers = [];
-					for (let i = 0; i < result.length; i++) {
-						arrAnswers[i] = result[i].propertyText;
+				default:
+					this.sendTextToUser(user, 'setMySql: sqlFunction "' + sqlFunction + '"not available');
+					this.sendTextToUser(user, 'Parameters: "' + JSON.stringify(parameters) + '"');
+					return false;
+			}
+		} catch (err) {
+			this.log.error(String(err));
+			this.sendTextToUser(user, 'setMySql: "' + sqlFunction + '" - ' + err);
+			this.sendTextToUser(user, 'Parameters: "' + JSON.stringify(parameters) + '"');
+		}
+		return false;
+	}
+	async getMySql(user, sqlFunction, parameters) {
+		try {
+			switch (sqlFunction) {
+				case MYSQL.GET.FIREWOOD.USED_NUMBERS: {
+					const [arrNr] = await mySqlCon.query('SELECT DISTINCT nr FROM wood WHERE activ > 0 ORDER BY nr');
+					const result = [];
+					for (const count in arrNr) {
+						result.push(String(arrNr[count].nr));
 					}
-					const keyboard = generateKeyboard(arrAnswers, 2, MENU.SPECIALS.BACK);
-					this.sendKeyboardToUser(user, 'Lagerort', keyboard);
-					break;
+					return result;
 				}
-				case MENU.FIREWOOD.STATUS._: {
+				case MYSQL.GET.FIREWOOD.VALID_TYPES: {
+					const [arrTypes] = await mySqlCon.query('SHOW COLUMNS FROM wood WHERE FIELD = "typ"');
+					return mySqlColumnToArray(arrTypes);
+				}
+				case MYSQL.GET.FIREWOOD.VALID_LOCATIONS: {
+					const [arrLocations] = await mySqlCon.query('SHOW COLUMNS FROM wood WHERE FIELD = "location"');
+					return mySqlColumnToArray(arrLocations);
+				}
+				case MYSQL.GET.FIREWOOD.STATUS: {
 					//Calculate statistics
 					const [result] = await mySqlCon.query(
 						'SELECT id, nr, amount, 	(SELECT propertyText FROM wood_datapoints WHERE wood.typ = wood_datapoints.propertyInt) AS typ, humidity, ' +
@@ -838,12 +870,28 @@ class SqlTelegramFarm extends utils.Adapter {
 					);
 					text.push('</code>');
 
-					this.sendTextToUser(user, text);
-					break;
+					return text;
+				}
+				case MYSQL.GET.FIREWOOD.DATASET_BY_NUMBER: {
+					const [arrDATASET] = await mySqlCon.query(
+						'SELECT id, nr, activ, amount, typ, dateMod, humidity, notes, location FROM wood WHERE activ = "2" AND nr = "' +
+							parameters +
+							'"',
+					);
+					const result = [];
+					result[MENU.FIREWOOD.EDIT.ID] = arrDATASET[0].id;
+					result[MENU.FIREWOOD.EDIT.NUMBER._] = arrDATASET[0].nr;
+					result[MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._] = arrDATASET[0].amount;
+					result[MENU.FIREWOOD.EDIT.TYPE._] = arrDATASET[0].typ;
+					result[MENU.FIREWOOD.EDIT.DATE] = arrDATASET[0].dateMod;
+					result[MENU.FIREWOOD.EDIT.HUMIDITY._] = arrDATASET[0].humidity;
+					result[MENU.FIREWOOD.EDIT.NOTES._] = arrDATASET[0].notes;
+					result[MENU.FIREWOOD.EDIT.LOCATION._] = arrDATASET[0].location;
+					return result;
 				}
 				default: {
 					const WARNING =
-						'sendMySqlToUser: sqlFunction: "' +
+						'getMySql: sqlFunction: "' +
 						sqlFunction +
 						'" could not be found; User: "' +
 						user +
@@ -857,11 +905,78 @@ class SqlTelegramFarm extends utils.Adapter {
 			}
 		} catch (err) {
 			this.log.error(String(err));
-			this.sendTextToUser(user, 'sendMySqlToUser: "' + sqlFunction + '" - ' + err);
+			this.sendTextToUser(user, 'getMySql: "' + sqlFunction + '" - ' + err);
 			this.sendTextToUser(user, 'Parameters' + JSON.stringify(parameters));
-			return false;
 		}
-		return true;
+		return ['noResults'];
+	}
+	async validateUserInput(user, keyboard, command) {
+		switch (keyboard) {
+			case MENU.FIREWOOD.NEW.NUMBER: {
+				if (isInt(command)) {
+					const usedNumbers = await this.getMySql(user, MYSQL.GET.FIREWOOD.USED_NUMBERS);
+					if (!usedNumbers.includes(command)) {
+						return command;
+					}
+				}
+				return '!Ungültige Nummer: "' + command + '" - Wird die Nummer bereits verwendet?';
+			}
+			case MENU.FIREWOOD.EDIT.NUMBER._: {
+				if (isInt(command)) {
+					const usedNumbers = await this.getMySql(user, MYSQL.GET.FIREWOOD.USED_NUMBERS);
+					if (usedNumbers.includes(command)) {
+						return command;
+					}
+				}
+				return '!Ungültige Nummer: "' + command + '" - Existiert die Nummer?';
+			}
+			case MENU.FIREWOOD.NEW.AMOUNT: //Number
+			case MENU.FIREWOOD.EDIT.AMOUNT:
+			case MENU.FIREWOOD.NEW.HUMIDITY:
+			case MENU.FIREWOOD.EDIT.HUMIDITY._:
+				if (!isInt(parseInt(command))) {
+					return '!Ungültige Nummer: "' + command + '" - Es wird eine Zahl erwartet';
+				}
+				return String(parseInt(command));
+
+			case MENU.FIREWOOD.NEW.AMOUNT_DETAILED:
+			case MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._:
+				if (!isFloat(parseFloat(command))) {
+					return '!Ungültige Nummer: "' + command + '" - Es wird eine Gleitkommazahl erwartet';
+				}
+				return String(parseFloat(command));
+
+			case MENU.FIREWOOD.NEW.TYPE:
+			case MENU.FIREWOOD.EDIT.TYPE._: {
+				const validTypes = await this.getMySql(user, MYSQL.GET.FIREWOOD.VALID_TYPES);
+
+				if (validTypes.includes(command)) {
+					return command;
+				}
+				return '!Ungültiger Typ: "' + command + '" - Bitte eine vorgeschlagenen Typ verwenden';
+			}
+			case MENU.FIREWOOD.NEW.DATE:
+			case MENU.FIREWOOD.EDIT.DATE:
+				return command; //Is Date function implementieren!!!
+			case MENU.FIREWOOD.NEW.LOCATION:
+			case MENU.FIREWOOD.EDIT.LOCATION._: {
+				const validLocations = await this.getMySql(user, MYSQL.GET.FIREWOOD.VALID_LOCATIONS);
+				if (validLocations.includes(command)) {
+					return command;
+				}
+				return '!Ungültiger Typ: "' + command + '" - Bitte eine vorgeschlagenen Typ verwenden';
+			}
+			case MENU.FIREWOOD.NEW.NOTES:
+			case MENU.FIREWOOD.EDIT.NOTES._:
+				if (command == MENU.SPECIALS.SKIP) {
+					return '';
+				}
+				return command;
+			case MENU.FIREWOOD.EDIT._:
+				return command;
+			default:
+				return '!validateUserInput: Keyboard "' + keyboard + '" is not defined';
+		}
 	}
 	// If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.
 	// /**
@@ -957,6 +1072,23 @@ function textToDate(text) {
 			break;
 	}
 	return newDate;
+}
+function isInt(value) {
+	return !isNaN(value) && parseInt(value) == value && !isNaN(parseInt(value, 10));
+}
+function isFloat(value) {
+	return !isNaN(value) && parseFloat(value) == value && !isNaN(parseFloat(value));
+}
+
+function mySqlColumnToArray(arrResult) {
+	let strTypes = '';
+	let result = [];
+	strTypes = String(arrResult[0].Type);
+	strTypes = strTypes.replaceAll('enum(', '');
+	strTypes = strTypes.replaceAll("'", '');
+	strTypes = strTypes.replaceAll(')', '');
+	result = strTypes.split(',');
+	return result;
 }
 
 if (require.main !== module) {
