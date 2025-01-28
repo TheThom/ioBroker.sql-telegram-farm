@@ -2,16 +2,16 @@
   "_repoInfo": {
     "stable": true,
     "name": {
-      "en": "Official stable repository",
-      "de": "Offizielles stabiles Repository",
-      "ru": "Официальный стабильный репозиторий",
-      "pt": "Repositório estável oficial",
-      "nl": "Officiële stabiliteit",
-      "fr": "Dépôt stable officiel",
-      "it": "Repository stabile ufficiale",
-      "es": "Repositorio estable oficial",
-      "pl": "Repozytorium",
-      "zh-cn": "A. 正式稳定存放处"
+      "en": "TK Repository",
+      "de": "TK Repository",
+      "ru": "TK Repository",
+      "pt": "TK Repository",
+      "nl": "TK Repository",
+      "fr": "TK Repository",
+      "it": "TK Repository",
+      "es": "TK Repository",
+      "pl": "TK Repository",
+      "zh-cn": "TK Repository"
     },
     "repoTime": "2025-01-28T14:19:44.725Z",
     "recommendedVersions": {
