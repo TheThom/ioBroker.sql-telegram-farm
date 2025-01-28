@@ -1,33 +1,42 @@
 {
-  "_repoInfo": {
-    "stable": true,
-    "name": {
-      "en": "Official stable repository",
-      "de": "Offizielles stabiles Repository",
-      "ru": "Официальный стабильный репозиторий",
-      "pt": "Repositório estável oficial",
-      "nl": "Officiële stabiliteit",
-      "fr": "Dépôt stable officiel",
-      "it": "Repository stabile ufficiale",
-      "es": "Repositorio estable oficial",
-      "pl": "Repozytorium",
-      "zh-cn": "A. 正式稳定存放处"
-    },
-    "repoTime": "2025-01-28T14:19:44.725Z",
-    "recommendedVersions": {
-      "nodeJsAccepted": [
-        16,
-        18,
-        20
-      ],
-      "nodeJsRecommended": 20,
-      "npmRecommended": 10
-    }
-  },
-  "sql-telegram-farm": {
-  		"name": "sql-telegram-farm",
-		"version": "0.0.2",
+	"_repoInfo": {
+		"stable": true,
+		"name": {
+			"en": "Official stable repository",
+			"de": "Offizielles stabiles Repository",
+			"ru": "Официальный стабильный репозиторий",
+			"pt": "Repositório estável oficial",
+			"nl": "Officiële stabiliteit",
+			"fr": "Dépôt stable officiel",
+			"it": "Repository stabile ufficiale",
+			"es": "Repositorio estable oficial",
+			"pl": "Repozytorium",
+			"zh-cn": "A. 正式稳定存放处"
+		},
+		"repoTime": "2025-01-28T14:19:44.725Z",
+		"recommendedVersions": {
+			"nodeJsAccepted": [16, 18, 20],
+			"nodeJsRecommended": 20,
+			"npmRecommended": 10
+		}
+	},
+	"sql-telegram-farm": {
+		"name": "sql-telegram-farm",
+		"version": "0.0.3",
 		"news": {
+			"0.0.3": {
+				"en": "Adapter state + depenecies updated",
+				"de": "Adapterzustand + Depenecies aktualisiert",
+				"ru": "Состояние адаптера + обновленные",
+				"pt": "Adapter state + depenecies Atualizado",
+				"nl": "Adapterstatus + depenecies bijgewerkt",
+				"fr": "État de l'adaptateur + dépénécies mises à jour",
+				"it": "Stato adattatore + depenenze aggiornate",
+				"es": "Estado adaptador + depenecies actualizadas",
+				"pl": "Aktualizacja stanu adaptera + zależności",
+				"uk": "Статус на сервери",
+				"zh-cn": "更新适配状态 + 减值"
+			},
 			"0.0.2": {
 				"en": "initial release",
 				"de": "erstausstrahlung",
@@ -112,15 +121,15 @@
 				"admin": ">=7.0.24"
 			}
 		],
-    "node": ">=22",
-    "meta": "https://github.com/TheThom/ioBroker.sql-telegram-farm/blob/main/io-package.json",
-    "published": "2025-01-27T18:44:03.231Z",
-    "versionDate": "2025-01-28T19:41:37.343Z",
-    "stars": 5,
-    "stat": 4033,
-    "issues": 0,
-    "score": 1,
-    "weekDownloads": 1,
-    "latestVersion": "0.0.3"
-  }
- }
+		"node": ">=22",
+		"meta": "https://github.com/TheThom/ioBroker.sql-telegram-farm/blob/main/io-package.json",
+		"published": "2025-01-27T18:44:03.231Z",
+		"versionDate": "2025-01-28T19:41:37.343Z",
+		"stars": 5,
+		"stat": 4033,
+		"issues": 0,
+		"score": 1,
+		"weekDownloads": 1,
+		"latestVersion": "0.0.3"
+	}
+}
