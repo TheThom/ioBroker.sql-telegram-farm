@@ -1,0 +1,126 @@
+{
+  "_repoInfo": {
+    "stable": true,
+    "name": {
+      "en": "Official stable repository",
+      "de": "Offizielles stabiles Repository",
+      "ru": "Официальный стабильный репозиторий",
+      "pt": "Repositório estável oficial",
+      "nl": "Officiële stabiliteit",
+      "fr": "Dépôt stable officiel",
+      "it": "Repository stabile ufficiale",
+      "es": "Repositorio estable oficial",
+      "pl": "Repozytorium",
+      "zh-cn": "A. 正式稳定存放处"
+    },
+    "repoTime": "2025-01-28T14:19:44.725Z",
+    "recommendedVersions": {
+      "nodeJsAccepted": [
+        16,
+        18,
+        20
+      ],
+      "nodeJsRecommended": 20,
+      "npmRecommended": 10
+    }
+  },
+  "sql-telegram-farm": {
+  		"name": "sql-telegram-farm",
+		"version": "0.0.2",
+		"news": {
+			"0.0.2": {
+				"en": "initial release",
+				"de": "erstausstrahlung",
+				"ru": "первоначальный выпуск",
+				"pt": "lançamento inicial",
+				"nl": "eerste release",
+				"fr": "libération initiale",
+				"it": "rilascio iniziale",
+				"es": "liberación inicial",
+				"pl": "początkowe zwolnienie",
+				"uk": "початковий реліз",
+				"zh-cn": "初步释放"
+			},
+			"0.0.1": {
+				"en": "initial release",
+				"de": "Erstveröffentlichung",
+				"ru": "Начальная версия",
+				"pt": "lançamento inicial",
+				"nl": "Eerste uitgave",
+				"fr": "Première version",
+				"it": "Versione iniziale",
+				"es": "Versión inicial",
+				"pl": "Pierwsze wydanie",
+				"uk": "Початкова версія",
+				"zh-cn": "首次出版"
+			}
+		},
+		"titleLang": {
+			"en": "sql-telegram-farm",
+			"de": "SQL-Telegram-Farm",
+			"ru": "sql-телеграмма-ферма",
+			"pt": "sql-telegram-farm",
+			"nl": "sql-telegram-farm",
+			"fr": "ferme de télégrammes SQL",
+			"it": "sql-telegram-farm",
+			"es": "granja-de-telegramas-sql",
+			"pl": "farma telegramów sql",
+			"uk": "sql-телеграм-ферма",
+			"zh-cn": "sql 电报农场"
+		},
+		"desc": {
+			"en": "Provide a telegram menu to operate a MySQL Database",
+			"de": "Stellen Sie ein Telegrammmenü zur Verfügung, um eine MySQL-Datenbank zu betreiben",
+			"ru": "Предоставьте меню телеграммы для работы с базой данных MySQL.",
+			"pt": "Fornece um menu de telegrama para operar um banco de dados MySQL",
+			"nl": "Zorg voor een telegrammenu om een ​​MySQL-database te bedienen",
+			"fr": "Fournir un menu de télégramme pour faire fonctionner une base de données MySQL",
+			"it": "Provide a telegram menu to operate a MySQL Database",
+			"es": "Proporcionar un menú de telegramas para operar una base de datos MySQL",
+			"pl": "Udostępnij menu telegramu do obsługi bazy danych MySQL",
+			"uk": "Надайте меню телеграми для роботи з базою даних MySQL",
+			"zh-cn": "提供电报菜单来操作MySQL数据库"
+		},
+		"authors": ["Thomas Kümmel <thomas.kuemmel@outlook.de>"],
+		"keywords": ["MySQL", "Telegram", "Menu"],
+		"licenseInformation": {
+			"type": "free",
+			"license": "MIT"
+		},
+		"platform": "Javascript/Node.js",
+		"icon": "sql-telegram-farm.png",
+		"enabled": true,
+		"extIcon": "https://raw.githubusercontent.com/TheThom/ioBroker.sql-telegram-farm/main/admin/sql-telegram-farm.png",
+		"readme": "https://github.com/TheThom/ioBroker.sql-telegram-farm/blob/main/README.md",
+		"loglevel": "info",
+		"tier": 3,
+		"mode": "daemon",
+		"type": "messaging",
+		"compact": true,
+		"connectionType": "cloud",
+		"dataSource": "poll",
+		"adminUI": {
+			"config": "json"
+		},
+		"dependencies": [
+			{
+				"js-controller": ">=6.0.11"
+			}
+		],
+		"globalDependencies": [
+			{
+				"admin": ">=7.0.24"
+			}
+		],
+    "node": ">=22",
+    "meta": "https://github.com/TheThom/ioBroker.sql-telegram-farm/blob/main/io-package.json",
+    "published": "2025-01-27T18:44:03.231Z",
+    "versionDate": "2025-01-28T19:41:37.343Z",
+    "stars": 5,
+    "stat": 4033,
+    "issues": 0,
+    "score": 1,
+    "weekDownloads": 1,
+    "latestVersion": "0.0.3"
+  }
+ }
