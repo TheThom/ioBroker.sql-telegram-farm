@@ -101,7 +101,7 @@
 			"license": "MIT"
 		},
 		"platform": "Javascript/Node.js",
-		"icon": "sql-telegram-farm.png",
+		"icon": "https://raw.githubusercontent.com/TheThom/ioBroker.sql-telegram-farm/main/admin/sql-telegram-farm.png",
 		"enabled": true,
 		"extIcon": "https://raw.githubusercontent.com/TheThom/ioBroker.sql-telegram-farm/main/admin/sql-telegram-farm.png",
 		"readme": "https://github.com/TheThom/ioBroker.sql-telegram-farm/blob/main/README.md",
