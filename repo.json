@@ -37,6 +37,19 @@
 				"uk": "Статус на сервери",
 				"zh-cn": "更新适配状态 + 减值"
 			},
+			"0.0.3": {
+				"en": "Adapter state + depenecies updated",
+				"de": "Adapterzustand + Depenecies aktualisiert",
+				"ru": "Состояние адаптера + обновленные",
+				"pt": "Adapter state + depenecies Atualizado",
+				"nl": "Adapterstatus + depenecies bijgewerkt",
+				"fr": "État de l'adaptateur + dépénécies mises à jour",
+				"it": "Stato adattatore + depenenze aggiornate",
+				"es": "Estado adaptador + depenecies actualizadas",
+				"pl": "Aktualizacja stanu adaptera + zależności",
+				"uk": "Статус на сервери",
+				"zh-cn": "更新适配状态 + 减值"
+			},
 			"0.0.2": {
 				"en": "initial release",
 				"de": "erstausstrahlung",
@@ -97,7 +110,7 @@
 			"license": "MIT"
 		},
 		"platform": "Javascript/Node.js",
-		"icon": "sql-telegram-farm.png",
+		"icon": "https://raw.githubusercontent.com/TheThom/ioBroker.sql-telegram-farm/main/admin/sql-telegram-farm.png",
 		"enabled": true,
 		"extIcon": "https://raw.githubusercontent.com/TheThom/ioBroker.sql-telegram-farm/main/admin/sql-telegram-farm.png",
 		"readme": "https://github.com/TheThom/ioBroker.sql-telegram-farm/blob/main/README.md",
