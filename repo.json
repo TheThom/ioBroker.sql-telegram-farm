@@ -126,7 +126,7 @@
 			}
 		],
     "node": ">=22",
-    "meta": "https://github.com/TheThom/ioBroker.sql-telegram-farm/blob/main/io-package.json",
+    "meta": "https://raw.githubusercontent.com/TheThom/ioBroker.sql-telegram-farm/refs/heads/main/io-package.json",
     "published": "2025-01-27T18:44:03.231Z",
     "versionDate": "2025-01-28T19:41:37.343Z",
     "stars": 5,
