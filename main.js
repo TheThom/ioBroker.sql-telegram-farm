@@ -138,7 +138,7 @@ class SqlTelegramFarm extends utils.Adapter {
 
 		// Reset the connection indicator during startup
 		this.setState('info.connection', false, true);
-		this.log.error('onReady');
+
 		// The adapters config (in the instance object everything under the attribute "native") is accessible via
 		// this.config:
 		//------------------------------------------------------
@@ -208,7 +208,7 @@ class SqlTelegramFarm extends utils.Adapter {
 		} catch (err) {
 			this.log.error(err);
 		}
-		this.log.error('SQL start Connection');
+		this.log.info('SQL start Connection');
 
 		await this.setObjectNotExistsAsync('testVariable', {
 			type: 'state',
@@ -230,11 +230,13 @@ class SqlTelegramFarm extends utils.Adapter {
 		// this.subscribeStates('*');
 
 		// examples for the checkPassword/checkGroup functions
-		let result = await this.checkPasswordAsync('admin', 'iobroker');
-		this.log.info('check user admin pw iobroker: ' + result);
+		//	let result = await this.checkPasswordAsync('admin', 'iobroker');
+		//	this.log.info('check user admin pw iobroker: ' + result);
 
-		result = await this.checkGroupAsync('admin', 'admin');
-		this.log.info('check group user admin group admin: ' + result);
+		//	result = await this.checkGroupAsync('admin', 'admin');
+		//	this.log.info('check group user admin group admin: ' + result);
+
+		this.setState('info.connection', false, true);
 	}
 
 	/**
