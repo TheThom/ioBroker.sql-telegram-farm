@@ -197,33 +197,8 @@ class SqlTelegramFarm extends utils.Adapter {
 		this.mySqlCon.config.database = this.config.database.database;
 */
 
-		try {
-			mySqlCon = await mysql.createConnection({
-				host: this.config.database.server,
-				user: this.config.database.user,
-				password: this.config.database.password,
-				database: this.config.database.database,
-				port: this.config.database.port,
-			});
-		} catch (err) {
-			this.log.error(err);
-		}
-		this.log.info('SQL start Connection');
+		await this.mySqlCreateConnection();
 
-		await this.setObjectNotExistsAsync('testVariable', {
-			type: 'state',
-			common: {
-				name: 'testVariable',
-				type: 'boolean',
-				role: 'indicator',
-				read: true,
-				write: true,
-			},
-			native: {},
-		});
-
-		// In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
-		this.subscribeStates('testVariable');
 		// You can also add a subscription for multiple states. The following line watches all states starting with "lights."
 		// this.subscribeStates('lights.*');
 		// Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
@@ -236,7 +211,7 @@ class SqlTelegramFarm extends utils.Adapter {
 		//	result = await this.checkGroupAsync('admin', 'admin');
 		//	this.log.info('check group user admin group admin: ' + result);
 
-		this.setState('info.connection', false, true);
+		this.setState('info.connection', true, true);
 	}
 
 	/**
@@ -283,9 +258,6 @@ class SqlTelegramFarm extends utils.Adapter {
 		if (state) {
 			// The state was changed
 			this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
-		} else {
-			// The state was deleted
-			this.log.info(`state ${id} deleted`);
 		}
 		if (id == telegramInstanceNode + 'communicate.request') {
 			if (state?.val) {
@@ -310,7 +282,7 @@ class SqlTelegramFarm extends utils.Adapter {
 		//let commandText = command.replace(/[^\x00-\xFF]/g,'').trim();                   //remove the emojis from the command (used to switch the command)
 		//const commandText = command;
 		const userMenuState = await this.getStateAsync('users.' + user + '.menu');
-		let userMenu = userMenuState ? userMenuState.val : 'undefined';
+		let userMenu = userMenuState ? String(userMenuState.val) : MENU._;
 		let newUserMenu = '';
 		const emtyUserCache = JSON.parse('{"emty": "true"}');
 		const userCacheState = await this.getStateAsync('users.' + user + '.cache');
@@ -496,10 +468,11 @@ class SqlTelegramFarm extends utils.Adapter {
 			case MENU.FIREWOOD.EDIT._: {
 				if (command == MENU.SPECIALS.ABORT) {
 					newUserMenu = MENU.FIREWOOD._;
-					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT._);
+					this.sendMenuToUser(user, MENU.FIREWOOD._);
 					userCache = emtyUserCache;
 				} else if (command == MENU.SPECIALS.SAVE) {
-					break;
+					this.sendMenuToUser(user, MENU.FIREWOOD._);
+					userCache = emtyUserCache;
 				} else if (command.includes(MENU.FIREWOOD.EDIT.NUMBER._text)) {
 					newUserMenu = MENU.FIREWOOD.EDIT.NUMBER._;
 					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.NUMBER._);
@@ -521,6 +494,19 @@ class SqlTelegramFarm extends utils.Adapter {
 				}
 				break;
 			}
+			case MENU.FIREWOOD.EDIT.TYPE._:
+			case MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._:
+			case MENU.FIREWOOD.EDIT.HUMIDITY._:
+			case MENU.FIREWOOD.EDIT.LOCATION._:
+				if (command == MENU.SPECIALS.BACK) {
+					newUserMenu = MENU.FIREWOOD.EDIT._;
+					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT._, userCache);
+				} else if (validInput) {
+					userCache[userMenu] = command;
+					newUserMenu = MENU.FIREWOOD.EDIT._;
+					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT._, userCache);
+				}
+				break;
 
 			// #endregion
 			// #endregion
@@ -534,6 +520,7 @@ class SqlTelegramFarm extends utils.Adapter {
 		if (newUserMenu == '') {
 			if (!validInput) {
 				this.sendTextToUser(user, validateInput);
+				newUserMenu = userMenu;
 			} else {
 				const WARNING =
 					'handleRequest - request: "' +
@@ -600,7 +587,7 @@ class SqlTelegramFarm extends utils.Adapter {
 				break;
 			}
 			case MENU.FIREWOOD.EDIT._: {
-				text = 'Holz Nr. ' + parameters.nr + ' bearbeiten';
+				text = 'Holz Nr. ' + parameters[MENU.FIREWOOD.EDIT.NUMBER._] + ' bearbeiten';
 				keyboard.push([
 					'Id  : ' + parameters[MENU.FIREWOOD.EDIT.ID],
 					'Nr  : ' + parameters[MENU.FIREWOOD.EDIT.NUMBER._],
@@ -997,6 +984,24 @@ class SqlTelegramFarm extends utils.Adapter {
 	// 		}
 	// 	}
 	// }
+	async mySqlCreateConnection() {
+		try {
+			//	this.log.warn('mySqlCreateConnection() - State: "' + mySqlCon.state + '"');
+
+			mySqlCon = await mysql.createConnection({
+				host: this.config.database.server,
+				user: this.config.database.user,
+				password: this.config.database.password,
+				database: this.config.database.database,
+				port: this.config.database.port,
+			});
+			console.log(mySqlCon);
+		} catch (err) {
+			this.log.error(err);
+			//	this.sendTextToUser(user, 'mySQLCreateConnection: Verbindung zur Datenbank nicht möglich: "' + err + '"');
+		}
+		this.log.info('SQL Connection created');
+	}
 }
 
 function generateNumberedChoiseKeyboard(start, end, step, pre, post, columns, menu) {
