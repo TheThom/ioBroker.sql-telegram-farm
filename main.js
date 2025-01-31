@@ -574,7 +574,6 @@ class SqlTelegramFarm extends utils.Adapter {
 		await this.setState('users.' + user + '.menu', { val: newUserMenu, ack: true });
 		//console.warn(userCache);
 		//console.warn(JSON.stringify(userCache));
-		console.log(userCache);
 		await this.setState('users.' + user + '.cache', { val: JSON.stringify(userCache), ack: true });
 	}
 
@@ -756,7 +755,6 @@ class SqlTelegramFarm extends utils.Adapter {
 		if (!user) {
 			this.log.warn('sendTextToUser: No user defined; text: "' + text + '"');
 		}
-		console.log(text);
 
 		if (Array.isArray(text)) {
 			for (let i = 0; i < text.length; i++) {
@@ -1112,7 +1110,6 @@ class SqlTelegramFarm extends utils.Adapter {
 					database: this.config.database.database,
 					port: this.config.database.port,
 				});
-				console.log(mySqlCon);
 				this.log.info('SQL Connection created');
 			} catch (err) {
 				this.log.error(err);

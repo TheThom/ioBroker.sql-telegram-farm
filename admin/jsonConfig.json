@@ -54,55 +54,6 @@
 					"max": 10,
 					"sm": 1
 				},
-				"divider123": {
-					"type": "header",
-					"text": "Following Settings Not used",
-					"size": 1
-				},
-				"telegram.pollingInterval": {
-					"newLine": true,
-					"type": "number",
-					"label": "Polling interval",
-					"max": 10000,
-					"sm": 3
-				},
-				"telegram.token": {
-					"newLine": true,
-					"type": "text",
-					"label": "token",
-					"maxLength": 200,
-					"sm": 12,
-					"help": "Link to telegram: How to get Token",
-					"helpLink": "https://github.com/iobroker-community-adapters/ioBroker.telegram#iobroker-telegram-adapter"
-				},
-				"telegram.baseApiUrl": {
-					"newLine": true,
-					"type": "text",
-					"label": "API URL",
-					"maxLength": 300,
-					"sm": 12
-				},
-				"telegram.password": {
-					"newLine": true,
-					"type": "password",
-					"repeat": true,
-					"visible": true,
-					"label": "password",
-					"maxLength": 20,
-					"sm": 12
-				},
-				"telegram.doNotAcceptNewUsers": {
-					"newLine": true,
-					"type": "checkbox",
-					"label": "Do not authenticate new users",
-					"sm": 6
-				}
-			}
-		},
-		"tabTelegramMessages": {
-			"type": "panel",
-			"label": "Telegram - Messages",
-			"items": {
 				"telegram.restarted": {
 					"newLine": true,
 					"type": "text",
@@ -125,6 +76,12 @@
 					"label": "Answer timeout (in seconds)",
 					"help": "The limit for users to answer questions",
 					"max": 180,
+					"sm": 6
+				},
+				"telegram.doNotAcceptNewUsers": {
+					"newLine": true,
+					"type": "checkbox",
+					"label": "Do not authenticate new users(not programmed yet",
 					"sm": 6
 				},
 				"headerUsers": {
