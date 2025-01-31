@@ -1,145 +1,164 @@
 {
-	"common": {
-		"name": "sql-telegram-farm",
-		"version": "0.0.3",
-		"news": {
-			"0.0.3": {
-				"en": "Adapter state + depenecies updated",
-				"de": "Adapterzustand + Depenecies aktualisiert",
-				"ru": "Состояние адаптера + обновленные",
-				"pt": "Adapter state + depenecies Atualizado",
-				"nl": "Adapterstatus + depenecies bijgewerkt",
-				"fr": "État de l'adaptateur + dépénécies mises à jour",
-				"it": "Stato adattatore + depenenze aggiornate",
-				"es": "Estado adaptador + depenecies actualizadas",
-				"pl": "Aktualizacja stanu adaptera + zależności",
-				"uk": "Статус на сервери",
-				"zh-cn": "更新适配状态 + 减值"
-			},
-			"0.0.2": {
-				"en": "initial release",
-				"de": "erstausstrahlung",
-				"ru": "первоначальный выпуск",
-				"pt": "lançamento inicial",
-				"nl": "eerste release",
-				"fr": "libération initiale",
-				"it": "rilascio iniziale",
-				"es": "liberación inicial",
-				"pl": "początkowe zwolnienie",
-				"uk": "початковий реліз",
-				"zh-cn": "初步释放"
-			},
-			"0.0.1": {
-				"en": "initial release",
-				"de": "Erstveröffentlichung",
-				"ru": "Начальная версия",
-				"pt": "lançamento inicial",
-				"nl": "Eerste uitgave",
-				"fr": "Première version",
-				"it": "Versione iniziale",
-				"es": "Versión inicial",
-				"pl": "Pierwsze wydanie",
-				"uk": "Початкова версія",
-				"zh-cn": "首次出版"
-			}
-		},
-		"titleLang": {
-			"en": "sql-telegram-farm",
-			"de": "SQL-Telegram-Farm",
-			"ru": "sql-телеграмма-ферма",
-			"pt": "sql-telegram-farm",
-			"nl": "sql-telegram-farm",
-			"fr": "ferme de télégrammes SQL",
-			"it": "sql-telegram-farm",
-			"es": "granja-de-telegramas-sql",
-			"pl": "farma telegramów sql",
-			"uk": "sql-телеграм-ферма",
-			"zh-cn": "sql 电报农场"
-		},
-		"desc": {
-			"en": "Provide a telegram menu to operate a MySQL Database",
-			"de": "Stellen Sie ein Telegrammmenü zur Verfügung, um eine MySQL-Datenbank zu betreiben",
-			"ru": "Предоставьте меню телеграммы для работы с базой данных MySQL.",
-			"pt": "Fornece um menu de telegrama para operar um banco de dados MySQL",
-			"nl": "Zorg voor een telegrammenu om een ​​MySQL-database te bedienen",
-			"fr": "Fournir un menu de télégramme pour faire fonctionner une base de données MySQL",
-			"it": "Provide a telegram menu to operate a MySQL Database",
-			"es": "Proporcionar un menú de telegramas para operar una base de datos MySQL",
-			"pl": "Udostępnij menu telegramu do obsługi bazy danych MySQL",
-			"uk": "Надайте меню телеграми для роботи з базою даних MySQL",
-			"zh-cn": "提供电报菜单来操作MySQL数据库"
-		},
-		"authors": ["Thomas Kümmel <thomas.kuemmel@outlook.de>"],
-		"keywords": ["MySQL", "Telegram", "Menu"],
-		"licenseInformation": {
-			"type": "free",
-			"license": "MIT"
-		},
-		"platform": "Javascript/Node.js",
-		"icon": "sql-telegram-farm.png",
-		"enabled": true,
-		"extIcon": "https://raw.githubusercontent.com/TheThom/ioBroker.sql-telegram-farm/main/admin/sql-telegram-farm.jpg",
-		"readme": "https://github.com/TheThom/ioBroker.sql-telegram-farm/blob/main/README.md",
-		"loglevel": "info",
-		"tier": 3,
-		"mode": "daemon",
-		"type": "messaging",
-		"compact": true,
-		"connectionType": "cloud",
-		"dataSource": "poll",
-		"adminUI": {
-			"config": "json"
-		},
-		"dependencies": [
-			{
-				"js-controller": ">=6.0.11"
-			}
-		],
-		"globalDependencies": [
-			{
-				"admin": ">=7.0.24"
-			}
-		]
-	},
-	"native": {
-		"database": {
-			"server": "",
-			"port": 3306,
-			"database": "",
-			"user": "",
-			"password": ""
-		},
-		"telegram": {
-			"instance": 0,
-			"restarted": "restarted..",
-			"restarting": "restarting..",
-			"answerTimeoutSec": "120",
-			"oNotAcceptNewUsers": true,
-			"users": []
-		}
-	},
-	"objects": [],
-	"instanceObjects": [
-		{
-			"_id": "info",
-			"type": "channel",
-			"common": {
-				"name": "Information"
-			},
-			"native": {}
-		},
-		{
-			"_id": "info.connection",
-			"type": "state",
-			"common": {
-				"role": "indicator.connected",
-				"name": "Device or service connected",
-				"type": "boolean",
-				"read": true,
-				"write": false,
-				"def": false
-			},
-			"native": {}
-		}
-	]
+  "common": {
+    "name": "sql-telegram-farm",
+    "version": "0.1.0",
+    "news": {
+      "0.1.0": {
+        "en": "Try to reconnect the database automatically + Edit Wood Menu + A lot of bug fixes",
+        "de": "Versuchen Sie, die Datenbank automatisch wiederzuschalten + Holzmenü bearbeiten + Viele Fehlerbehebungen",
+        "ru": "Попытайтесь восстановить базу данных автоматически + Edit Wood Menu + Много исправлений ошибок",
+        "pt": "Tente reconectar o banco de dados automaticamente + Editar Menu de Madeira + Muitas correções de bugs",
+        "nl": "Probeer de database automatisch opnieuw aan te sluiten + Menu Hout bewerken + Veel bugfixes",
+        "fr": "Essayez de reconnecter la base de données automatiquement + Modifier le menu bois + Beaucoup de corrections de bugs",
+        "it": "Cerca di riconnettere il database automaticamente + Modifica menu legno + Molte correzioni di bug",
+        "es": "Trate de reconectar la base de datos automáticamente + Editar menú de madera + Muchas correcciones de errores",
+        "pl": "Spróbuj ponownie połączyć bazę danych automatycznie + Edytuj menu drewna + Wiele poprawek",
+        "uk": "Намагайтеся відключати базу даних автоматично + Редагувати деревне меню + Багато виправлення помилок",
+        "zh-cn": "尝试自动重连接数据库 + 编辑 Wood 菜单+ 许多错误修正"
+      },
+      "0.0.3": {
+        "en": "Adapter state + depenecies updated",
+        "de": "Adapterzustand + Depenecies aktualisiert",
+        "ru": "Состояние адаптера + обновленные",
+        "pt": "Adapter state + depenecies Atualizado",
+        "nl": "Adapterstatus + depenecies bijgewerkt",
+        "fr": "État de l'adaptateur + dépénécies mises à jour",
+        "it": "Stato adattatore + depenenze aggiornate",
+        "es": "Estado adaptador + depenecies actualizadas",
+        "pl": "Aktualizacja stanu adaptera + zależności",
+        "uk": "Статус на сервери",
+        "zh-cn": "更新适配状态 + 减值"
+      },
+      "0.0.2": {
+        "en": "initial release",
+        "de": "erstausstrahlung",
+        "ru": "первоначальный выпуск",
+        "pt": "lançamento inicial",
+        "nl": "eerste release",
+        "fr": "libération initiale",
+        "it": "rilascio iniziale",
+        "es": "liberación inicial",
+        "pl": "początkowe zwolnienie",
+        "uk": "початковий реліз",
+        "zh-cn": "初步释放"
+      },
+      "0.0.1": {
+        "en": "initial release",
+        "de": "Erstveröffentlichung",
+        "ru": "Начальная версия",
+        "pt": "lançamento inicial",
+        "nl": "Eerste uitgave",
+        "fr": "Première version",
+        "it": "Versione iniziale",
+        "es": "Versión inicial",
+        "pl": "Pierwsze wydanie",
+        "uk": "Початкова версія",
+        "zh-cn": "首次出版"
+      }
+    },
+    "titleLang": {
+      "en": "sql-telegram-farm",
+      "de": "SQL-Telegram-Farm",
+      "ru": "sql-телеграмма-ферма",
+      "pt": "sql-telegram-farm",
+      "nl": "sql-telegram-farm",
+      "fr": "ferme de télégrammes SQL",
+      "it": "sql-telegram-farm",
+      "es": "granja-de-telegramas-sql",
+      "pl": "farma telegramów sql",
+      "uk": "sql-телеграм-ферма",
+      "zh-cn": "sql 电报农场"
+    },
+    "desc": {
+      "en": "Provide a telegram menu to operate a MySQL Database",
+      "de": "Stellen Sie ein Telegrammmenü zur Verfügung, um eine MySQL-Datenbank zu betreiben",
+      "ru": "Предоставьте меню телеграммы для работы с базой данных MySQL.",
+      "pt": "Fornece um menu de telegrama para operar um banco de dados MySQL",
+      "nl": "Zorg voor een telegrammenu om een ​​MySQL-database te bedienen",
+      "fr": "Fournir un menu de télégramme pour faire fonctionner une base de données MySQL",
+      "it": "Provide a telegram menu to operate a MySQL Database",
+      "es": "Proporcionar un menú de telegramas para operar una base de datos MySQL",
+      "pl": "Udostępnij menu telegramu do obsługi bazy danych MySQL",
+      "uk": "Надайте меню телеграми для роботи з базою даних MySQL",
+      "zh-cn": "提供电报菜单来操作MySQL数据库"
+    },
+    "authors": [
+      "Thomas Kümmel <thomas.kuemmel@outlook.de>"
+    ],
+    "keywords": [
+      "MySQL",
+      "Telegram",
+      "Menu"
+    ],
+    "licenseInformation": {
+      "type": "free",
+      "license": "MIT"
+    },
+    "platform": "Javascript/Node.js",
+    "icon": "sql-telegram-farm.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/TheThom/ioBroker.sql-telegram-farm/main/admin/sql-telegram-farm.jpg",
+    "readme": "https://github.com/TheThom/ioBroker.sql-telegram-farm/blob/main/README.md",
+    "loglevel": "info",
+    "tier": 3,
+    "mode": "daemon",
+    "type": "messaging",
+    "compact": true,
+    "connectionType": "cloud",
+    "dataSource": "poll",
+    "adminUI": {
+      "config": "json"
+    },
+    "dependencies": [
+      {
+        "js-controller": ">=6.0.11"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=7.0.24"
+      }
+    ]
+  },
+  "native": {
+    "database": {
+      "server": "",
+      "port": 3306,
+      "database": "",
+      "user": "",
+      "password": ""
+    },
+    "telegram": {
+      "instance": 0,
+      "restarted": "restarted..",
+      "restarting": "restarting..",
+      "answerTimeoutSec": "120",
+      "oNotAcceptNewUsers": true,
+      "users": []
+    }
+  },
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "Device or service connected",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    }
+  ]
 }
