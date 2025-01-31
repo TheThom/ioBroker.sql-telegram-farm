@@ -26,6 +26,7 @@ let mySqlCon;
 const MENU = {
 	_: 'menu',
 	_text: 'Hauptmenü',
+	_escape: '/',
 	FIREWOOD: {
 		_: 'firewood',
 		_text: 'Brennholz',
@@ -46,32 +47,34 @@ const MENU = {
 		EDIT: {
 			_: 'firewood.edit',
 			_text: 'Brennholz bearbeiten',
-			ID: 'firewood.edit.id',
+			ID: { _: 'firewood.edit.id', _text: 'Id :  ' },
+
 			NUMBER: {
 				_: 'firewood.edit.number',
-				_text: 'Nr.',
+				_text: 'Nr. : ',
+				CHANGE: 'firewood.edit.number.change',
 			},
 			AMOUNT: 'firewood.edit.amount',
 			AMOUNT_DETAILED: {
 				_: 'firewood.edit.amountDetailed',
-				_text: 'Menge',
+				_text: 'Menge : ',
 			},
 			TYPE: {
 				_: 'firewood.edit.type',
-				_text: 'Art',
+				_text: 'Art : ',
 			},
 			HUMIDITY: {
 				_: 'firewood.edit.humidity',
-				_text: 'Feuchte',
+				_text: 'Feuchte : ',
 			},
-			DATE: 'firewood.edit.date',
+			DATE: 'firewood.edit.date', //Not programmed yet
 			LOCATION: {
 				_: 'firewood.edit.location',
-				_text: 'Lagerort',
+				_text: 'Lagerort : ',
 			},
 			NOTES: {
 				_: 'firewood.edit.notes',
-				_text: 'Notiz',
+				_text: 'Notiz : ',
 			},
 			DELETE: {
 				_: 'firewood.edit.delete',
@@ -147,7 +150,6 @@ class SqlTelegramFarm extends utils.Adapter {
 			return;
 		}
 		for (const user of this.config.telegram.users) {
-			this.log.error(user['name']);
 			await this.setObjectNotExistsAsync('users.' + user['name'] + '.menu', {
 				type: 'state',
 				common: {
@@ -177,7 +179,7 @@ class SqlTelegramFarm extends utils.Adapter {
 		telegramInstanceNode = TELEGRAM_NODE + this.config.telegram.instance + '.';
 		this.getForeignState(telegramInstanceNode + 'info.connection', (err, state) => {
 			if (err) {
-				this.log.error('' + err);
+				this.log.error('getForeignState - info.connection' + err);
 				return;
 			} else {
 				if (!state) {
@@ -197,7 +199,7 @@ class SqlTelegramFarm extends utils.Adapter {
 		this.mySqlCon.config.database = this.config.database.database;
 */
 
-		await this.mySqlCreateConnection();
+		await this.mySqlEnsureConnection();
 
 		// You can also add a subscription for multiple states. The following line watches all states starting with "lights."
 		// this.subscribeStates('lights.*');
@@ -272,7 +274,7 @@ class SqlTelegramFarm extends utils.Adapter {
 				if (state.val) {
 					this.log.info('Telegram is connected');
 				} else {
-					this.log.error('Telegram is not connected');
+					this.log.info('Telegram is not connected');
 				}
 			}
 		}
@@ -290,7 +292,7 @@ class SqlTelegramFarm extends utils.Adapter {
 		try {
 			userCache = userCacheState ? JSON.parse(String(userCacheState.val)) : emtyUserCache;
 		} catch (err) {
-			this.log.error('handleRequest: UserCache could not read user Cache ' + err);
+			this.log.error('prepareRequest: UserCache could not read user Cache ' + err);
 		}
 
 		this.log.debug('userMenu: "' + userMenu + '" - userCache: "' + JSON.stringify(userCache) + '"');
@@ -302,7 +304,7 @@ class SqlTelegramFarm extends utils.Adapter {
 			command = validateInput;
 		}
 
-		if (command == MENU._text) {
+		if (command == MENU._text || command == MENU._escape) {
 			//If Main Menu is called: Always go to main menu; It doesn't matter in which menu you are at the moment
 			userMenu = MENU._;
 			userCache = emtyUserCache;
@@ -328,7 +330,7 @@ class SqlTelegramFarm extends utils.Adapter {
 					await this.sendMenuToUser(user, MENU.FIREWOOD.NEW.NUMBER);
 				} else if (command == MENU.FIREWOOD.EDIT._text) {
 					newUserMenu = MENU.FIREWOOD.EDIT.NUMBER._;
-					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.NUMBER);
+					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.NUMBER._);
 				} else if (command == MENU.FIREWOOD.STATUS._text) {
 					newUserMenu = MENU.FIREWOOD._;
 					this.sendTextToUser(user, await this.getMySql(user, MYSQL.GET.FIREWOOD.STATUS));
@@ -456,9 +458,10 @@ class SqlTelegramFarm extends utils.Adapter {
 			// #endregion
 			// #region Firewood - Edit
 			case MENU.FIREWOOD.EDIT.NUMBER._:
-				if (command == MENU.SPECIALS.BACK) {
-					newUserMenu = MENU.FIREWOOD.EDIT._;
-					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT._);
+				if (command == MENU.SPECIALS.ABORT) {
+					newUserMenu = MENU.FIREWOOD._;
+					this.sendMenuToUser(user, MENU.FIREWOOD._);
+					userCache = emtyUserCache;
 				} else if (validInput) {
 					userCache = await this.getMySql(user, MYSQL.GET.FIREWOOD.DATASET_BY_NUMBER, command);
 					newUserMenu = MENU.FIREWOOD.EDIT._;
@@ -471,11 +474,22 @@ class SqlTelegramFarm extends utils.Adapter {
 					this.sendMenuToUser(user, MENU.FIREWOOD._);
 					userCache = emtyUserCache;
 				} else if (command == MENU.SPECIALS.SAVE) {
+					if (await this.setMySql(user, MYSQL.SET.FIREWOOD.SAVE_EDIT, userCache)) {
+						this.sendTextToUser(user, 'Eintrag wurde erfolgreich geändert');
+						this.sendMenuToUser(user, MENU.FIREWOOD._);
+						userCache = emtyUserCache;
+						newUserMenu = MENU.FIREWOOD._;
+					} else {
+						newUserMenu = MENU.FIREWOOD.EDIT._;
+					}
 					this.sendMenuToUser(user, MENU.FIREWOOD._);
 					userCache = emtyUserCache;
+				} else if (command.includes(MENU.FIREWOOD.EDIT.ID._text)) {
+					newUserMenu = userMenu;
+					this.sendTextToUser(user, 'Die Id kann nicht bearbeitet werden');
 				} else if (command.includes(MENU.FIREWOOD.EDIT.NUMBER._text)) {
-					newUserMenu = MENU.FIREWOOD.EDIT.NUMBER._;
-					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.NUMBER._);
+					newUserMenu = MENU.FIREWOOD.EDIT.NUMBER.CHANGE;
+					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.NUMBER.CHANGE);
 				} else if (command.includes(MENU.FIREWOOD.EDIT.TYPE._text)) {
 					newUserMenu = MENU.FIREWOOD.EDIT.TYPE._;
 					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.TYPE._);
@@ -488,16 +502,21 @@ class SqlTelegramFarm extends utils.Adapter {
 				} else if (command.includes(MENU.FIREWOOD.EDIT.LOCATION._text)) {
 					newUserMenu = MENU.FIREWOOD.EDIT.LOCATION._;
 					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.LOCATION._);
+				} else if (command.includes(MENU.FIREWOOD.EDIT.NOTES._text)) {
+					newUserMenu = MENU.FIREWOOD.EDIT.NOTES._;
+					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.NOTES._);
 				} else if (command.includes(MENU.FIREWOOD.EDIT.DELETE._text)) {
 					newUserMenu = MENU.FIREWOOD.EDIT.DELETE._;
 					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.DELETE._);
 				}
 				break;
 			}
+			case MENU.FIREWOOD.EDIT.NUMBER.CHANGE:
 			case MENU.FIREWOOD.EDIT.TYPE._:
 			case MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._:
 			case MENU.FIREWOOD.EDIT.HUMIDITY._:
 			case MENU.FIREWOOD.EDIT.LOCATION._:
+			case MENU.FIREWOOD.EDIT.NOTES._:
 				if (command == MENU.SPECIALS.BACK) {
 					newUserMenu = MENU.FIREWOOD.EDIT._;
 					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT._, userCache);
@@ -505,6 +524,20 @@ class SqlTelegramFarm extends utils.Adapter {
 					userCache[userMenu] = command;
 					newUserMenu = MENU.FIREWOOD.EDIT._;
 					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT._, userCache);
+				}
+				break;
+			case MENU.FIREWOOD.EDIT.AMOUNT: //Sequence - 2 - Amount
+				if (command == MENU.SPECIALS.BACK) {
+					newUserMenu = MENU.FIREWOOD.EDIT._;
+					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT._);
+				} else if (validInput) {
+					userCache[MENU.FIREWOOD.EDIT.AMOUNT] = parseInt(command);
+					newUserMenu = MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._;
+					this.sendMenuToUser(
+						user,
+						MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._,
+						userCache[MENU.FIREWOOD.EDIT.AMOUNT],
+					);
 				}
 				break;
 
@@ -523,14 +556,14 @@ class SqlTelegramFarm extends utils.Adapter {
 				newUserMenu = userMenu;
 			} else {
 				const WARNING =
-					'handleRequest - request: "' +
+					'prepareRequest - \r\nrequest: "' +
 					command +
-					'" could not be handled; User: "' +
+					'" could not be handled;\r\n User: "' +
 					user +
-					'", Menu: "' +
+					'",\r\n Menu: "' +
 					userMenu +
-					'", cache: "' +
-					userCache;
+					'",\r\n\r\n cache: "' +
+					JSON.stringify(userCache);
 				newUserMenu = MENU._;
 				userCache = emtyUserCache;
 				this.log.warn(WARNING);
@@ -541,6 +574,7 @@ class SqlTelegramFarm extends utils.Adapter {
 		await this.setState('users.' + user + '.menu', { val: newUserMenu, ack: true });
 		//console.warn(userCache);
 		//console.warn(JSON.stringify(userCache));
+		console.log(userCache);
 		await this.setState('users.' + user + '.cache', { val: JSON.stringify(userCache), ack: true });
 	}
 
@@ -560,7 +594,8 @@ class SqlTelegramFarm extends utils.Adapter {
 				keyboard.push([MENU.FIREWOOD.NEW._text]);
 				keyboard.push([MENU.FIREWOOD.EDIT._text]);
 				break;
-			case MENU.FIREWOOD.NEW.NUMBER: {
+			case MENU.FIREWOOD.NEW.NUMBER:
+			case MENU.FIREWOOD.EDIT.NUMBER.CHANGE: {
 				const result = await this.getMySql(user, MYSQL.GET.FIREWOOD.USED_NUMBERS);
 				const arrAnswers = [];
 				let resultCount = 0;
@@ -580,7 +615,7 @@ class SqlTelegramFarm extends utils.Adapter {
 				keyboard = generateKeyboard(arrAnswers, 3, MENU.SPECIALS.ABORT);
 				break;
 			}
-			case MENU.FIREWOOD.EDIT.NUMBER: {
+			case MENU.FIREWOOD.EDIT.NUMBER._: {
 				const result = await this.getMySql(user, MYSQL.GET.FIREWOOD.USED_NUMBERS);
 				text = 'Welche Nummer wurde angebraucht?';
 				keyboard = generateKeyboard(result, 3, MENU.SPECIALS.ABORT);
@@ -589,18 +624,24 @@ class SqlTelegramFarm extends utils.Adapter {
 			case MENU.FIREWOOD.EDIT._: {
 				text = 'Holz Nr. ' + parameters[MENU.FIREWOOD.EDIT.NUMBER._] + ' bearbeiten';
 				keyboard.push([
-					'Id  : ' + parameters[MENU.FIREWOOD.EDIT.ID],
-					'Nr  : ' + parameters[MENU.FIREWOOD.EDIT.NUMBER._],
-					'Art  : ' + parameters[MENU.FIREWOOD.EDIT.TYPE._],
+					MENU.FIREWOOD.EDIT.ID._text + parameters[MENU.FIREWOOD.EDIT.ID._],
+					MENU.FIREWOOD.EDIT.NUMBER._text + parameters[MENU.FIREWOOD.EDIT.NUMBER.CHANGE],
+					MENU.FIREWOOD.EDIT.TYPE._text + parameters[MENU.FIREWOOD.EDIT.TYPE._],
 				]);
-				keyboard.push(['Menge  : ' + parameters[MENU.FIREWOOD.EDIT.AMOUNT] + '[Ster]']);
-				keyboard.push(['Feuchte  : ' + parameters[MENU.FIREWOOD.EDIT.HUMIDITY._] + '%']);
-				keyboard.push(['Lagerort : ' + parameters[MENU.FIREWOOD.EDIT.LOCATION._]]);
+				keyboard.push([
+					MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._text +
+						parameters[MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._] +
+						'[Ster]',
+				]);
+				keyboard.push([MENU.FIREWOOD.EDIT.HUMIDITY._text + parameters[MENU.FIREWOOD.EDIT.HUMIDITY._] + '%']);
+				keyboard.push([MENU.FIREWOOD.EDIT.LOCATION._text + parameters[MENU.FIREWOOD.EDIT.LOCATION._]]);
+				keyboard.push([MENU.FIREWOOD.EDIT.NOTES._text + parameters[MENU.FIREWOOD.EDIT.NOTES._]]);
 				keyboard.push(['auflösen']);
 				keyboard.push([MENU.SPECIALS.SAVE, MENU.SPECIALS.ABORT]);
 				break;
 			}
 			case MENU.FIREWOOD.NEW.AMOUNT:
+			case MENU.FIREWOOD.EDIT.AMOUNT:
 				text = 'Menge in Ster';
 				keyboard = generateNumberedChoiseKeyboard(0, 20, 1, '', '', 3, MENU.SPECIALS.BACK);
 				break;
@@ -646,7 +687,7 @@ class SqlTelegramFarm extends utils.Adapter {
 				break;
 
 			default:
-				text = 'sendMenuToUser: menu: "' + menu + '" is not defined';
+				text = 'sendMenuToUser: menu: "' + JSON.stringify(menu) + '" is not defined';
 				keyboard = generateKeyboard([MENU.SPECIALS.BACK, MENU.SPECIALS.ABORT, MENU._text], 1);
 				this.log.error(text);
 		}
@@ -743,11 +784,14 @@ class SqlTelegramFarm extends utils.Adapter {
 
 	async setMySql(user, sqlFunction, parameters) {
 		try {
+			await this.mySqlEnsureConnection();
+
 			switch (sqlFunction) {
 				case MYSQL.SET.FIREWOOD.SAVE_NEW: {
 					//Create the new entry
 					const [maxId] = await mySqlCon.query('SELECT MAX(id) As id FROM wood');
-					const sql = 'INSERT INTO wood (id, activ, nr, amount, typ, dateMod, humidity, notes, location) ';
+					const sql =
+						'INSERT INTO wood (id, activ, nr, amount, typ, dateMod, humidity, notes, location, user) ';
 					const arrValues = [
 						String(maxId[0].id + 1),
 						'2',
@@ -758,6 +802,7 @@ class SqlTelegramFarm extends utils.Adapter {
 						String(parameters[MENU.FIREWOOD.NEW.HUMIDITY]),
 						String(parameters[MENU.FIREWOOD.NEW.NOTES]),
 						String(parameters[MENU.FIREWOOD.NEW.LOCATION]),
+						String(user),
 					];
 					const values = generateSqlValues(arrValues);
 					const [result] = await mySqlCon.query(sql + values);
@@ -766,6 +811,63 @@ class SqlTelegramFarm extends utils.Adapter {
 					}
 					return false;
 				}
+				case MYSQL.SET.FIREWOOD.SAVE_EDIT: {
+					//Set the last entry to "History"
+					const sql =
+						'UPDATE wood SET activ="1" WHERE activ="2" AND id="' +
+						parameters[MENU.FIREWOOD.EDIT.ID._] +
+						'"';
+					const [saveResult] = await mySqlCon.query(sql);
+					if (saveResult.warningStatus == '') {
+						//Insert the new row
+						const [maxId] = await mySqlCon.query('SELECT MAX(id) As id FROM wood');
+						const sql =
+							'INSERT INTO wood (id, activ, nr, amount, typ, dateMod, humidity, notes, location, user) ';
+						const arrValues = [
+							String(maxId[0].id + 1),
+							'2',
+							String(parameters[MENU.FIREWOOD.EDIT.NUMBER._]),
+							String(parameters[MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._]),
+							String(parameters[MENU.FIREWOOD.EDIT.TYPE._]),
+							String(parameters[MENU.FIREWOOD.EDIT.DATE]),
+							String(parameters[MENU.FIREWOOD.EDIT.HUMIDITY._]),
+							String(parameters[MENU.FIREWOOD.EDIT.NOTES._]),
+							String(parameters[MENU.FIREWOOD.EDIT.LOCATION._]),
+							String(user),
+						];
+						const values = generateSqlValues(arrValues);
+						const [result] = await mySqlCon.query(sql + values);
+						if (result.warningStatus == '') {
+							return true;
+						}
+						return false;
+					}
+					return false;
+
+					/*
+					const sql =
+						'UPDATE wood SET nr ="' +
+						String(parameters[MENU.FIREWOOD.EDIT.NUMBER.CHANGE]) +
+						'", amount= "' +
+						String(parameters[MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._]) +
+						'", typ="' +
+						String(parameters[MENU.FIREWOOD.EDIT.TYPE._]) +
+						'", humidity= "' +
+						String(parameters[MENU.FIREWOOD.EDIT.HUMIDITY._]) +
+						'", notes="' +
+						String(parameters[MENU.FIREWOOD.EDIT.NOTES._]) +
+						'", location="' +
+						String(parameters[MENU.FIREWOOD.EDIT.LOCATION._]) +
+						'" WHERE id="' +
+						String(parameters[MENU.FIREWOOD.EDIT.ID._]) +
+						'"';
+
+					const [result] = await mySqlCon.query(sql);
+					if (result.warningStatus == '') {
+						return true;
+					}
+					return false;*/
+				}
 				default:
 					this.sendTextToUser(user, 'setMySql: sqlFunction "' + sqlFunction + '"not available');
 					this.sendTextToUser(user, 'Parameters: "' + JSON.stringify(parameters) + '"');
@@ -773,13 +875,15 @@ class SqlTelegramFarm extends utils.Adapter {
 			}
 		} catch (err) {
 			this.log.error(String(err));
-			this.sendTextToUser(user, 'setMySql: "' + sqlFunction + '" - ' + err);
-			this.sendTextToUser(user, 'Parameters: "' + JSON.stringify(parameters) + '"');
+			await this.sendTextToUser(user, 'setMySql: "' + sqlFunction + '" - ' + err);
+			await this.sendTextToUser(user, 'Parameters: "' + JSON.stringify(parameters) + '"');
 		}
 		return false;
 	}
 	async getMySql(user, sqlFunction, parameters) {
 		try {
+			await this.mySqlEnsureConnection();
+
 			switch (sqlFunction) {
 				case MYSQL.GET.FIREWOOD.USED_NUMBERS: {
 					const [arrNr] = await mySqlCon.query('SELECT DISTINCT nr FROM wood WHERE activ > 0 ORDER BY nr');
@@ -799,11 +903,14 @@ class SqlTelegramFarm extends utils.Adapter {
 				}
 				case MYSQL.GET.FIREWOOD.STATUS: {
 					//Calculate statistics
-					const [result] = await mySqlCon.query(
+					/*	const [result] = await mySqlCon.query(
 						'SELECT id, nr, amount, 	(SELECT propertyText FROM wood_datapoints WHERE wood.typ = wood_datapoints.propertyInt) AS typ, humidity, ' +
 							'(SELECT dateMod FROM wood w1 WHERE w1.Id = wood.Id ORDER BY dateMod DESC LIMIT 1) AS dateCreation, ' +
 							'(SELECT propertyText FROM wood_datapoints WHERE wood.location = wood_datapoints.propertyInt) AS location ' +
 							'FROM wood WHERE activ > 1 ORDER BY humidity',
+					);*/
+					const [result] = await mySqlCon.query(
+						'SELECT id, nr, amount, typ, humidity, notes, location FROM wood WHERE activ > 1 ORDER BY humidity',
 					);
 
 					const [resultStat] = await mySqlCon.query(
@@ -831,7 +938,12 @@ class SqlTelegramFarm extends utils.Adapter {
 								'Ster  #' +
 								result[i].nr +
 								'  ' +
-								result[i].location,
+								result[i].location +
+								'\r\n ' +
+								result[i].typ +
+								' ' +
+								result[i].notes +
+								'\r\n',
 						);
 					}
 
@@ -863,13 +975,14 @@ class SqlTelegramFarm extends utils.Adapter {
 				}
 				case MYSQL.GET.FIREWOOD.DATASET_BY_NUMBER: {
 					const [arrDATASET] = await mySqlCon.query(
-						'SELECT id, nr, activ, amount, typ, dateMod, humidity, notes, location FROM wood WHERE activ = "2" AND nr = "' +
+						'SELECT id, nr, activ, amount, typ, DATE_FORMAT(dateMod, "%Y-%m-%d") as dateMod, humidity, notes, location FROM wood WHERE activ = "2" AND nr = "' +
 							parameters +
 							'"',
 					);
-					const result = [];
-					result[MENU.FIREWOOD.EDIT.ID] = arrDATASET[0].id;
+					const result = {};
+					result[MENU.FIREWOOD.EDIT.ID._] = arrDATASET[0].id;
 					result[MENU.FIREWOOD.EDIT.NUMBER._] = arrDATASET[0].nr;
+					result[MENU.FIREWOOD.EDIT.NUMBER.CHANGE] = arrDATASET[0].nr;
 					result[MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._] = arrDATASET[0].amount;
 					result[MENU.FIREWOOD.EDIT.TYPE._] = arrDATASET[0].typ;
 					result[MENU.FIREWOOD.EDIT.DATE] = arrDATASET[0].dateMod;
@@ -888,7 +1001,7 @@ class SqlTelegramFarm extends utils.Adapter {
 						parameters +
 						'"';
 					this.log.warn(WARNING);
-					await this.sendTextToUser(user, WARNING);
+					this.sendTextToUser(user, WARNING);
 					break;
 				}
 			}
@@ -901,7 +1014,8 @@ class SqlTelegramFarm extends utils.Adapter {
 	}
 	async validateUserInput(user, keyboard, command) {
 		switch (keyboard) {
-			case MENU.FIREWOOD.NEW.NUMBER: {
+			case MENU.FIREWOOD.NEW.NUMBER:
+			case MENU.FIREWOOD.EDIT.NUMBER.CHANGE: {
 				if (isInt(command)) {
 					const usedNumbers = await this.getMySql(user, MYSQL.GET.FIREWOOD.USED_NUMBERS);
 					if (!usedNumbers.includes(command)) {
@@ -958,7 +1072,7 @@ class SqlTelegramFarm extends utils.Adapter {
 			case MENU.FIREWOOD.NEW.NOTES:
 			case MENU.FIREWOOD.EDIT.NOTES._:
 				if (command == MENU.SPECIALS.SKIP) {
-					return '';
+					return '-';
 				}
 				return command;
 			case MENU.FIREWOOD.EDIT._:
@@ -984,23 +1098,27 @@ class SqlTelegramFarm extends utils.Adapter {
 	// 		}
 	// 	}
 	// }
-	async mySqlCreateConnection() {
+	async mySqlEnsureConnection() {
 		try {
-			//	this.log.warn('mySqlCreateConnection() - State: "' + mySqlCon.state + '"');
+			await mySqlCon.query('SELECT 1');
+		} catch (error) {
+			try {
+				//	this.log.warn('mySqlCreateConnection() - State: "' + mySqlCon.state + '"');
 
-			mySqlCon = await mysql.createConnection({
-				host: this.config.database.server,
-				user: this.config.database.user,
-				password: this.config.database.password,
-				database: this.config.database.database,
-				port: this.config.database.port,
-			});
-			console.log(mySqlCon);
-		} catch (err) {
-			this.log.error(err);
-			//	this.sendTextToUser(user, 'mySQLCreateConnection: Verbindung zur Datenbank nicht möglich: "' + err + '"');
+				mySqlCon = await mysql.createConnection({
+					host: this.config.database.server,
+					user: this.config.database.user,
+					password: this.config.database.password,
+					database: this.config.database.database,
+					port: this.config.database.port,
+				});
+				console.log(mySqlCon);
+				this.log.info('SQL Connection created');
+			} catch (err) {
+				this.log.error(err);
+				//	this.sendTextToUser(user, 'mySQLCreateConnection: Verbindung zur Datenbank nicht möglich: "' + err + '"');
+			}
 		}
-		this.log.info('SQL Connection created');
 	}
 }
 
