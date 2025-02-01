@@ -61,14 +61,20 @@
 			"_text": "Brennholz Status"
 		}
 	},
-	"MACHINES": {
-		"_": "machines",
-		"_text": "Maschinen"
+	"MACHINES_GROUP": {
+		"_": "machinesGroup",
+		"_text": "Maschinen",
+		"MACHINE": {
+			"_": "machinesGroup.machine",
+			"HISTORY": { "_": "machinesGroup.machine.history" },
+			"MAINTENACE": { "_": "machinesGroup.machine.maintenance" }
+		}
 	},
 	"SPECIALS": {
 		"ABORT": "Abbruch",
 		"BACK": "Zurück",
 		"SAVE": "Speichern",
-		"SKIP": "überspringen"
+		"SKIP": "überspringen",
+		"DELETE": "Löschen"
 	}
 }

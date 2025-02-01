@@ -227,140 +227,102 @@ class SqlTelegramFarm extends utils.Adapter {
 			case MENU._:
 				if (command == MENU.FIREWOOD._text) {
 					newUserMenu = MENU.FIREWOOD._;
-					this.sendMenuToUser(user, MENU.FIREWOOD._);
-				} else if (command == MENU.MACHINES._text) {
-					newUserMenu = MENU.MACHINES._;
-					this.sendMenuToUser(user, MENU.MACHINES._);
+				} else if (command == MENU.MACHINES_GROUP._text) {
+					newUserMenu = MENU.MACHINES_GROUP._;
 				} else {
 					newUserMenu = MENU._;
-					this.sendMenuToUser(user, MENU._);
 				}
 				break;
-			// #region FIREWOOD
+			//#region FIREWOOD
 			case MENU.FIREWOOD._:
 				if (command == MENU.FIREWOOD.NEW._text) {
 					userCache = emtyUserCache;
 					newUserMenu = MENU.FIREWOOD.NEW.NUMBER;
-					await this.sendMenuToUser(user, MENU.FIREWOOD.NEW.NUMBER);
 				} else if (command == MENU.FIREWOOD.EDIT._text) {
 					newUserMenu = MENU.FIREWOOD.EDIT.NUMBER._;
-					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.NUMBER._);
 				} else if (command == MENU.FIREWOOD.STATUS._text) {
 					newUserMenu = MENU.FIREWOOD._;
-					this.sendTextToUser(user, await this.sql.getMySql(user, MYSQL.GET.FIREWOOD.STATUS));
+					this.sendTextToUser(user, await this.sql.get(user, MYSQL.GET.FIREWOOD.STATUS));
 				} else {
 					newUserMenu = MENU._;
-					this.sendMenuToUser(user, MENU._);
 				}
 				break;
 			// #region FIREWOOD.New
 			case MENU.FIREWOOD.NEW.NUMBER: //Sequence - 1 - Number
 				if (command == MENU.SPECIALS.ABORT) {
 					newUserMenu = MENU.FIREWOOD._;
-					this.sendMenuToUser(user, MENU.FIREWOOD._);
 					userCache = emtyUserCache;
 				} else if (validInput) {
 					userCache[MENU.FIREWOOD.NEW.NUMBER] = parseInt(command);
 					newUserMenu = MENU.FIREWOOD.NEW.AMOUNT;
-					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.AMOUNT);
 				}
 				break;
 			case MENU.FIREWOOD.NEW.AMOUNT: //Sequence - 2 - Amount
 				if (command == MENU.SPECIALS.BACK) {
 					newUserMenu = MENU.FIREWOOD.NEW.NUMBER;
-					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.NUMBER);
 					userCache = emtyUserCache;
 				} else if (validInput) {
 					userCache[MENU.FIREWOOD.NEW.AMOUNT] = parseInt(command);
 					newUserMenu = MENU.FIREWOOD.NEW.AMOUNT_DETAILED;
-					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.AMOUNT_DETAILED, userCache[MENU.FIREWOOD.NEW.AMOUNT]);
 				}
 				break;
 			case MENU.FIREWOOD.NEW.AMOUNT_DETAILED: //Sequence - 3 - Amount Detailed
 				if (command == MENU.SPECIALS.BACK) {
 					newUserMenu = MENU.FIREWOOD.NEW.AMOUNT;
-					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.AMOUNT);
 				} else if (validInput) {
 					userCache[MENU.FIREWOOD.NEW.AMOUNT_DETAILED] = parseFloat(command);
 					newUserMenu = MENU.FIREWOOD.NEW.TYPE;
-					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.TYPE);
 				}
 				break;
 			case MENU.FIREWOOD.NEW.TYPE: //Sequence - 4 - Type
 				if (command == MENU.SPECIALS.BACK) {
 					newUserMenu = MENU.FIREWOOD.NEW.AMOUNT_DETAILED;
-					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.AMOUNT_DETAILED);
 				} else if (validInput) {
 					userCache[MENU.FIREWOOD.NEW.TYPE] = command;
 					newUserMenu = MENU.FIREWOOD.NEW.HUMIDITY;
-					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.HUMIDITY);
 				}
 				break;
 			case MENU.FIREWOOD.NEW.HUMIDITY: //Sequence - 5 - Humidity
 				if (command == MENU.SPECIALS.BACK) {
 					newUserMenu = MENU.FIREWOOD.NEW.TYPE;
-					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.TYPE);
 				} else if (validInput) {
 					userCache[MENU.FIREWOOD.NEW.HUMIDITY] = parseInt(command);
 					newUserMenu = MENU.FIREWOOD.NEW.DATE;
-					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.DATE);
 				}
 				break;
 			case MENU.FIREWOOD.NEW.DATE: //Sequence - 6 - Date
 				if (command == MENU.SPECIALS.BACK) {
 					newUserMenu = MENU.FIREWOOD.NEW.HUMIDITY;
-					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.HUMIDITY);
 				} else if (validInput) {
 					userCache[MENU.FIREWOOD.NEW.DATE] = textToDate(command);
 					newUserMenu = MENU.FIREWOOD.NEW.LOCATION;
-					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.LOCATION);
 				}
 				break;
 			case MENU.FIREWOOD.NEW.LOCATION: //Sequence - 7 - Location
 				if (command == MENU.SPECIALS.BACK) {
 					newUserMenu = MENU.FIREWOOD.NEW.DATE;
-					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.DATE);
 				} else if (validInput) {
 					userCache[MENU.FIREWOOD.NEW.LOCATION] = command;
 					newUserMenu = MENU.FIREWOOD.NEW.NOTES;
-					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.NOTES);
 				}
 				break;
 			case MENU.FIREWOOD.NEW.NOTES: //Sequence - 8 - Notes
 				if (command == MENU.SPECIALS.BACK) {
 					newUserMenu = MENU.FIREWOOD.NEW.LOCATION;
-					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.LOCATION);
 				} else if (validInput) {
 					userCache[MENU.FIREWOOD.NEW.NOTES] = command;
 					newUserMenu = MENU.FIREWOOD.NEW.REVIEW;
-					const text = [];
-					text[0] = 'Zusammenfassung';
-					text[1] = 'Nr.           : ' + userCache[MENU.FIREWOOD.NEW.NUMBER];
-					text[2] = 'Menge    : ' + userCache[MENU.FIREWOOD.NEW.AMOUNT_DETAILED] + '[Ster]';
-					text[3] = 'Art           : ' + userCache[MENU.FIREWOOD.NEW.TYPE];
-					text[4] = 'Feuchte  : ' + userCache[MENU.FIREWOOD.NEW.HUMIDITY] + '%';
-					text[5] = 'Lagerort : ' + userCache[MENU.FIREWOOD.NEW.LOCATION];
-					text[6] = 'Erstellt    : ' + userCache[MENU.FIREWOOD.NEW.DATE];
-					text[7] = 'Notiz       : ' + userCache[MENU.FIREWOOD.NEW.NOTES];
-					this.sendKeyboardToUser(user, text, [
-						[MENU.SPECIALS.SAVE],
-						[MENU.SPECIALS.BACK],
-						[MENU.SPECIALS.ABORT],
-					]);
 				}
 				break;
 			case MENU.FIREWOOD.NEW.REVIEW: //Sequence - 9 - Review
 				if (command == MENU.SPECIALS.BACK) {
 					newUserMenu = MENU.FIREWOOD.NEW.NOTES;
-					this.sendMenuToUser(user, MENU.FIREWOOD.NEW.NOTES);
 				} else if (command == MENU.SPECIALS.ABORT) {
 					userCache = emtyUserCache;
 					newUserMenu = MENU.FIREWOOD._;
-					this.sendMenuToUser(user, MENU.FIREWOOD._);
 				} else if (command == MENU.SPECIALS.SAVE) {
-					if (await this.sql.setMySql(user, MYSQL.SET.FIREWOOD.SAVE_NEW, userCache)) {
+					if (await this.sql.set(user, MYSQL.SET.FIREWOOD.SAVE_NEW, userCache)) {
 						this.sendTextToUser(user, 'Neuer Eintrag wurde erfolgreich gespeichert');
-						this.sendMenuToUser(user, MENU.FIREWOOD._);
 						userCache = emtyUserCache;
 						newUserMenu = MENU.FIREWOOD._;
 					} else {
@@ -370,58 +332,46 @@ class SqlTelegramFarm extends utils.Adapter {
 
 				break;
 			// #endregion
-			// #region Firewood - Edit
+			// #region FIREWOOD.Edit
 			case MENU.FIREWOOD.EDIT.NUMBER._:
 				if (command == MENU.SPECIALS.ABORT) {
 					newUserMenu = MENU.FIREWOOD._;
-					this.sendMenuToUser(user, MENU.FIREWOOD._);
 					userCache = emtyUserCache;
 				} else if (validInput) {
-					userCache = await this.sql.getMySql(user, MYSQL.GET.FIREWOOD.DATASET_BY_NUMBER, command);
+					userCache = await this.sql.get(user, MYSQL.GET.FIREWOOD.DATASET_BY_NUMBER, command);
 					newUserMenu = MENU.FIREWOOD.EDIT._;
-					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT._, userCache);
 				}
 				break;
 			case MENU.FIREWOOD.EDIT._: {
 				if (command == MENU.SPECIALS.ABORT) {
 					newUserMenu = MENU.FIREWOOD._;
-					this.sendMenuToUser(user, MENU.FIREWOOD._);
 					userCache = emtyUserCache;
 				} else if (command == MENU.SPECIALS.SAVE) {
-					if (await this.sql.setMySql(user, MYSQL.SET.FIREWOOD.SAVE_EDIT, userCache)) {
+					if (await this.sql.set(user, MYSQL.SET.FIREWOOD.SAVE_EDIT, userCache)) {
 						this.sendTextToUser(user, 'Eintrag wurde erfolgreich geändert');
-						this.sendMenuToUser(user, MENU.FIREWOOD._);
 						userCache = emtyUserCache;
 						newUserMenu = MENU.FIREWOOD._;
 					} else {
 						newUserMenu = MENU.FIREWOOD.EDIT._;
 					}
-					this.sendMenuToUser(user, MENU.FIREWOOD._);
 					userCache = emtyUserCache;
 				} else if (command.includes(MENU.FIREWOOD.EDIT.ID._text)) {
 					newUserMenu = userMenu;
 					this.sendTextToUser(user, 'Die Id kann nicht bearbeitet werden');
 				} else if (command.includes(MENU.FIREWOOD.EDIT.NUMBER._text)) {
 					newUserMenu = MENU.FIREWOOD.EDIT.NUMBER.CHANGE;
-					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.NUMBER.CHANGE);
 				} else if (command.includes(MENU.FIREWOOD.EDIT.TYPE._text)) {
 					newUserMenu = MENU.FIREWOOD.EDIT.TYPE._;
-					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.TYPE._);
 				} else if (command.includes(MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._text)) {
 					newUserMenu = MENU.FIREWOOD.EDIT.AMOUNT;
-					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.AMOUNT);
 				} else if (command.includes(MENU.FIREWOOD.EDIT.HUMIDITY._text)) {
 					newUserMenu = MENU.FIREWOOD.EDIT.HUMIDITY._;
-					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.HUMIDITY._);
 				} else if (command.includes(MENU.FIREWOOD.EDIT.LOCATION._text)) {
 					newUserMenu = MENU.FIREWOOD.EDIT.LOCATION._;
-					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.LOCATION._);
 				} else if (command.includes(MENU.FIREWOOD.EDIT.NOTES._text)) {
 					newUserMenu = MENU.FIREWOOD.EDIT.NOTES._;
-					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.NOTES._);
 				} else if (command.includes(MENU.FIREWOOD.EDIT.DELETE._text)) {
 					newUserMenu = MENU.FIREWOOD.EDIT.DELETE._;
-					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT.DELETE._);
 				}
 				break;
 			}
@@ -433,30 +383,39 @@ class SqlTelegramFarm extends utils.Adapter {
 			case MENU.FIREWOOD.EDIT.NOTES._:
 				if (command == MENU.SPECIALS.BACK) {
 					newUserMenu = MENU.FIREWOOD.EDIT._;
-					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT._, userCache);
 				} else if (validInput) {
 					userCache[userMenu] = command;
 					newUserMenu = MENU.FIREWOOD.EDIT._;
-					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT._, userCache);
 				}
 				break;
-			case MENU.FIREWOOD.EDIT.AMOUNT: //Sequence - 2 - Amount
+			case MENU.FIREWOOD.EDIT.AMOUNT:
 				if (command == MENU.SPECIALS.BACK) {
 					newUserMenu = MENU.FIREWOOD.EDIT._;
-					this.sendMenuToUser(user, MENU.FIREWOOD.EDIT._);
 				} else if (validInput) {
 					userCache[MENU.FIREWOOD.EDIT.AMOUNT] = parseInt(command);
 					newUserMenu = MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._;
-					this.sendMenuToUser(
-						user,
-						MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._,
-						userCache[MENU.FIREWOOD.EDIT.AMOUNT],
-					);
 				}
 				break;
-
-			// #endregion
-			// #endregion
+			case MENU.FIREWOOD.EDIT.DELETE._:
+				if (command == MENU.SPECIALS.DELETE) {
+					if (await this.sql.set(user, MYSQL.SET.FIREWOOD.DELETE, userCache)) {
+						this.sendTextToUser(user, 'Eintrag wurde erfolgreich gelöscht');
+						userCache = emtyUserCache;
+						newUserMenu = MENU.FIREWOOD._;
+					} else {
+						newUserMenu = MENU.FIREWOOD.EDIT._;
+					}
+				} else {
+					newUserMenu = MENU.FIREWOOD.EDIT._;
+				}
+				break;
+			//#endregion
+			//#endregion
+			//#region MACHINES
+			case MENU.MACHINES_GROUP._:
+				newUserMenu = MENU._;
+				break;
+			//#endregion
 			default:
 				if (command == MENU._text) {
 					newUserMenu = MENU._;
@@ -498,15 +457,15 @@ class SqlTelegramFarm extends utils.Adapter {
 			return;
 		}
 		let keyboard = [];
-		let text = ' ';
+		const text = [' '];
 		switch (menu) {
 			case MENU._:
-				text = MENU._text;
+				text.push(MENU._text);
 				keyboard.push([MENU.FIREWOOD._text]);
-				keyboard.push([MENU.MACHINES._text]);
+				keyboard.push([MENU.MACHINES_GROUP._text]);
 				break;
 			case MENU.FIREWOOD._:
-				text = MENU.FIREWOOD._text;
+				text.push(MENU.FIREWOOD._text);
 				keyboard.push([MENU._text]);
 				keyboard.push([MENU.FIREWOOD.STATUS._text]);
 				keyboard.push([MENU.FIREWOOD.NEW._text]);
@@ -514,7 +473,7 @@ class SqlTelegramFarm extends utils.Adapter {
 				break;
 			case MENU.FIREWOOD.NEW.NUMBER:
 			case MENU.FIREWOOD.EDIT.NUMBER.CHANGE: {
-				const result = await this.sql.getMySql(user, MYSQL.GET.FIREWOOD.USED_NUMBERS);
+				const result = await this.sql.get(user, MYSQL.GET.FIREWOOD.USED_NUMBERS);
 				const arrAnswers = [];
 				let resultCount = 0;
 				let answersCount = 0;
@@ -529,18 +488,18 @@ class SqlTelegramFarm extends utils.Adapter {
 					}
 					testedInt++;
 				}
-				text = 'Welche Nummer wurde angebraucht?';
+				text.push('Welche Nummer wurde angebraucht?');
 				keyboard = generateKeyboard(arrAnswers, 3, MENU.SPECIALS.ABORT);
 				break;
 			}
 			case MENU.FIREWOOD.EDIT.NUMBER._: {
-				const result = await this.sql.getMySql(user, MYSQL.GET.FIREWOOD.USED_NUMBERS);
-				text = 'Welche Nummer wurde angebraucht?';
+				const result = await this.sql.get(user, MYSQL.GET.FIREWOOD.USED_NUMBERS);
+				text.push('Welche Nummer wurde angebraucht?');
 				keyboard = generateKeyboard(result, 3, MENU.SPECIALS.ABORT);
 				break;
 			}
 			case MENU.FIREWOOD.EDIT._: {
-				text = 'Holz Nr. ' + parameters[MENU.FIREWOOD.EDIT.NUMBER._] + ' bearbeiten';
+				text.push('Holz Nr. ' + parameters[MENU.FIREWOOD.EDIT.NUMBER._] + ' bearbeiten');
 				keyboard.push([
 					MENU.FIREWOOD.EDIT.ID._text + parameters[MENU.FIREWOOD.EDIT.ID._],
 					MENU.FIREWOOD.EDIT.NUMBER._text + parameters[MENU.FIREWOOD.EDIT.NUMBER.CHANGE],
@@ -554,60 +513,93 @@ class SqlTelegramFarm extends utils.Adapter {
 				keyboard.push([MENU.FIREWOOD.EDIT.HUMIDITY._text + parameters[MENU.FIREWOOD.EDIT.HUMIDITY._] + '%']);
 				keyboard.push([MENU.FIREWOOD.EDIT.LOCATION._text + parameters[MENU.FIREWOOD.EDIT.LOCATION._]]);
 				keyboard.push([MENU.FIREWOOD.EDIT.NOTES._text + parameters[MENU.FIREWOOD.EDIT.NOTES._]]);
-				keyboard.push(['auflösen']);
+				keyboard.push([MENU.FIREWOOD.EDIT.DELETE._text]);
 				keyboard.push([MENU.SPECIALS.SAVE, MENU.SPECIALS.ABORT]);
 				break;
 			}
 			case MENU.FIREWOOD.NEW.AMOUNT:
 			case MENU.FIREWOOD.EDIT.AMOUNT:
-				text = 'Menge in Ster';
+				text.push('Menge in Ster');
 				keyboard = generateNumberedChoiseKeyboard(0, 20, 1, '', '', 3, MENU.SPECIALS.BACK);
 				break;
 			case MENU.FIREWOOD.NEW.AMOUNT_DETAILED:
 			case MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._:
-				text = 'Detaillierte Menge in Ster';
-				keyboard = generateNumberedChoiseKeyboard(0, 75, 25, parameters + '.', '', 2, MENU.SPECIALS.BACK);
+				text.push('Detaillierte Menge in Ster');
+				keyboard = generateNumberedChoiseKeyboard(
+					0,
+					75,
+					25,
+					(parameters[MENU.FIREWOOD.NEW.AMOUNT] || parameters[MENU.FIREWOOD.EDIT.AMOUNT]) + '.',
+					'',
+					2,
+					MENU.SPECIALS.BACK,
+				);
 				break;
 			case MENU.FIREWOOD.NEW.TYPE:
 			case MENU.FIREWOOD.EDIT.TYPE._:
-				text = 'Holzart';
+				text.push('Holzart');
 				keyboard = generateKeyboard(
-					await this.sql.getMySql(user, MYSQL.GET.FIREWOOD.VALID_TYPES),
+					await this.sql.get(user, MYSQL.GET.FIREWOOD.VALID_TYPES),
 					2,
 					MENU.SPECIALS.BACK,
 				);
 				break;
 			case MENU.FIREWOOD.NEW.HUMIDITY:
 			case MENU.FIREWOOD.EDIT.HUMIDITY._:
-				text = 'Feuchtigkeit in %';
+				text.push('Feuchtigkeit in %');
 				keyboard = generateNumberedChoiseKeyboard(5, 30, 1, '', '%', 5, MENU.SPECIALS.BACK);
 				break;
 			case MENU.FIREWOOD.NEW.DATE:
-				text = 'Anlage / Änderungsdatum';
+				text.push('Anlage / Änderungsdatum');
 				keyboard = generateKeyboard(
-					['heute', 'gestern', 'letzteWoche', 'vorletzteWoche', 'letztenMonat', MENU.SPECIALS.BACK],
+					['heute', 'letzteWoche', 'letztenMonat', 'letztesJahr', MENU.SPECIALS.BACK],
 					1,
 				);
 				break;
 			case MENU.FIREWOOD.NEW.LOCATION:
 			case MENU.FIREWOOD.EDIT.LOCATION._:
-				text = 'Lagerort';
+				text.push('Lagerort');
 				keyboard = generateKeyboard(
-					await this.sql.getMySql(user, MYSQL.GET.FIREWOOD.VALID_LOCATIONS),
+					await this.sql.get(user, MYSQL.GET.FIREWOOD.VALID_LOCATIONS),
 					2,
 					MENU.SPECIALS.BACK,
 				);
 				break;
 			case MENU.FIREWOOD.NEW.NOTES:
 			case MENU.FIREWOOD.EDIT.NOTES._:
-				text = 'Notizen (optional)';
+				text.push('Notizen (optional)');
 				keyboard = generateKeyboard([MENU.SPECIALS.SKIP, MENU.SPECIALS.BACK], 1);
 				break;
+			case MENU.FIREWOOD.NEW.REVIEW: {
+				text[0] = 'Zusammenfassung';
+				text[1] = 'Nr.           : ' + parameters[MENU.FIREWOOD.NEW.NUMBER];
+				text[2] = 'Menge    : ' + parameters[MENU.FIREWOOD.NEW.AMOUNT_DETAILED] + '[Ster]';
+				text[3] = 'Art           : ' + parameters[MENU.FIREWOOD.NEW.TYPE];
+				text[4] = 'Feuchte  : ' + parameters[MENU.FIREWOOD.NEW.HUMIDITY] + '%';
+				text[5] = 'Lagerort : ' + parameters[MENU.FIREWOOD.NEW.LOCATION];
+				text[6] = 'Erstellt    : ' + parameters[MENU.FIREWOOD.NEW.DATE];
+				text[7] = 'Notiz       : ' + parameters[MENU.FIREWOOD.NEW.NOTES];
+				keyboard = generateKeyboard([MENU.SPECIALS.SAVE, MENU.SPECIALS.BACK, MENU.SPECIALS.ABORT], 1);
+				break;
+			}
+			case MENU.FIREWOOD.EDIT.DELETE._: {
+				text[0] = 'Soll das Holz wirklich gelöscht werden?';
+				text[1] = 'Nr.           : ' + parameters[MENU.FIREWOOD.EDIT.NUMBER._];
+				text[2] = 'Menge    : ' + parameters[MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._] + '[Ster]';
+				text[3] = 'Art           : ' + parameters[MENU.FIREWOOD.EDIT.TYPE._];
+				text[4] = 'Feuchte  : ' + parameters[MENU.FIREWOOD.EDIT.HUMIDITY._] + '%';
+				text[5] = 'Lagerort : ' + parameters[MENU.FIREWOOD.EDIT.LOCATION._];
+				text[6] = 'Erstellt    : ' + parameters[MENU.FIREWOOD.EDIT.DATE];
+				text[7] = 'Notiz       : ' + parameters[MENU.FIREWOOD.EDIT.NOTES._];
+				keyboard = generateKeyboard([MENU.SPECIALS.BACK, MENU.SPECIALS.ABORT, MENU.SPECIALS.DELETE], 1);
+
+				break;
+			}
 
 			default:
-				text = 'sendMenuToUser: menu: "' + JSON.stringify(menu) + '" is not defined';
+				text.push('sendMenuToUser: menu: "' + JSON.stringify(menu) + '" is not defined');
 				keyboard = generateKeyboard([MENU.SPECIALS.BACK, MENU.SPECIALS.ABORT, MENU._text], 1);
-				this.log.error(text);
+				this.log.error(String(text));
 		}
 		this.sendKeyboardToUser(user, text, keyboard);
 	}
@@ -707,7 +699,7 @@ class SqlTelegramFarm extends utils.Adapter {
 			case MENU.FIREWOOD.NEW.NUMBER:
 			case MENU.FIREWOOD.EDIT.NUMBER.CHANGE: {
 				if (isInt(command)) {
-					const usedNumbers = await this.sql.getMySql(user, MYSQL.GET.FIREWOOD.USED_NUMBERS);
+					const usedNumbers = await this.sql.get(user, MYSQL.GET.FIREWOOD.USED_NUMBERS);
 					if (!usedNumbers.includes(command)) {
 						return command;
 					}
@@ -716,7 +708,7 @@ class SqlTelegramFarm extends utils.Adapter {
 			}
 			case MENU.FIREWOOD.EDIT.NUMBER._: {
 				if (isInt(command)) {
-					const usedNumbers = await this.sql.getMySql(user, MYSQL.GET.FIREWOOD.USED_NUMBERS);
+					const usedNumbers = await this.sql.get(user, MYSQL.GET.FIREWOOD.USED_NUMBERS);
 					if (usedNumbers.includes(command)) {
 						return command;
 					}
@@ -741,7 +733,7 @@ class SqlTelegramFarm extends utils.Adapter {
 
 			case MENU.FIREWOOD.NEW.TYPE:
 			case MENU.FIREWOOD.EDIT.TYPE._: {
-				const validTypes = await this.sql.getMySql(user, MYSQL.GET.FIREWOOD.VALID_TYPES);
+				const validTypes = await this.sql.get(user, MYSQL.GET.FIREWOOD.VALID_TYPES);
 
 				if (validTypes.includes(command)) {
 					return command;
@@ -753,7 +745,7 @@ class SqlTelegramFarm extends utils.Adapter {
 				return command; //Is Date function implementieren!!!
 			case MENU.FIREWOOD.NEW.LOCATION:
 			case MENU.FIREWOOD.EDIT.LOCATION._: {
-				const validLocations = await this.sql.getMySql(user, MYSQL.GET.FIREWOOD.VALID_LOCATIONS);
+				const validLocations = await this.sql.get(user, MYSQL.GET.FIREWOOD.VALID_LOCATIONS);
 				if (validLocations.includes(command)) {
 					return command;
 				}
@@ -820,6 +812,9 @@ function textToDate(text) {
 			break;
 		case 'letztenMonat':
 			newDate = createDateMod(0, -1, 0);
+			break;
+		case 'letztesJahr':
+			newDate = createDateMod(-1, 0, 0);
 			break;
 	}
 	return newDate;
