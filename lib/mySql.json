@@ -6,6 +6,12 @@
 			"VALID_LOCATIONS": "get.firewood.validLocations",
 			"STATUS": "get.firewood.status",
 			"DATASET_BY_NUMBER": "get.firewood.dataset-by-number"
+		},
+		"MACHINES": {
+			"CATEGORY": "get.machines.category",
+			"MACHINES": "get.machines.machines",
+			"HISTORY": "get.machines.history",
+			"MACHINEID": "get.machines.machineId"
 		}
 	},
 	"SET": {
@@ -13,6 +19,9 @@
 			"SAVE_NEW": "set.firewood.saveNew",
 			"SAVE_EDIT": "set.firewood.saveEdit",
 			"DELETE": "set.firewood.delete"
+		},
+		"MACHINES": {
+			"ADD_USE": "set.machines.addUse"
 		}
 	}
 }

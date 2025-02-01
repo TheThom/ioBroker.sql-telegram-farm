@@ -61,13 +61,16 @@
 			"_text": "Brennholz Status"
 		}
 	},
-	"MACHINES_GROUP": {
-		"_": "machinesGroup",
+	"MACHINES_CATEGORY": {
+		"_": "machinesCategory",
 		"_text": "Maschinen",
 		"MACHINE": {
-			"_": "machinesGroup.machine",
-			"HISTORY": { "_": "machinesGroup.machine.history" },
-			"MAINTENACE": { "_": "machinesGroup.machine.maintenance" }
+			"_": "machinesCategory.machine",
+			"ACTIONS_USE": {
+				"_": "machinesCategory.machine.actionsUse"
+			},
+			"HISTORY": { "_": "machinesCategory.machine.history", "_text": "Historie" },
+			"MAINTENACE": { "_": "machinesCategory.machine.maintenance", "_text": "Wartung" }
 		}
 	},
 	"SPECIALS": {
