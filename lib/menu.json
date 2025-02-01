@@ -1,0 +1,74 @@
+{
+	"_": "menu",
+	"_text": "Hauptmenü",
+	"_escape": "/",
+	"FIREWOOD": {
+		"_": "firewood",
+		"_text": "Brennholz",
+		"NEW": {
+			"_": "firewood.new",
+			"_text": "Neues Brennholz",
+			"NUMBER": "firewood.new.number",
+			"AMOUNT": "firewood.new.amount",
+			"AMOUNT_DETAILED": "firewood.new.amountDetailed",
+			"TYPE": "firewood.new.type",
+			"HUMIDITY": "firewood.new.humidity",
+			"DATE": "firewood.new.date",
+			"LOCATION": "firewood.new.location",
+			"NOTES": "firewood.new.notes",
+			"REVIEW": "firewood.new.review",
+			"SAVE": "firewood.new.save"
+		},
+		"EDIT": {
+			"_": "firewood.edit",
+			"_text": "Brennholz bearbeiten",
+			"ID": { "_": "firewood.edit.id", "_text": "Id :  " },
+
+			"NUMBER": {
+				"_": "firewood.edit.number",
+				"_text": "Nr. : ",
+				"CHANGE": "firewood.edit.number.change"
+			},
+			"AMOUNT": "firewood.edit.amount",
+			"AMOUNT_DETAILED": {
+				"_": "firewood.edit.amountDetailed",
+				"_text": "Menge : "
+			},
+			"TYPE": {
+				"_": "firewood.edit.type",
+				"_text": "Art : "
+			},
+			"HUMIDITY": {
+				"_": "firewood.edit.humidity",
+				"_text": "Feuchte : "
+			},
+			"DATE": "firewood.edit.date",
+			"LOCATION": {
+				"_": "firewood.edit.location",
+				"_text": "Lagerort : "
+			},
+			"NOTES": {
+				"_": "firewood.edit.notes",
+				"_text": "Notiz : "
+			},
+			"DELETE": {
+				"_": "firewood.edit.delete",
+				"_text": "auflösen"
+			}
+		},
+		"STATUS": {
+			"_": "firewood.status",
+			"_text": "Brennholz Status"
+		}
+	},
+	"MACHINES": {
+		"_": "machines",
+		"_text": "Maschinen"
+	},
+	"SPECIALS": {
+		"ABORT": "Abbruch",
+		"BACK": "Zurück",
+		"SAVE": "Speichern",
+		"SKIP": "überspringen"
+	}
+}

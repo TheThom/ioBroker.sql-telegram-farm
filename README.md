@@ -89,6 +89,11 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+
+- (Thomas Kümmel) Split the main.js file in multiple files for better readability
+
 ### 0.1.0 (2025-01-31)
 
 - (Thomas Kümmel) Try to reconnect the database automatically + Edit Wood Menu + A lot of bug fixes

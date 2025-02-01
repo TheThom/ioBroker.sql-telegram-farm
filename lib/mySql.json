@@ -1,0 +1,17 @@
+{
+	"GET": {
+		"FIREWOOD": {
+			"USED_NUMBERS": "get.firewood.usedNumbers",
+			"VALID_TYPES": "get.firewood.validTypes",
+			"VALID_LOCATIONS": "get.firewood.validLocations",
+			"STATUS": "get.firewood.status",
+			"DATASET_BY_NUMBER": "get.firewood.dataset-by-number"
+		}
+	},
+	"SET": {
+		"FIREWOOD": {
+			"SAVE_NEW": "set.firewood.saveNew",
+			"SAVE_EDIT": "set.firewood.saveEdit"
+		}
+	}
+}
