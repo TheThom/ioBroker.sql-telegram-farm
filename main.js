@@ -679,17 +679,15 @@ class SqlTelegramFarm extends utils.Adapter {
 				break;
 			case MENU.MACHINES_CATEGORY.MACHINE.HISTORY._:
 				this.sendTextToUser(user, await this.sql.get(user, MYSQL.GET.MACHINES.HISTORY, userCache));
-				this.text = 'Hi';
-				keyboard = generateKeyboard([MENU.SPECIALS.BACK]);
+				text.push('Historie');
+				keyboard = generateKeyboard([MENU.SPECIALS.BACK], 1);
 				break;
 			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._: {
-				text.push(
-					'Wartung an: "' +
-						userCache[MENU.MACHINES_CATEGORY.MACHINE._] +
-						'"' +
-						'Wartungsmenü ist noch nicht fertiggestellt',
-				);
-				keyboard = generateKeyboard([MENU.SPECIALS.BACK]);
+				text.push('Wartung durchführen:');
+				keyboard = generateKeyboard(await this.sql.get(user, MYSQL.GET.MACHINES.MAINTENANCE, userCache), 1, [
+					MENU.SPECIALS.BACK,
+					MENU.SPECIALS.ABORT,
+				]);
 				break;
 			}
 			//#endregion

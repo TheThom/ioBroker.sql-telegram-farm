@@ -92,7 +92,9 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 
 ### **WORK IN PROGRESS**
 
-- (Thomas Kümmel) Split the main.js file in multiple files for better readability
+- (Thomas Kümmel) -Put all sql actions in a seperate class and seperate file
+  -Constants for MENU and SQL are also in seperate files
+  -Machine Menu created: Use machine, History, basics for Maintenance
 
 ### 0.1.0 (2025-01-31)
 

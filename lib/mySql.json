@@ -11,7 +11,8 @@
 			"CATEGORY": "get.machines.category",
 			"MACHINES": "get.machines.machines",
 			"HISTORY": "get.machines.history",
-			"MACHINEID": "get.machines.machineId"
+			"MACHINEID": "get.machines.machineId",
+			"MAINTENANCE": "get.machines.maintenance"
 		}
 	},
 	"SET": {
