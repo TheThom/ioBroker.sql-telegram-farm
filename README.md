@@ -89,6 +89,13 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+
+-(Thomas Kümmel)
+-Add the "maintenance done" menu
+-Changed the database column "Date" to "DateTime", because of time overlapping with maintenance calculations
+
 ### 0.2.0 (2025-02-08)
 
 - (Thomas Kümmel) -Put all sql actions in a seperate class and seperate file

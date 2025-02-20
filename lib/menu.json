@@ -70,7 +70,12 @@
 				"_": "machinesCategory.machine.actionsUse"
 			},
 			"HISTORY": { "_": "machinesCategory.machine.history", "_text": "Historie" },
-			"MAINTENACE": { "_": "machinesCategory.machine.maintenance", "_text": "Wartung" }
+			"MAINTENACE": {
+				"_": "machinesCategory.machine.maintenance",
+				"_text": "Wartung",
+				"NOTE": { "_": "machinesCategory.machine.maintenance.note", "_text": "Notiz hinzufügen" },
+				"DONE": { "_": "machinesCategory.machine.maintenance.done" }
+			}
 		}
 	},
 	"SPECIALS": {

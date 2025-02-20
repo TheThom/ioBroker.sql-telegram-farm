@@ -12,6 +12,7 @@
 			"MACHINES": "get.machines.machines",
 			"HISTORY": "get.machines.history",
 			"MACHINEID": "get.machines.machineId",
+			"MAINTENANCE_ID": "get.machines.maintenanceId",
 			"MAINTENANCE": "get.machines.maintenance"
 		}
 	},
@@ -22,7 +23,8 @@
 			"DELETE": "set.firewood.delete"
 		},
 		"MACHINES": {
-			"ADD_USE": "set.machines.addUse"
+			"ADD_USE": "set.machines.addUse",
+			"MAINTENANCE_DONE": "set.machines.maintenanceDone"
 		}
 	}
 }

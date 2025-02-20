@@ -462,12 +462,32 @@ class SqlTelegramFarm extends utils.Adapter {
 				}
 				break;
 			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._:
-				{
-					if (command == MENU.SPECIALS.BACK) {
-						newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.ACTIONS_USE._;
-					}
+				if (command == MENU.SPECIALS.BACK) {
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.ACTIONS_USE._;
+				} else if (validInput) {
+					userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._] = command;
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.NOTE._;
 				}
-
+				break;
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.NOTE._:
+				if (command == MENU.SPECIALS.BACK) {
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._;
+				} else if (validInput) {
+					userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.NOTE._] = command;
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.DONE._;
+				}
+				break;
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.DONE._:
+				if (command == MENU.SPECIALS.BACK) {
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._;
+				} else if (command == MENU.SPECIALS.SAVE) {
+					if (await this.sql.set(user, MYSQL.SET.MACHINES.MAINTENANCE_DONE, userCache)) {
+						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.NOTE._] = 'null';
+						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._] = 'null';
+						this.sendTextToUser(user, 'Neuer Eintrag wurde erfolgreich gespeichert');
+					}
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._;
+				}
 				break;
 			//#endregion
 			default:
@@ -543,13 +563,13 @@ class SqlTelegramFarm extends utils.Adapter {
 					}
 					testedInt++;
 				}
-				text.push('Welche Nummer wurde angebraucht?');
+				text.push('Welche Nummer wurde angebracht?');
 				keyboard = generateKeyboard(arrAnswers, 3, MENU.SPECIALS.ABORT);
 				break;
 			}
 			case MENU.FIREWOOD.EDIT.NUMBER._: {
 				const result = await this.sql.get(user, MYSQL.GET.FIREWOOD.USED_NUMBERS);
-				text.push('Welche Nummer wurde angebraucht?');
+				text.push('Welche Nummer wurde angebracht?');
 				keyboard = generateKeyboard(result, 3, MENU.SPECIALS.ABORT);
 				break;
 			}
@@ -669,7 +689,7 @@ class SqlTelegramFarm extends utils.Adapter {
 				);
 				break;
 			case MENU.MACHINES_CATEGORY.MACHINE.ACTIONS_USE._:
-				text.push('Verwendung in Stunden');
+				text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE._] + ' - Verwendung in Stunden');
 				keyboard = generateNumberedChoiseKeyboard(0.5, 8, 0.5, '', '', 4, [
 					MENU.MACHINES_CATEGORY.MACHINE.HISTORY._text,
 					MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._text,
@@ -679,15 +699,35 @@ class SqlTelegramFarm extends utils.Adapter {
 				break;
 			case MENU.MACHINES_CATEGORY.MACHINE.HISTORY._:
 				this.sendTextToUser(user, await this.sql.get(user, MYSQL.GET.MACHINES.HISTORY, userCache));
-				text.push('Historie');
+				text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE._] + ' - Historie');
 				keyboard = generateKeyboard([MENU.SPECIALS.BACK], 1);
 				break;
 			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._: {
-				text.push('Wartung durchführen:');
+				text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE._] + ' - Wartung durchführen:');
 				keyboard = generateKeyboard(await this.sql.get(user, MYSQL.GET.MACHINES.MAINTENANCE, userCache), 1, [
 					MENU.SPECIALS.BACK,
 					MENU.SPECIALS.ABORT,
 				]);
+				break;
+			}
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.NOTE._: {
+				text.push(
+					userCache[MENU.MACHINES_CATEGORY.MACHINE._] +
+						' - ' +
+						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._],
+				);
+				text.push('Notiz hinzufügen und speichern');
+				keyboard = generateKeyboard([MENU.SPECIALS.SAVE, MENU.SPECIALS.BACK], 1);
+				this.sendFileToUser(user);
+				break;
+			}
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.DONE._: {
+				if (await this.sql.set(user, MYSQL.SET.MACHINES.MAINTENANCE_DONE, userCache)) {
+					text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE._] + ':');
+					text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._]);
+					text.push('wurde durchgeführt');
+				} else text.push('Fehler beim Erstellen der Wartung!!');
+				keyboard = generateKeyboard([MENU.SPECIALS.BACK], 1);
 				break;
 			}
 			//#endregion
@@ -784,6 +824,17 @@ class SqlTelegramFarm extends utils.Adapter {
 			},
 		);
 	}
+
+	async sendFileToUser(user, filePath) {
+		if (!user) {
+			this.log.warn('sendTextToUser: No user defined; text: "' + filePath + '"');
+		}
+
+		this.sendTo(
+			TELEGRAM_NODE + this.config.telegram.instance,
+			'/home/pi/TKadapters/ioBroker.sql-telegram-farm/admin/Husqvarna 346XP Bedienungsanleitung.pdf',
+		);
+	}
 	//-------------------------------------
 
 	async validateUserInput(user, keyboard, command, userCache) {
@@ -849,6 +900,7 @@ class SqlTelegramFarm extends utils.Adapter {
 			}
 			case MENU.FIREWOOD.NEW.NOTES:
 			case MENU.FIREWOOD.EDIT.NOTES._:
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.NOTE._:
 				if (command == MENU.SPECIALS.SKIP) {
 					return '-';
 				}
@@ -871,6 +923,14 @@ class SqlTelegramFarm extends utils.Adapter {
 					return command;
 				}
 				return '!Ungültige Maschine: "' + command + '" - Bitte eine vorgeschlagene Maschine verwenden';
+			}
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._: {
+				const returnCommand = command.substring(command.search('>') + 1).trimStart();
+				const validMaintenance = await this.sql.get(user, MYSQL.GET.MACHINES.MAINTENANCE, userCache);
+				if (validMaintenance.includes(command)) {
+					return returnCommand;
+				}
+				return '!Ungültige Wartung: "' + returnCommand + '" - Bitte eine vorgeschlagene Wartung verwenden';
 			}
 
 			default:
@@ -902,11 +962,19 @@ function createDateMod(yearMod, monthMod, dayMod) {
 	date.setMonth(date.getMonth() + monthMod);
 	date.setFullYear(date.getFullYear() + yearMod);
 
-	const month = date.getUTCMonth() + 1; // months from 1-12
-	const day = date.getUTCDate();
-	const year = date.getUTCFullYear();
-
-	return year + '-' + month + '-' + day;
+	return (
+		date.getUTCFullYear() +
+		'-' +
+		(date.getUTCMonth() + 1) + // months from 1-12
+		'-' +
+		date.getUTCDate() +
+		' ' +
+		date.getUTCHours() +
+		':' +
+		date.getUTCMinutes() +
+		':' +
+		date.getUTCSeconds()
+	);
 }
 
 function textToDate(text) {
