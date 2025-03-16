@@ -40,6 +40,20 @@
 					"repeat": true,
 					"maxLength": 100,
 					"sm": 4
+				},
+				"database.filepath": {
+					"newLine": true,
+					"type": "text",
+					"label": "Filepath to FileStorage - Standard IO Broker: /opt/iobroker/iobroker-data/files/sql-telegram-farm.0",
+					"maxLength": 200,
+					"sm": 4
+				},
+				"database.intervalEnsureConnection": {
+					"type": "number",
+					"label": "Time to ensure the database Connection [min] - default 60",
+					"min": 1,
+					"max": 1500,
+					"sm": 4
 				}
 			}
 		},
@@ -53,36 +67,6 @@
 					"label": "Telegram instance",
 					"max": 10,
 					"sm": 1
-				},
-				"telegram.restarted": {
-					"newLine": true,
-					"type": "text",
-					"label": "restarted",
-					"help": "Message to the client after a restart of the adapter",
-					"maxLength": 100,
-					"sm": 6
-				},
-				"telegram.restarting": {
-					"newLine": false,
-					"type": "text",
-					"label": "restarting",
-					"help": "Message to the client if the adapter is stopped",
-					"maxLength": 100,
-					"sm": 6
-				},
-				"telegram.answerTimeoutSec": {
-					"newLine": true,
-					"type": "number",
-					"label": "Answer timeout (in seconds)",
-					"help": "The limit for users to answer questions",
-					"max": 180,
-					"sm": 6
-				},
-				"telegram.doNotAcceptNewUsers": {
-					"newLine": true,
-					"type": "checkbox",
-					"label": "Do not authenticate new users(not programmed yet",
-					"sm": 6
 				},
 				"headerUsers": {
 					"newLine": true,

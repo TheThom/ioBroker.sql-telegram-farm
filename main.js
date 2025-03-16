@@ -14,6 +14,8 @@ const utils = require('@iobroker/adapter-core');
 
 // Load your modules here, e.g.:
 // const fs = require("fs");
+let intervalEnsureConnection;
+let intervalMaintenanceReport;
 
 const TELEGRAM_NODE = 'telegram.';
 let telegramInstanceNode = 'telegram.0.';
@@ -22,9 +24,11 @@ let telegramInstanceNode = 'telegram.0.';
 //let nodeTgConnection = 'telegram.0.info.connection';
 
 //const func = require('./lib/functions');
+const fs = require('fs');
 const mySql = require('./lib/mySql');
 const MENU = require('./lib/menu.json');
 const MYSQL = require('./lib/mySql.json');
+const FOLDER = require('./lib/folder.json');
 
 class SqlTelegramFarm extends utils.Adapter {
 	/**
@@ -50,6 +54,12 @@ class SqlTelegramFarm extends utils.Adapter {
 	async onReady() {
 		// Initialize your adapter here
 		this.sql = new mySql({ adapter: this });
+		intervalEnsureConnection = setInterval(
+			this.sql.mySqlEnsureConnection,
+			this.config.database.intervalEnsureConnection * 60000,
+		); //user input [min] interval [ms]
+
+		/////////intervalMaintenanceReport = setInterval()
 		// Reset the connection indicator during startup
 		this.setState('info.connection', false, true);
 
@@ -124,6 +134,10 @@ class SqlTelegramFarm extends utils.Adapter {
 		//	result = await this.checkGroupAsync('admin', 'admin');
 		//	this.log.info('check group user admin group admin: ' + result);
 
+		////		if (!fs.existsSync(this.config.database.filepath + FOLDER.MACHINES.MAINTENANCE)) {
+		////			fs.mkdirSync(this.config.database.filepath + FOLDER.MACHINES.MAINTENANCE);
+		////		}
+
 		this.setState('info.connection', true, true);
 	}
 
@@ -138,7 +152,7 @@ class SqlTelegramFarm extends utils.Adapter {
 			// clearTimeout(timeout2);
 			// ...
 			// clearInterval(interval1);
-
+			clearInterval(intervalEnsureConnection);
 			callback();
 		} catch (e) {
 			callback();
@@ -197,6 +211,20 @@ class SqlTelegramFarm extends utils.Adapter {
 		if (!this.sql) {
 			return;
 		}
+		console.log(this.config.telegram.users);
+		let userExists = false;
+		for (const usersTemp of this.config.telegram.users) {
+			if (usersTemp['name'] == user) {
+				userExists = true;
+				break;
+			}
+		}
+		if (!userExists) {
+			this.sendTextToUser(user, 'Hello World');
+			this.log.error('Invalid user "' + user + '" tried to send a message!');
+			return;
+		}
+
 		const userMenuState = await this.getStateAsync('users.' + user + '.menu');
 		let userMenuTemp = userMenuState ? String(userMenuState.val) : MENU._;
 		let newUserMenu = '';
@@ -520,6 +548,7 @@ class SqlTelegramFarm extends utils.Adapter {
 				await this.sendMenuToUser(user, MENU._);
 			}
 		}
+		console.log('users.' + user + '.menu', { val: newUserMenu, ack: true });
 		await this.setState('users.' + user + '.menu', { val: newUserMenu, ack: true });
 		//console.warn(userCache);
 		//console.warn(JSON.stringify(userCache));
@@ -825,15 +854,20 @@ class SqlTelegramFarm extends utils.Adapter {
 		);
 	}
 
-	async sendFileToUser(user, filePath) {
+	async sendFileToUser(user, file) {
 		if (!user) {
-			this.log.warn('sendTextToUser: No user defined; text: "' + filePath + '"');
+			this.log.warn('sendTextToUser: No user defined; text: "' + file + '"');
+			return;
+		}
+		if (!fs.existsSync(this.config.database.filepath + file)) {
+			this.sendTextToUser(
+				user,
+				'Die Datei "' + file + '" existiert nicht im Verzeichnis: "' + this.config.database.filepath + '"',
+			);
+			return;
 		}
 
-		this.sendTo(
-			TELEGRAM_NODE + this.config.telegram.instance,
-			'/home/pi/TKadapters/ioBroker.sql-telegram-farm/admin/Husqvarna 346XP Bedienungsanleitung.pdf',
-		);
+		this.sendTo(TELEGRAM_NODE + this.config.telegram.instance, this.config.database.filepath + file);
 	}
 	//-------------------------------------
 

@@ -95,6 +95,10 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 -(Thomas Kümmel)
 -Add the "maintenance done" menu
 -Changed the database column "Date" to "DateTime", because of time overlapping with maintenance calculations
+-Audentification optimized: Only registered users can send messages
+-Ensure the connection to the mySql Server every specified interval
+-ToDo: Generate a folder to save files
+-Handle recieved files /opt/iobroker/iobroker-data/telegram_1 => react to "requestRaw" of telegram adapter
 
 ### 0.2.0 (2025-02-08)
 

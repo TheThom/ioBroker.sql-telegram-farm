@@ -13,7 +13,8 @@
 			"HISTORY": "get.machines.history",
 			"MACHINEID": "get.machines.machineId",
 			"MAINTENANCE_ID": "get.machines.maintenanceId",
-			"MAINTENANCE": "get.machines.maintenance"
+			"MAINTENANCE": "get.machines.maintenance",
+			"MAINTENANCE_TODO": "get.machines.maintenanceTodo"
 		}
 	},
 	"SET": {
