@@ -17,7 +17,80 @@ Provide a telegram menu to operate a MySQL Database
 
 ## Developer manual
 
-This section is intended for the developer. It can be deleted later.
+onReady(): Here the program prepares the adapter:
+
+- Start a instance of mySql
+- Check the configuration of the adapter
+- cerate Objects / States, if they are not existing yet
+- !!!!Start intervals => not finished yet
+  -- Reminders
+  -- Sql reconnect
+- connect to the telegram adapter (by IO-Broker objects)
+- subscribe to States
+  --Telegram
+- ensure a connection to the mySql database
+- createFolders for documents, if they are not existing
+
+onStateChange(): This is the main Function for any incoming requests
+
+- New telegram message
+- Connection or connection lost to the telegram adapter
+
+---
+
+prepareRequest(): The incomming telegram message is processed:
+
+- verify an existing mySql connection
+- verify the user is listed in the adapter config
+- get the user Cache from ioBroker State
+- validateUserInput() => returns a valid command or if the first character of the return statement is '!': The command is not valid
+
+    ########## Handling the Request: #############
+    case MENU.xxx._: // If the user is in this menu
+    if(command == MENU.yyy.\_text) // The user wants to go in the next menu
+    newUserMenu = MENU.yyy._ // Set the new user menu => It is set to the ioBroker state at the end of this function
+
+    else if(validInput) // If you need a number here: Is the command a number?
+    userCache[MENU.xxx._] = command // Save the command in the userCache (ioBroker state) for later processing !Do not forget to clear the userCache, if you do not need it anymore!
+    //Handle the command
+    newUserMenu = MENU.zzz.\_ //ALWAYS set an new menu. if you do not have an new menu at the end of 'prepareRequest' you get an error
+    break;
+    ################################
+
+- If there is a newuserMenu: sendMenuToUser()
+
+sendMenuToUser(): Send the selected Menu in prepareRequest() to the user: All parameters of userCache can be used to create the text and keyboard of the "Answer"
+
+- verify an existing mySql connection
+
+    ########### Handling the Menu Output ############
+    case MENU.xxx.\_ //If this menu should be displayed
+    text.push('text') //The text to send to the user (each text.push() is a new line)
+    keyboard = generateKeyboard() //The Keyboard to send to the user => Also look at generateNumberedChoiseKeyboard if you want a selection of numbers in your Keyboard
+    break;
+    ##################################
+
+validateUserInput():
+
+- verify an existing mySql connection
+- Check if the command is in the necessary format for the specific MENU.xxx.\_
+
+important async functions
+
+- sendTextToUser(user, text)
+- sendKeyboardToUser(user, text, keyboard) => 'keyboard' can be created by the following functions:
+- sendFileToUser(user, filePath)
+- updateFileSystem() => Create new Folders, if they are not exist The Date is used by Database
+- getFiles(user, filePath) => return all filenames in this directory
+
+important functions:
+
+- createDateMod(yearMod, monthMod, dayMod) => return a date with an offset of the given Years, months, days
+- textToDate(text) => converts 'heute' or 'gestern' to a date
+- isInt(value) => returns true if value is int
+- isFloat(value) => returns true if value is float
+- generateKeyboard(arrValues, columns, menu) => "arrValues" and afterwards "menu" are converted in a array:[[],[]] with the amount of "columns"
+- generateNumberedChoiseKeyboard(start, end, ...) => Used to generate a Number-selection-keyboard => See the function itself
 
 ### DISCLAIMER
 
@@ -97,8 +170,10 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 -Changed the database column "Date" to "DateTime", because of time overlapping with maintenance calculations
 -Audentification optimized: Only registered users can send messages
 -Ensure the connection to the mySql Server every specified interval
--ToDo: Generate a folder to save files
 -Handle recieved files /opt/iobroker/iobroker-data/telegram_1 => react to "requestRaw" of telegram adapter
+-Function send files
+-Send Files for Maintenance Tasks
+-added program description to developer manual
 
 ### 0.2.0 (2025-02-08)
 

@@ -73,14 +73,22 @@
 			"MAINTENACE": {
 				"_": "machinesCategory.machine.maintenance",
 				"_text": "Wartung",
-				"NOTE": { "_": "machinesCategory.machine.maintenance.note", "_text": "Notiz hinzufügen" },
-				"DONE": { "_": "machinesCategory.machine.maintenance.done" }
+				"ID": {
+					"_": "machinesCategory.machine.maintenance.maintenance.id",
+					"NOTE": { "_": "machinesCategory.machine.maintenance.note", "_text": "Notiz hinzufügen" },
+					"DONE": { "_": "machinesCategory.machine.maintenance.done" }
+				}
 			}
+		},
+		"EVALUATION": {
+			"_": "machinesCategory.evaluation",
+			"_text": "!! Auswertung !!"
 		}
 	},
 	"SPECIALS": {
 		"ABORT": "Abbruch",
 		"BACK": "Zurück",
+		"MAIN_MENU": "Hauptmenü",
 		"SAVE": "Speichern",
 		"SKIP": "überspringen",
 		"DELETE": "Löschen"

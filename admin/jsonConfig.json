@@ -91,6 +91,24 @@
 					]
 				}
 			}
+		},
+		"tabMachines": {
+			"type": "panel",
+			"label": "Maschinen",
+			"items": {
+				"machines.maintenanceReminderInterval": {
+					"type": "number",
+					"label": "Erinnerung fällige Wartungen: Alle x Tage",
+					"max": 365,
+					"min": 0,
+					"sm": 2
+				},
+				"machines.maintenanceReminderHour": {
+					"type": "number",
+					"label": "Uhrzeit der Erinnerung",
+					"sm": 2
+				}
+			}
 		}
 	}
 }

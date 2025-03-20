@@ -13,7 +13,9 @@
 			"HISTORY": "get.machines.history",
 			"MACHINEID": "get.machines.machineId",
 			"MAINTENANCE_ID": "get.machines.maintenanceId",
+			"ALL_MAINTENANCE_IDS": "get.machines.allMaintenanceIds",
 			"MAINTENANCE": "get.machines.maintenance",
+			"MAINTENANCE_DESCRIPTION": "get.machines.maintenanceDescription",
 			"MAINTENANCE_TODO": "get.machines.maintenanceTodo"
 		}
 	},

@@ -15,7 +15,7 @@ const utils = require('@iobroker/adapter-core');
 // Load your modules here, e.g.:
 // const fs = require("fs");
 let intervalEnsureConnection;
-let intervalMaintenanceReport;
+////let intervalMaintenanceReport;
 
 const TELEGRAM_NODE = 'telegram.';
 let telegramInstanceNode = 'telegram.0.';
@@ -25,6 +25,7 @@ let telegramInstanceNode = 'telegram.0.';
 
 //const func = require('./lib/functions');
 const fs = require('fs');
+////const schedule = require('node-schedule');
 const mySql = require('./lib/mySql');
 const MENU = require('./lib/menu.json');
 const MYSQL = require('./lib/mySql.json');
@@ -94,8 +95,38 @@ class SqlTelegramFarm extends utils.Adapter {
 				native: {},
 			});
 		}
+
+		await this.setObjectNotExistsAsync('nextMaintenanceReminder', {
+			type: 'state',
+			common: {
+				name: 'nextMaintenanceReminder',
+				type: 'number',
+				role: 'value.time',
+				read: true,
+				write: false,
+			},
+			native: {},
+		});
+		const NextMaintenanceReminderTemp = await this.getStateAsync('nextMaintenanceReminder');
+		const nextMaintenanceReminder = NextMaintenanceReminderTemp ? Number(NextMaintenanceReminderTemp.val) : 0;
+		console.log(nextMaintenanceReminder);
+		console.log(Date.now());
+		if (this.config.machines.maintenanceReminderInterval != 0) {
+			const configReminder = new Date(Date.now());
+			configReminder.setDate(configReminder.getDate() + this.config.machines.maintenanceReminderInterval);
+			configReminder.setUTCHours(Number(this.config.machines.maintenanceReminderHour));
+
+			if (nextMaintenanceReminder < Date.now() || nextMaintenanceReminder > configReminder.valueOf()) {
+				this.setState('nextMaintenanceReminder', configReminder.valueOf());
+			}
+
+			////			const jobMaintenanceReminder = schedule.scheduleJob(configReminder, function () {
+			////				console.error('jobMaintenanceReminder executed');
+			////			});
+		}
+
 		// In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
-		this.subscribeStates('testVariable');
+		//		this.subscribeStates('testVariable');
 
 		telegramInstanceNode = TELEGRAM_NODE + this.config.telegram.instance + '.';
 		this.getForeignState(telegramInstanceNode + 'info.connection', (err, state) => {
@@ -137,6 +168,8 @@ class SqlTelegramFarm extends utils.Adapter {
 		////		if (!fs.existsSync(this.config.database.filepath + FOLDER.MACHINES.MAINTENANCE)) {
 		////			fs.mkdirSync(this.config.database.filepath + FOLDER.MACHINES.MAINTENANCE);
 		////		}
+
+		await this.updateFileSystem();
 
 		this.setState('info.connection', true, true);
 	}
@@ -443,9 +476,12 @@ class SqlTelegramFarm extends utils.Adapter {
 			//#endregion
 			//#region MACHINES
 			case MENU.MACHINES_CATEGORY._:
-				if (command == MENU.SPECIALS.BACK) {
+				if (command == MENU.SPECIALS.MAIN_MENU) {
 					newUserMenu = MENU._;
 					userCache = emtyUserCache;
+				} else if (command == MENU.MACHINES_CATEGORY.EVALUATION._text) {
+					this.sendTextToUser(user, await this.sql.get(user, MYSQL.GET.MACHINES.MAINTENANCE_TODO));
+					newUserMenu = MENU.MACHINES_CATEGORY._;
 				} else if (validInput) {
 					userCache[MENU.MACHINES_CATEGORY._] = command;
 					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE._;
@@ -463,7 +499,7 @@ class SqlTelegramFarm extends utils.Adapter {
 			case MENU.MACHINES_CATEGORY.MACHINE.ACTIONS_USE._:
 				if (command == MENU.SPECIALS.ABORT) {
 					userCache = emtyUserCache;
-					newUserMenu = MENU._;
+					newUserMenu = MENU.MACHINES_CATEGORY._;
 				} else if (command == MENU.SPECIALS.BACK) {
 					const tempUserCache = userCache[MENU.MACHINES_CATEGORY._]; //Delete UserCache except the selected GROUP
 					userCache = emtyUserCache;
@@ -492,25 +528,52 @@ class SqlTelegramFarm extends utils.Adapter {
 			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._:
 				if (command == MENU.SPECIALS.BACK) {
 					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.ACTIONS_USE._;
+				} else if (command == MENU.SPECIALS.ABORT) {
+					newUserMenu = MENU.MACHINES_CATEGORY._;
+					userCache = emtyUserCache;
 				} else if (validInput) {
 					userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._] = command;
-					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.NOTE._;
+					userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._] = await this.sql.get(
+						user,
+						MYSQL.GET.MACHINES.MAINTENANCE_ID,
+						userCache,
+					);
+					//		await this.sendFileToUser(
+					//			user,
+					//			FOLDER.MACHINES.MAINTENANCE +
+					//				(await this.sql.get(user, MYSQL.GET.MACHINES.MAINTENANCE_ID, userCache)),
+					//		);
+
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._;
 				}
 				break;
-			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.NOTE._:
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._:
 				if (command == MENU.SPECIALS.BACK) {
 					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._;
+				} else if (command == MENU.SPECIALS.SAVE) {
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.NOTE._;
 				} else if (validInput) {
-					userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.NOTE._] = command;
-					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.DONE._;
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._;
+					await this.sendFileToUser(
+						user,
+						FOLDER.MACHINES.MAINTENANCE + userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._],
+					);
 				}
 				break;
-			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.DONE._:
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.NOTE._:
+				if (command == MENU.SPECIALS.BACK) {
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._;
+				} else if (validInput) {
+					userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.NOTE._] = command;
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.DONE._;
+				}
+				break;
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.DONE._:
 				if (command == MENU.SPECIALS.BACK) {
 					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._;
 				} else if (command == MENU.SPECIALS.SAVE) {
 					if (await this.sql.set(user, MYSQL.SET.MACHINES.MAINTENANCE_DONE, userCache)) {
-						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.NOTE._] = 'null';
+						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.NOTE._] = 'null';
 						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._] = 'null';
 						this.sendTextToUser(user, 'Neuer Eintrag wurde erfolgreich gespeichert');
 					}
@@ -703,11 +766,10 @@ class SqlTelegramFarm extends utils.Adapter {
 			//#region MACHINES
 			case MENU.MACHINES_CATEGORY._:
 				text.push('Maschinen Gruppe');
-				keyboard = generateKeyboard(
-					await this.sql.get(user, MYSQL.GET.MACHINES.CATEGORY),
-					1,
-					MENU.SPECIALS.BACK,
-				);
+				keyboard = generateKeyboard(await this.sql.get(user, MYSQL.GET.MACHINES.CATEGORY), 1, [
+					MENU.MACHINES_CATEGORY.EVALUATION._text,
+					MENU.SPECIALS.MAIN_MENU,
+				]);
 				break;
 			case MENU.MACHINES_CATEGORY.MACHINE._:
 				text.push('Maschine');
@@ -739,7 +801,21 @@ class SqlTelegramFarm extends utils.Adapter {
 				]);
 				break;
 			}
-			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.NOTE._: {
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._: {
+				text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE._] + ':');
+				text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._]);
+				text.push(await this.sql.get(user, MYSQL.GET.MACHINES.MAINTENANCE_DESCRIPTION, userCache));
+				keyboard = generateKeyboard(
+					await this.getFiles(
+						user,
+						FOLDER.MACHINES.MAINTENANCE + userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._],
+					),
+					1,
+					[MENU.SPECIALS.SAVE, MENU.SPECIALS.BACK],
+				);
+				break;
+			}
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.NOTE._: {
 				text.push(
 					userCache[MENU.MACHINES_CATEGORY.MACHINE._] +
 						' - ' +
@@ -747,10 +823,10 @@ class SqlTelegramFarm extends utils.Adapter {
 				);
 				text.push('Notiz hinzufügen und speichern');
 				keyboard = generateKeyboard([MENU.SPECIALS.SAVE, MENU.SPECIALS.BACK], 1);
-				this.sendFileToUser(user);
+
 				break;
 			}
-			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.DONE._: {
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.DONE._: {
 				if (await this.sql.set(user, MYSQL.SET.MACHINES.MAINTENANCE_DONE, userCache)) {
 					text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE._] + ':');
 					text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._]);
@@ -768,107 +844,6 @@ class SqlTelegramFarm extends utils.Adapter {
 		this.sendKeyboardToUser(user, text, keyboard);
 	}
 
-	async sendKeyboardToUser(user, text, keyboard) {
-		if (!user) {
-			this.log.warn('sendTextToUser: No user defined; text: "' + text + '"');
-		}
-
-		let displayText = '';
-		if (Array.isArray(text)) {
-			for (let i = 0; i < text.length; i++) {
-				displayText += text[i] + '\n';
-			}
-			text = displayText; //To avoid using the unformatted "text" variable
-		}
-
-		this.sendTo(
-			TELEGRAM_NODE + this.config.telegram.instance,
-			{
-				text: text || 'undefined',
-				user: user,
-				reply_markup: {
-					parse_mode: 'html',
-					keyboard: keyboard,
-					resize_keyboard: true,
-					one_time_keyboard: false,
-				},
-			},
-			(msg, udf) => {
-				msg = msg[0] ? msg : '{"error": "No Result"}';
-				msg = JSON.parse(String(msg));
-				if (msg.error) {
-					this.log.error('Send KeyboardToUser: error:' + JSON.stringify(msg.error));
-					this.log.error('Text: "' + text + '"');
-					this.log.error('Keyboard: "' + JSON.stringify(keyboard) + '"');
-					this.log.error('User: "' + user + '"');
-				}
-				msg = udf; //Just to ignore the value not used error
-			},
-		);
-	}
-
-	//----------------------------------------------------------------
-	/*	async mySqlError(err, user) {
-		this.sendTextToUser(
-			'Datenbankfehler: Eingabe wurde nicht übernommen\r\n' + 'Hinweis:\r\n' + err + '\r\n',
-			user,
-		);
-		if (err == "Can't add new command when connection is in closed state") {
-			this.mySqlCon = mysql.createConnection(this.mySqlCon.config);
-			this.mySqlCon.connect((err) => {
-				if (err) {
-					this.sendTextToUser('Datenbankfehler: Verbindung zum SQL Server kann nicht aufgebaut werden');
-					return;
-				}
-				this.sendTextToUser('Datenbank wurde neu verbunden, bitte erneut versuchen');
-			});
-			await this.sendTextToUser('');
-		}
-	}*/
-	async sendTextToUser(user, text) {
-		let displayText = '';
-		if (!user) {
-			this.log.warn('sendTextToUser: No user defined; text: "' + text + '"');
-		}
-
-		if (Array.isArray(text)) {
-			for (let i = 0; i < text.length; i++) {
-				displayText += text[i] + '\n';
-			}
-		} else {
-			displayText = text;
-		}
-		this.sendTo(
-			TELEGRAM_NODE + this.config.telegram.instance,
-			'send',
-			{
-				text: displayText,
-				user: user,
-				parse_mode: 'html',
-			},
-			(instance, message) => {
-				if (message) {
-					this.log.error('sendTextToUser:' + instance + message);
-				}
-			},
-		);
-	}
-
-	async sendFileToUser(user, file) {
-		if (!user) {
-			this.log.warn('sendTextToUser: No user defined; text: "' + file + '"');
-			return;
-		}
-		if (!fs.existsSync(this.config.database.filepath + file)) {
-			this.sendTextToUser(
-				user,
-				'Die Datei "' + file + '" existiert nicht im Verzeichnis: "' + this.config.database.filepath + '"',
-			);
-			return;
-		}
-
-		this.sendTo(TELEGRAM_NODE + this.config.telegram.instance, this.config.database.filepath + file);
-	}
 	//-------------------------------------
 
 	async validateUserInput(user, keyboard, command, userCache) {
@@ -934,8 +909,10 @@ class SqlTelegramFarm extends utils.Adapter {
 			}
 			case MENU.FIREWOOD.NEW.NOTES:
 			case MENU.FIREWOOD.EDIT.NOTES._:
-			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.NOTE._:
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.NOTE._:
 				if (command == MENU.SPECIALS.SKIP) {
+					return '-';
+				} else if (command == MENU.SPECIALS.SAVE) {
 					return '-';
 				}
 				return command;
@@ -966,6 +943,18 @@ class SqlTelegramFarm extends utils.Adapter {
 				}
 				return '!Ungültige Wartung: "' + returnCommand + '" - Bitte eine vorgeschlagene Wartung verwenden';
 			}
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._: {
+				const files = await this.getFiles(
+					user,
+					FOLDER.MACHINES.MAINTENANCE + userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._],
+				);
+				for (const count in files) {
+					if (files[count] == command) {
+						return command;
+					}
+				}
+				return '!Ungültige Datei: "' + command + '" ausgewählt - Bitte eine vorgeschlagene Datei auswählen';
+			}
 
 			default:
 				return '!validateUserInput: Keyboard "' + keyboard + '" is not defined';
@@ -981,13 +970,130 @@ class SqlTelegramFarm extends utils.Adapter {
 	// 	if (typeof obj === 'object' && obj.message) {
 	// 		if (obj.command === 'send') {
 	// 			// e.g. send email or pushover or whatever
-	// 			this.log.info('send command');
+	// 			this.log.info('send command');v
 
 	// 			// Send response in callback if required
 	// 			if (obj.callback) this.sendTo(obj.from, obj.command, 'Message received', obj.callback);
 	// 		}
 	// 	}
 	// }
+	async sendTextToUser(user, text) {
+		let displayText = '';
+		if (!user) {
+			this.log.warn('sendTextToUser: No user defined; text: "' + text + '"');
+		}
+
+		if (Array.isArray(text)) {
+			for (let i = 0; i < text.length; i++) {
+				displayText += text[i] + '\n';
+			}
+		} else {
+			displayText = text;
+		}
+
+		this.sendTo(
+			TELEGRAM_NODE + this.config.telegram.instance,
+			'send',
+			{
+				text: displayText,
+				user: user,
+				parse_mode: 'html',
+			},
+			(instance, message) => {
+				if (message) {
+					this.log.error('sendTextToUser:' + instance + message);
+				}
+			},
+		);
+	}
+
+	async sendKeyboardToUser(user, text, keyboard) {
+		if (!user) {
+			this.log.warn('sendTextToUser: No user defined; text: "' + text + '"');
+		}
+
+		let displayText = '';
+		if (Array.isArray(text)) {
+			for (let i = 0; i < text.length; i++) {
+				displayText += text[i] + '\n';
+			}
+			text = displayText; //To avoid using the unformatted "text" variable
+		}
+
+		this.sendTo(
+			TELEGRAM_NODE + this.config.telegram.instance,
+			{
+				text: text || 'undefined',
+				user: user,
+				reply_markup: {
+					parse_mode: 'html',
+					keyboard: keyboard,
+					resize_keyboard: true,
+					one_time_keyboard: false,
+				},
+			},
+			(msg, udf) => {
+				msg = msg[0] ? msg : '{"error": "No Result"}';
+				msg = JSON.parse(String(msg));
+				if (msg.error) {
+					this.log.error('Send KeyboardToUser: error:' + JSON.stringify(msg.error));
+					this.log.error('Text: "' + text + '"');
+					this.log.error('Keyboard: "' + JSON.stringify(keyboard) + '"');
+					this.log.error('User: "' + user + '"');
+				}
+				msg = udf; //Just to ignore the value not used error
+			},
+		);
+	}
+
+	async sendFileToUser(user, filePath) {
+		filePath = this.config.database.filepath + filePath + '/';
+		if (!user) {
+			this.log.warn('sendFileToUser: No user defined; filePath: "' + filePath + '"');
+			return;
+		}
+		if (!fs.existsSync(filePath)) {
+			this.sendTextToUser(user, 'sendFileToUser: Verzeichnis existiert nicht: "' + filePath + '"');
+			return;
+		}
+		const items = await fs.readdirSync(filePath);
+		for (const item of items) {
+			this.sendTo(TELEGRAM_NODE + this.config.telegram.instance, 'send', { text: filePath + item, user: user });
+		}
+	}
+
+	async updateFileSystem() {
+		if (!this.sql) {
+			return;
+		}
+		const maintenanceIds = await this.sql.get('noUser', MYSQL.GET.MACHINES.ALL_MAINTENANCE_IDS);
+		for (const id of maintenanceIds) {
+			try {
+				fs.mkdirSync(this.config.database.filepath + FOLDER.MACHINES.MAINTENANCE + id, { recursive: true });
+			} catch (err) {
+				continue;
+			}
+		}
+	}
+
+	async getFiles(user, filePath) {
+		filePath = this.config.database.filepath + filePath + '/';
+		if (!user) {
+			this.log.warn('getFiles: No user defined; filePath: "' + filePath + '"');
+			return;
+		}
+		if (!fs.existsSync(filePath)) {
+			this.sendTextToUser(user, 'getFiles: Verzeichnis existiert nicht: "' + filePath + '"');
+			return;
+		}
+		const items = await fs.readdirSync(filePath);
+		const result = [];
+		for (const item of items) {
+			result.push(item);
+			console.log('file' + item);
+		}
+		return result;
+	}
 }
 
 function createDateMod(yearMod, monthMod, dayMod) {
