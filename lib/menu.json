@@ -73,10 +73,33 @@
 			"MAINTENACE": {
 				"_": "machinesCategory.machine.maintenance",
 				"_text": "Wartung",
+				"_textNew": "Neue Wartung",
 				"ID": {
 					"_": "machinesCategory.machine.maintenance.maintenance.id",
-					"NOTE": { "_": "machinesCategory.machine.maintenance.note", "_text": "Notiz hinzufügen" },
-					"DONE": { "_": "machinesCategory.machine.maintenance.done" }
+					"NOTE": { "_": "machinesCategory.machine.maintenance.id.note", "_text": "Notiz hinzufügen" },
+					"DONE": { "_": "machinesCategory.machine.maintenance.id.done" },
+					"EDIT": {
+						"_": "machinesCategory.machine.maintenance.id.edit",
+						"_text": "Wartung bearbeiten",
+						"TITLE": { "_": "machinesCategory.machine.maintenance.id.edit.title", "_text": "Titel: " },
+						"DESCRIPTION": {
+							"_": "machinesCategory.machine.maintenance.id.edit.description",
+							"_text": "Beschreibung: "
+						},
+						"INTERVAL_HOUR": {
+							"_": "machinesCategory.machine.maintenance.id.edit.intervalHour",
+							"_text": "Interval-Stunden: "
+						},
+						"INTERVAL_MONTH": {
+							"_": "machinesCategory.machine.maintenance.id.edit.intervalMonth",
+							"_text": "Interval-Monate: "
+						},
+						"ACTIV": { "_": "machinesCategory.machine.maintenance.id.edit.activ", "_text": "Aktiv: " },
+						"FILE_COUNT": {
+							"_": "machinesCategory.machine.maintenance.id.edit.files",
+							"_text": "Dateien: "
+						}
+					}
 				}
 			}
 		},
@@ -85,12 +108,38 @@
 			"_text": "!! Auswertung !!"
 		}
 	},
+	"ADMIN": {
+		"_": "adminMode",
+		"_textTrue": "Administration: Ja",
+		"_textFalse": "Administration: Nein"
+	},
+	"DIALOG": {
+		"FILE": {
+			"_": "dialog.file",
+			"FILE_NAMES": "dialog.file.fileNames",
+			"FILE_COUNT": "dialog.file.fileCount",
+			"FILE_PATH": "dialog.file.filePath",
+			"MENU_AT_EXIT": "dialog.file.menuAtExit",
+			"ENABLE_ADD_FILE": "dialog.file.enableAddFile",
+			"ADD_FILE": {
+				"_": "dialog.file.add",
+				"_path": "dialog.file.add.path",
+				"_text": "Neue Datei",
+				"NAME": {
+					"_": "dialog.file.add.name",
+					"_text": "Namen für die neue Datei eingeben"
+				}
+			},
+			"USER_TEXT": "dialog.file.userText"
+		}
+	},
 	"SPECIALS": {
 		"ABORT": "Abbruch",
 		"BACK": "Zurück",
 		"MAIN_MENU": "Hauptmenü",
 		"SAVE": "Speichern",
 		"SKIP": "überspringen",
-		"DELETE": "Löschen"
+		"DELETE": "Löschen",
+		"DEAKTIVATE": "Deaktiverien"
 	}
 }

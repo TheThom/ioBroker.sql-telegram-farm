@@ -144,6 +144,7 @@ class SqlTelegramFarm extends utils.Adapter {
 		});
 		await this.subscribeForeignStatesAsync(telegramInstanceNode + 'info.connection');
 		await this.subscribeForeignStatesAsync(telegramInstanceNode + 'communicate.request');
+		await this.subscribeForeignStatesAsync(telegramInstanceNode + 'communicate.pathFile');
 
 		/*this.mySqlCon.config.host = this.config.database.server;
 		this.mySqlCon.config.user = this.config.database.user;
@@ -227,6 +228,31 @@ class SqlTelegramFarm extends utils.Adapter {
 				this.prepareRequest(user, command);
 				//this.getForeignStateAsync(telegramInstanceNode + 'users' + user + 'menu');
 			}
+		} else if (id == telegramInstanceNode + 'communicate.pathFile') {
+			if (state?.val) {
+				const path = state.val;
+				this.getForeignState(telegramInstanceNode + 'communicate.requestRaw', (err, requestRaw) => {
+					if (err) {
+						this.log.error('getForeignState - communicate.requestRaw' + err);
+						return;
+					} else {
+						if (!state) {
+							this.log.error('Telegram instance: ' + this.config.telegram.instance + ' is not existing');
+							return;
+						} else {
+							const emtyRequestRaw = JSON.parse('{"from": {"first_name":"noUser"}}');
+							const requestRawJSON = requestRaw ? JSON.parse(String(requestRaw.val)) : emtyRequestRaw;
+							let user = 'noUser';
+							try {
+								user = requestRawJSON['from']['first_name'];
+							} catch (err) {
+								this.log.error('prepareRequest: UserCache could not read user Cache ' + err);
+							}
+							this.prepareRequest(user, path);
+						}
+					}
+				});
+			}
 		} else if (id == telegramInstanceNode + 'info.connection') {
 			if (state) {
 				if (state.val) {
@@ -246,8 +272,10 @@ class SqlTelegramFarm extends utils.Adapter {
 		}
 		console.log(this.config.telegram.users);
 		let userExists = false;
-		for (const usersTemp of this.config.telegram.users) {
-			if (usersTemp['name'] == user) {
+		let userAdmin = false;
+		for (const userTemp of this.config.telegram.users) {
+			if (userTemp['name'] == user) {
+				userAdmin = userTemp['admin'];
 				userExists = true;
 				break;
 			}
@@ -266,6 +294,7 @@ class SqlTelegramFarm extends utils.Adapter {
 		let userCache = emtyUserCache;
 		try {
 			userCache = userCacheState ? JSON.parse(String(userCacheState.val)) : emtyUserCache;
+			userCache[MENU.ADMIN._] = userAdmin;
 		} catch (err) {
 			this.log.error('prepareRequest: UserCache could not read user Cache ' + err);
 		}
@@ -296,7 +325,61 @@ class SqlTelegramFarm extends utils.Adapter {
 					newUserMenu = MENU._;
 				}
 				break;
-			//#region FIREWOOD
+
+			//#region Dialog
+			case MENU.DIALOG.FILE._:
+				if (command == MENU.SPECIALS.BACK) {
+					newUserMenu = userCache[MENU.DIALOG.FILE.MENU_AT_EXIT];
+				} else if (command == MENU.DIALOG.FILE.ADD_FILE._text) {
+					newUserMenu = MENU.DIALOG.FILE.ADD_FILE._;
+				} else if (validInput) {
+					await this.sendFileToUser(
+						user,
+						FOLDER.MACHINES.MAINTENANCE + userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._],
+					);
+					newUserMenu = MENU.DIALOG.FILE.ADD_FILE._;
+				}
+				break;
+
+			case MENU.DIALOG.FILE.ADD_FILE._:
+				if (command == MENU.SPECIALS.ABORT) {
+					newUserMenu = userCache[MENU.DIALOG.FILE.MENU_AT_EXIT];
+				} else if (command == MENU.SPECIALS.BACK) {
+					newUserMenu = MENU.DIALOG.FILE._;
+				} else if (validInput) {
+					userCache[MENU.DIALOG.FILE.ADD_FILE._path] = command;
+					newUserMenu = MENU.DIALOG.FILE.ADD_FILE.NAME._;
+				}
+				break;
+
+			case MENU.DIALOG.FILE.ADD_FILE.NAME._:
+				if (command == MENU.SPECIALS.ABORT) {
+					newUserMenu = MENU.DIALOG.FILE._;
+					userCache[MENU.DIALOG.FILE.ADD_FILE.NAME._] = '';
+					userCache[MENU.DIALOG.FILE.ADD_FILE._path] = '';
+				} else if (validInput) {
+					const destinationPath = this.config.database.filepath + userCache[MENU.DIALOG.FILE.FILE_PATH];
+					const destinationFileName =
+						command + '.' + userCache[MENU.DIALOG.FILE.ADD_FILE._path].split('.').pop();
+					if (
+						await this.moveFile(
+							user,
+							userCache[MENU.DIALOG.FILE.ADD_FILE._path],
+							destinationPath,
+							destinationFileName,
+						)
+					) {
+						this.sendTextToUser('Datei "' + command + '" erfolgreich übernommen');
+						userCache[MENU.DIALOG.FILE.FILE_COUNT] = userCache[MENU.DIALOG.FILE.FILE_COUNT] + 1;
+					}
+					userCache[MENU.DIALOG.FILE.ADD_FILE.NAME._] = '';
+					userCache[MENU.DIALOG.FILE.ADD_FILE._path] = '';
+					newUserMenu = MENU.DIALOG.FILE._;
+				}
+				break;
+
+			//#endregion
+			// #region FIREWOOD
 			case MENU.FIREWOOD._:
 				if (command == MENU.FIREWOOD.NEW._text) {
 					userCache = emtyUserCache;
@@ -480,7 +563,7 @@ class SqlTelegramFarm extends utils.Adapter {
 					newUserMenu = MENU._;
 					userCache = emtyUserCache;
 				} else if (command == MENU.MACHINES_CATEGORY.EVALUATION._text) {
-					this.sendTextToUser(user, await this.sql.get(user, MYSQL.GET.MACHINES.MAINTENANCE_TODO));
+					this.sendTextToUser(user, await this.sql.get(user, MYSQL.GET.MACHINES.MAINTENANCE.TODO));
 					newUserMenu = MENU.MACHINES_CATEGORY._;
 				} else if (validInput) {
 					userCache[MENU.MACHINES_CATEGORY._] = command;
@@ -535,16 +618,29 @@ class SqlTelegramFarm extends utils.Adapter {
 					userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._] = command;
 					userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._] = await this.sql.get(
 						user,
-						MYSQL.GET.MACHINES.MAINTENANCE_ID,
+						MYSQL.GET.MACHINES.MAINTENANCE.ID,
 						userCache,
 					);
 					//		await this.sendFileToUser(
 					//			user,
 					//			FOLDER.MACHINES.MAINTENANCE +
-					//				(await this.sql.get(user, MYSQL.GET.MACHINES.MAINTENANCE_ID, userCache)),
+					//				(await this.sql.get(user, MYSQL.GET.MACHINES.MAINTENANCE.ID, userCache)),
 					//		);
 
 					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._;
+				} else if (command == MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._textNew) {
+					userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._] = await this.sql.get(
+						user,
+						MYSQL.GET.MACHINES.MAINTENANCE.FREE_ID,
+						userCache,
+					);
+					userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.TITLE._] = '-';
+					userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.DESCRIPTION._] = '-';
+					userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.ACTIV._] = 1;
+					userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.INTERVAL_HOUR._] = '0';
+					userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.INTERVAL_MONTH._] = '0';
+					userCache[MENU.DIALOG.FILE.FILE_COUNT] = '0';
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT._;
 				}
 				break;
 			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._:
@@ -552,12 +648,13 @@ class SqlTelegramFarm extends utils.Adapter {
 					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._;
 				} else if (command == MENU.SPECIALS.SAVE) {
 					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.NOTE._;
+				} else if (command == MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT._text) {
+					const dataset = await this.sql.get(user, MYSQL.GET.MACHINES.MAINTENANCE.DATASET_BY_ID, userCache);
+					userCache = datasetToUserCash(userCache, dataset);
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT._;
 				} else if (validInput) {
 					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._;
-					await this.sendFileToUser(
-						user,
-						FOLDER.MACHINES.MAINTENANCE + userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._],
-					);
+					await this.sendFileToUser(user, command);
 				}
 				break;
 			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.NOTE._:
@@ -572,7 +669,7 @@ class SqlTelegramFarm extends utils.Adapter {
 				if (command == MENU.SPECIALS.BACK) {
 					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._;
 				} else if (command == MENU.SPECIALS.SAVE) {
-					if (await this.sql.set(user, MYSQL.SET.MACHINES.MAINTENANCE_DONE, userCache)) {
+					if (await this.sql.set(user, MYSQL.SET.MACHINES.MAINTENANCE.DONE, userCache)) {
 						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.NOTE._] = 'null';
 						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._] = 'null';
 						this.sendTextToUser(user, 'Neuer Eintrag wurde erfolgreich gespeichert');
@@ -580,13 +677,75 @@ class SqlTelegramFarm extends utils.Adapter {
 					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._;
 				}
 				break;
-			//#endregion
+
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT._:
+				if (command == MENU.SPECIALS.ABORT) {
+					newUserMenu = MENU.MACHINES_CATEGORY._;
+					userCache = emtyUserCache;
+				} else if (command == MENU.SPECIALS.SAVE) {
+					if (await this.sql.set(user, MYSQL.SET.MACHINES.MAINTENANCE.SAVE_EDIT, userCache)) {
+						this.sendTextToUser(user, 'Eintrag wurde erfolgreich geändert');
+						if (!this.updateFileSystem()) {
+							this.sendTextToUser(user, '!Error while updateFileSystem()');
+						}
+						userCache = emtyUserCache;
+						newUserMenu = MENU.MACHINES_CATEGORY._;
+					} else {
+						this.sendTextToUser(user, '!Fehler beim Speichern in die Datenbank');
+						newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT._;
+						break;
+					}
+					userCache = emtyUserCache;
+				} else if (command.includes(MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.TITLE._text)) {
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.TITLE._;
+				} else if (command.includes(MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.DESCRIPTION._text)) {
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.DESCRIPTION._;
+				} else if (command.includes(MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.INTERVAL_HOUR._text)) {
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.INTERVAL_HOUR._;
+				} else if (command.includes(MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.INTERVAL_MONTH._text)) {
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.INTERVAL_MONTH._;
+				} else if (command.includes(MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.ACTIV._text)) {
+					if (userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.ACTIV._]) {
+						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.ACTIV._] = 0;
+					} else {
+						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.ACTIV._] = 1;
+					}
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT._;
+				} else if (command.includes(MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.FILE_COUNT._text)) {
+					userCache[MENU.DIALOG.FILE.MENU_AT_EXIT] = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT._;
+					userCache[MENU.DIALOG.FILE.FILE_PATH] =
+						FOLDER.MACHINES.MAINTENANCE + userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._] + '/';
+					userCache[MENU.DIALOG.FILE.ENABLE_ADD_FILE] = MENU.ADMIN._;
+					userCache[MENU.DIALOG.FILE.USER_TEXT] =
+						userCache[MENU.MACHINES_CATEGORY.MACHINE._] +
+						' - ' +
+						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._] +
+						' - Wartungspläne';
+					newUserMenu = MENU.DIALOG.FILE._;
+				}
+				break;
+
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.TITLE._:
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.DESCRIPTION._:
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.INTERVAL_HOUR._:
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.INTERVAL_MONTH._:
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.ACTIV._:
+				if (command == MENU.SPECIALS.BACK) {
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT._;
+				} else if (validInput) {
+					userCache[userMenu] = command;
+					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT._;
+				}
+				break;
+
 			default:
 				if (command == MENU._text) {
 					newUserMenu = MENU._;
 					this.sendMenuToUser(user, MENU._);
 				}
 				break;
+
+			//endregion
 		}
 		if (newUserMenu) {
 			this.sendMenuToUser(user, newUserMenu, userCache);
@@ -608,10 +767,10 @@ class SqlTelegramFarm extends utils.Adapter {
 				userCache = emtyUserCache;
 				this.log.warn(WARNING);
 				await this.sendTextToUser(user, WARNING);
-				await this.sendMenuToUser(user, MENU._);
+				await this.sendMenuToUser(user, MENU._, userCache);
 			}
 		}
-		console.log('users.' + user + '.menu', { val: newUserMenu, ack: true });
+		this.log.debug('users.' + user + '.menu: ' + newUserMenu);
 		await this.setState('users.' + user + '.menu', { val: newUserMenu, ack: true });
 		//console.warn(userCache);
 		//console.warn(JSON.stringify(userCache));
@@ -629,7 +788,38 @@ class SqlTelegramFarm extends utils.Adapter {
 				text.push(MENU._text);
 				keyboard.push([MENU.FIREWOOD._text]);
 				keyboard.push([MENU.MACHINES_CATEGORY._text]);
+				if (userCache[MENU.ADMIN._]) {
+					keyboard.push([MENU.ADMIN._textTrue]);
+				} else {
+					keyboard.push([MENU.ADMIN._textFalse]);
+				}
 				break;
+			//#region Dialog
+			case MENU.DIALOG.FILE._: {
+				text.push(userCache[MENU.DIALOG.FILE.USER_TEXT]);
+				const result = await this.getFiles(user, userCache[MENU.DIALOG.FILE.FILE_PATH]);
+				for (const res in result) {
+					keyboard.push([result[res]]);
+				}
+				if (userCache[MENU.DIALOG.FILE.ENABLE_ADD_FILE]) {
+					keyboard.push([MENU.DIALOG.FILE.ADD_FILE._text]);
+				}
+				keyboard.push([MENU.SPECIALS.BACK]);
+				break;
+			}
+			case MENU.DIALOG.FILE.ADD_FILE._:
+				text.push(userCache[MENU.DIALOG.FILE.USER_TEXT] + ' - Neue Datei in diesen Chat schicken');
+				keyboard.push([MENU.SPECIALS.BACK]);
+				keyboard.push([MENU.SPECIALS.ABORT]);
+				break;
+
+			case MENU.DIALOG.FILE.ADD_FILE.NAME._:
+				text.push(MENU.DIALOG.FILE.ADD_FILE.NAME._text);
+				keyboard.push([MENU.SPECIALS.ABORT]);
+				break;
+
+			//#endregion
+
 			//#region FIREWOOD
 			case MENU.FIREWOOD._:
 				text.push(MENU.FIREWOOD._text);
@@ -779,39 +969,68 @@ class SqlTelegramFarm extends utils.Adapter {
 					MENU.SPECIALS.BACK,
 				);
 				break;
-			case MENU.MACHINES_CATEGORY.MACHINE.ACTIONS_USE._:
-				text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE._] + ' - Verwendung in Stunden');
-				keyboard = generateNumberedChoiseKeyboard(0.5, 8, 0.5, '', '', 4, [
-					MENU.MACHINES_CATEGORY.MACHINE.HISTORY._text,
-					MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._text,
-					MENU.SPECIALS.BACK,
-					MENU.SPECIALS.ABORT,
-				]);
+			case MENU.MACHINES_CATEGORY.MACHINE.ACTIONS_USE._: {
+				const hourMeterOffset = await this.sql.get(user, MYSQL.GET.MACHINES.HOUR_METER_OFFSET, userCache);
+
+				if (hourMeterOffset > 0) {
+					text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE._] + ' - Wert des Stundenzählers eingeben');
+					keyboard = generateKeyboard(
+						[MENU.MACHINES_CATEGORY.MACHINE.HISTORY._text, MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._text],
+						1,
+						[MENU.SPECIALS.BACK, MENU.SPECIALS.ABORT],
+					);
+				} else {
+					text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE._] + ' - Verwendung in Stunden');
+					keyboard = generateNumberedChoiseKeyboard(0.5, 8, 0.5, '', '', 4, [
+						MENU.MACHINES_CATEGORY.MACHINE.HISTORY._text,
+						MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._text,
+						MENU.SPECIALS.BACK,
+						MENU.SPECIALS.ABORT,
+					]);
+				}
+
 				break;
+			}
 			case MENU.MACHINES_CATEGORY.MACHINE.HISTORY._:
 				this.sendTextToUser(user, await this.sql.get(user, MYSQL.GET.MACHINES.HISTORY, userCache));
 				text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE._] + ' - Historie');
 				keyboard = generateKeyboard([MENU.SPECIALS.BACK], 1);
 				break;
 			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._: {
+				const keyboardOptions = [];
+				if (userCache[MENU.ADMIN._]) {
+					keyboardOptions.push(MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._textNew);
+				}
+				keyboardOptions.push(MENU.SPECIALS.BACK);
+				keyboardOptions.push(MENU.SPECIALS.ABORT);
+
 				text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE._] + ' - Wartung durchführen:');
-				keyboard = generateKeyboard(await this.sql.get(user, MYSQL.GET.MACHINES.MAINTENANCE, userCache), 1, [
-					MENU.SPECIALS.BACK,
-					MENU.SPECIALS.ABORT,
-				]);
+				keyboard = generateKeyboard(
+					await this.sql.get(user, MYSQL.GET.MACHINES.MAINTENANCE.MAINTENANCE, userCache),
+					1,
+					keyboardOptions,
+				);
 				break;
 			}
+
 			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._: {
+				const keyboardOptions = [];
+				if (userCache[MENU.ADMIN._]) {
+					keyboardOptions.push(MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT._text);
+				}
+				keyboardOptions.push(MENU.SPECIALS.SAVE);
+				keyboardOptions.push(MENU.SPECIALS.BACK);
+
 				text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE._] + ':');
 				text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._]);
-				text.push(await this.sql.get(user, MYSQL.GET.MACHINES.MAINTENANCE_DESCRIPTION, userCache));
+				text.push(await this.sql.get(user, MYSQL.GET.MACHINES.MAINTENANCE.DESCRIPTION, userCache));
 				keyboard = generateKeyboard(
 					await this.getFiles(
 						user,
 						FOLDER.MACHINES.MAINTENANCE + userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._],
 					),
 					1,
-					[MENU.SPECIALS.SAVE, MENU.SPECIALS.BACK],
+					keyboardOptions,
 				);
 				break;
 			}
@@ -827,7 +1046,7 @@ class SqlTelegramFarm extends utils.Adapter {
 				break;
 			}
 			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.DONE._: {
-				if (await this.sql.set(user, MYSQL.SET.MACHINES.MAINTENANCE_DONE, userCache)) {
+				if (await this.sql.set(user, MYSQL.SET.MACHINES.MAINTENANCE.DONE, userCache)) {
 					text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE._] + ':');
 					text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._]);
 					text.push('wurde durchgeführt');
@@ -835,6 +1054,74 @@ class SqlTelegramFarm extends utils.Adapter {
 				keyboard = generateKeyboard([MENU.SPECIALS.BACK], 1);
 				break;
 			}
+			//#region Edit Maintenance
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT._: {
+				userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.FILE_COUNT._] = await this.getFileCount(
+					//handled here and not in prepareRequest, because there is also a link from File dialog
+					user,
+					FOLDER.MACHINES.MAINTENANCE + userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._],
+				);
+
+				text.push(
+					'Wartung: "' +
+						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.TITLE._] +
+						'" bearbeiten',
+				);
+				keyboard.push([
+					MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.TITLE._text +
+						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.TITLE._],
+				]);
+				keyboard.push([
+					MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.DESCRIPTION._text +
+						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.DESCRIPTION._].substring(0, 20) +
+						' ...',
+				]);
+				keyboard.push([
+					MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.INTERVAL_HOUR._text +
+						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.INTERVAL_HOUR._],
+				]);
+				keyboard.push([
+					MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.INTERVAL_MONTH._text +
+						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.INTERVAL_MONTH._],
+				]);
+				let activ = 'nein';
+				if (userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.ACTIV._]) {
+					activ = 'ja';
+				}
+				keyboard.push([MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.ACTIV._text + activ]);
+
+				keyboard.push([
+					MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.FILE_COUNT._text +
+						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.FILE_COUNT._],
+				]);
+				keyboard.push([MENU.SPECIALS.SAVE, MENU.SPECIALS.ABORT]);
+				break;
+			}
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.TITLE._:
+				text.push('Titel bearbeiten - original:');
+				text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.TITLE._]);
+				keyboard = generateKeyboard([MENU.SPECIALS.BACK], 1);
+				break;
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.DESCRIPTION._:
+				text.push('Beschreibung bearbeiten - original:');
+				text.push(userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.DESCRIPTION._]);
+				keyboard = generateKeyboard([MENU.SPECIALS.BACK], 1);
+				break;
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.INTERVAL_MONTH._:
+				text.push(
+					'Interval Monate bearbeiten - original:' +
+						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.TITLE._],
+				);
+				keyboard = generateNumberedChoiseKeyboard(1, 48, 1, '', '', 6, [MENU.SPECIALS.BACK]);
+				break;
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.INTERVAL_HOUR._:
+				text.push(
+					'Interval Betriebsstunden bearbeiten - original:' +
+						userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.TITLE._],
+				);
+				keyboard = generateNumberedChoiseKeyboard(1, 48, 1, '', '', 6, [MENU.SPECIALS.BACK]);
+				break;
+			//#endregion
 			//#endregion
 			default:
 				text.push('sendMenuToUser: menu: "' + JSON.stringify(menu) + '" is not defined');
@@ -847,6 +1134,7 @@ class SqlTelegramFarm extends utils.Adapter {
 	//-------------------------------------
 
 	async validateUserInput(user, keyboard, command, userCache) {
+		this.log.debug('validateUserInput: ' + keyboard + '---' + command);
 		if (!this.sql) {
 			return;
 		}
@@ -874,6 +1162,8 @@ class SqlTelegramFarm extends utils.Adapter {
 			case MENU.FIREWOOD.EDIT.AMOUNT:
 			case MENU.FIREWOOD.NEW.HUMIDITY:
 			case MENU.FIREWOOD.EDIT.HUMIDITY._:
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.INTERVAL_MONTH._:
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.INTERVAL_HOUR._:
 				if (!isInt(parseInt(command))) {
 					return '!Ungültige Nummer: "' + command + '" - Es wird eine Zahl erwartet';
 				}
@@ -886,6 +1176,11 @@ class SqlTelegramFarm extends utils.Adapter {
 					return '!Ungültige Nummer: "' + command + '" - Es wird eine Gleitkommazahl erwartet';
 				}
 				return String(parseFloat(command));
+
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.ACTIV._: //bool (0 / 1)
+				if (userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.ACTIV._] == 0) {
+					return 1;
+				} else return 0;
 
 			case MENU.FIREWOOD.NEW.TYPE:
 			case MENU.FIREWOOD.EDIT.TYPE._: {
@@ -907,6 +1202,9 @@ class SqlTelegramFarm extends utils.Adapter {
 				}
 				return '!Ungültiger Typ: "' + command + '" - Bitte eine vorgeschlagenen Typ verwenden';
 			}
+			case MENU.DIALOG.FILE.ADD_FILE.NAME._:
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.TITLE._:
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.DESCRIPTION._:
 			case MENU.FIREWOOD.NEW.NOTES:
 			case MENU.FIREWOOD.EDIT.NOTES._:
 			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.NOTE._:
@@ -937,27 +1235,59 @@ class SqlTelegramFarm extends utils.Adapter {
 			}
 			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE._: {
 				const returnCommand = command.substring(command.search('>') + 1).trimStart();
-				const validMaintenance = await this.sql.get(user, MYSQL.GET.MACHINES.MAINTENANCE, userCache);
+				const validMaintenance = await this.sql.get(
+					user,
+					MYSQL.GET.MACHINES.MAINTENANCE.MAINTENANCE,
+					userCache,
+				);
 				if (validMaintenance.includes(command)) {
 					return returnCommand;
 				}
 				return '!Ungültige Wartung: "' + returnCommand + '" - Bitte eine vorgeschlagene Wartung verwenden';
 			}
+
 			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._: {
-				const files = await this.getFiles(
-					user,
-					FOLDER.MACHINES.MAINTENANCE + userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._],
-				);
+				const pathFile =
+					this.config.database.filepath +
+					FOLDER.MACHINES.MAINTENANCE +
+					userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._] +
+					'/' +
+					command;
+				if (fs.existsSync(pathFile)) {
+					return pathFile;
+				}
+				return '!Datei existiert nicht: "' + pathFile + '"';
+			}
+
+			case MENU.DIALOG.FILE.ADD_FILE._: {
+				if (fs.existsSync(command)) {
+					return command;
+				}
+				this.sendTextToUser(user, 'asdffff');
+				this.sendTextToUser(user, command);
+				return '!Datei konnte nicht empfangen werden - Datei existiert nicht: "' + command + '"';
+			}
+			case MENU.DIALOG.FILE._: {
+				const files = await this.getFiles(user, userCache[MENU.DIALOG.FILE.FILE_PATH]);
 				for (const count in files) {
 					if (files[count] == command) {
 						return command;
 					}
 				}
+				if (command == MENU.SPECIALS.ABORT || command == MENU.SPECIALS.BACK) {
+					return command;
+				}
 				return '!Ungültige Datei: "' + command + '" ausgewählt - Bitte eine vorgeschlagene Datei auswählen';
 			}
 
 			default:
-				return '!validateUserInput: Keyboard "' + keyboard + '" is not defined';
+				return (
+					'!validateUserInput: Keyboard "' +
+					keyboard +
+					'" is not defined\r\n\r\nEnter "' +
+					MENU._escape +
+					'" to go to the main menu'
+				);
 		}
 	}
 	// If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.
@@ -1047,7 +1377,9 @@ class SqlTelegramFarm extends utils.Adapter {
 	}
 
 	async sendFileToUser(user, filePath) {
-		filePath = this.config.database.filepath + filePath + '/';
+		if (!filePath.startsWith(this.config.database.filepath)) {
+			filePath = this.config.database.filepath + filePath + '/';
+		}
 		if (!user) {
 			this.log.warn('sendFileToUser: No user defined; filePath: "' + filePath + '"');
 			return;
@@ -1056,17 +1388,17 @@ class SqlTelegramFarm extends utils.Adapter {
 			this.sendTextToUser(user, 'sendFileToUser: Verzeichnis existiert nicht: "' + filePath + '"');
 			return;
 		}
-		const items = await fs.readdirSync(filePath);
-		for (const item of items) {
-			this.sendTo(TELEGRAM_NODE + this.config.telegram.instance, 'send', { text: filePath + item, user: user });
-		}
+		//const items = await fs.readdirSync(filePath);
+		//for (const item of items) {
+		this.sendTo(TELEGRAM_NODE + this.config.telegram.instance, 'send', { text: filePath, user: user });
+		//}
 	}
 
 	async updateFileSystem() {
 		if (!this.sql) {
-			return;
+			return false;
 		}
-		const maintenanceIds = await this.sql.get('noUser', MYSQL.GET.MACHINES.ALL_MAINTENANCE_IDS);
+		const maintenanceIds = await this.sql.get('noUser', MYSQL.GET.MACHINES.MAINTENANCE.ALL_IDS);
 		for (const id of maintenanceIds) {
 			try {
 				fs.mkdirSync(this.config.database.filepath + FOLDER.MACHINES.MAINTENANCE + id, { recursive: true });
@@ -1074,10 +1406,37 @@ class SqlTelegramFarm extends utils.Adapter {
 				continue;
 			}
 		}
+		return true;
+	}
+
+	async moveFile(user, sourcePath, destinationPath, destinationFileName) {
+		if (!fs.existsSync(sourcePath)) {
+			this.sendTextToUser(user, 'copyFiles: sourcePath - Verzeichnis existiert nicht: "' + sourcePath + '"');
+			return false;
+		}
+		if (!fs.existsSync(destinationPath)) {
+			this.sendTextToUser(
+				user,
+				'copyFiles: destinationPath - Verzeichnis existiert nicht: "' + destinationPath + '"',
+			);
+			return false;
+		}
+		if (!destinationPath.startsWith(this.config.database.filepath)) {
+			destinationPath = this.config.database.filepath + destinationPath + '/';
+		}
+		try {
+			fs.copyFileSync(sourcePath, destinationPath + destinationFileName);
+			fs.rmSync(sourcePath);
+			this.log.debug('file removed: ' + sourcePath);
+		} catch (err) {
+			this.sendTextToUser(user, 'copyFiles: Fehler beim Kopieren: ' + String(err));
+		}
 	}
 
 	async getFiles(user, filePath) {
-		filePath = this.config.database.filepath + filePath + '/';
+		if (!filePath.startsWith(this.config.database.filepath)) {
+			filePath = this.config.database.filepath + filePath + '/';
+		}
 		if (!user) {
 			this.log.warn('getFiles: No user defined; filePath: "' + filePath + '"');
 			return;
@@ -1090,9 +1449,13 @@ class SqlTelegramFarm extends utils.Adapter {
 		const result = [];
 		for (const item of items) {
 			result.push(item);
-			console.log('file' + item);
 		}
 		return result;
+	}
+
+	async getFileCount(user, filePath) {
+		const files = await this.getFiles(user, filePath);
+		return Object.keys(files ? files : '').length;
 	}
 }
 
@@ -1154,7 +1517,6 @@ function generateKeyboard(arrValues, columns, menu) {
 	if (!columns) {
 		columns = 1;
 	}
-	console.log(columns);
 	for (let rowCount = 0; rowCount < arrValues.length / columns; rowCount++) {
 		arrTemp = [];
 		for (let columnCount = 0; columnCount < columns; columnCount++) {
@@ -1183,6 +1545,14 @@ function generateNumberedChoiseKeyboard(start, end, step, pre, post, columns, me
 		arrValues.push(pre + i + post);
 	}
 	return generateKeyboard(arrValues, columns, menu);
+}
+function datasetToUserCash(userCache, dataset) {
+	if (!userCache) {
+		userCache = JSON.parse('{"emty": "true"}');
+	}
+	userCache = Object.assign(userCache, dataset); // add userCash to existing dataset
+
+	return userCache;
 }
 
 if (require.main !== module) {

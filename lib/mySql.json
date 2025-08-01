@@ -11,12 +11,17 @@
 			"CATEGORY": "get.machines.category",
 			"MACHINES": "get.machines.machines",
 			"HISTORY": "get.machines.history",
+			"HOUR_METER_OFFSET": "get.machines.hourMeterOffset",
 			"MACHINEID": "get.machines.machineId",
-			"MAINTENANCE_ID": "get.machines.maintenanceId",
-			"ALL_MAINTENANCE_IDS": "get.machines.allMaintenanceIds",
-			"MAINTENANCE": "get.machines.maintenance",
-			"MAINTENANCE_DESCRIPTION": "get.machines.maintenanceDescription",
-			"MAINTENANCE_TODO": "get.machines.maintenanceTodo"
+			"MAINTENANCE":{
+				"ID": "get.machines.maintenance.id",
+				"FREE_ID": "get.machines.maintenance.free-id",
+				"ALL_IDS": "get.machines.allMaintenanceIds",
+				"DESCRIPTION": "get.machines.maintenance.description",
+				"MAINTENANCE": "get.machines.maintenance",
+				"DATASET_BY_ID": "get.machines.maintenance.dataset-by-number",
+				"TODO": "get.machines.maintenance.todo"
+			}
 		}
 	},
 	"SET": {
@@ -27,7 +32,10 @@
 		},
 		"MACHINES": {
 			"ADD_USE": "set.machines.addUse",
-			"MAINTENANCE_DONE": "set.machines.maintenanceDone"
+			"MAINTENANCE":{
+				"DONE": "set.machines.maintenance.done",
+				"SAVE_EDIT": "set.machines.maintenance.saveEdit"
+			}
 		}
 	}
 }

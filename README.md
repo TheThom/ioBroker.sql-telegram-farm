@@ -162,6 +162,17 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+
+-(Thomas Kümmel)
+-Add the "hourMeterOffset" to the history output, if there is a hour Meter
+-Add the Admin mode => Special settings that are not always visible (e.g. new Maintenance, ..)
+-Add User input of Files in an standard Dialog - It can be used for different file uploads
+-Add the Edit-function for Maintenance Plan
+
+-ToDo: - check the admin mode - show only active maintenances - admin mode: show all maintenances and machines
+
 ### 0.3.0 (2025-03-20)
 
 -(Thomas Kümmel)

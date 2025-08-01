@@ -87,6 +87,15 @@
 							"filter": false,
 							"sort": true,
 							"default": "0"
+						},
+						{
+							"type": "checkbox",
+							"width": "5%",
+							"title": "Admin",
+							"attr": "admin",
+							"filter": false,
+							"sort": true,
+							"default": false
 						}
 					]
 				}
