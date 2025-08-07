@@ -15,8 +15,8 @@
 		},
 		"repoTime": "2025-01-28T14:19:44.725Z",
 		"recommendedVersions": {
-			"nodeJsAccepted": [16, 18, 20],
-			"nodeJsRecommended": 20,
+			"nodeJsAccepted": [22, 24],
+			"nodeJsRecommended": 22,
 			"npmRecommended": 10
 		}
 	},

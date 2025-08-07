@@ -171,8 +171,6 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 -Add User input of Files in an standard Dialog - It can be used for different file uploads
 -Add the Edit-function for Maintenance Plan
 
--ToDo: - check the admin mode - show only active maintenances - admin mode: show all maintenances and machines
-
 ### 0.3.0 (2025-03-20)
 
 -(Thomas Kümmel)

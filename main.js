@@ -745,7 +745,7 @@ class SqlTelegramFarm extends utils.Adapter {
 				}
 				break;
 
-			//endregion
+			//#endregion
 		}
 		if (newUserMenu) {
 			this.sendMenuToUser(user, newUserMenu, userCache);
@@ -819,7 +819,6 @@ class SqlTelegramFarm extends utils.Adapter {
 				break;
 
 			//#endregion
-
 			//#region FIREWOOD
 			case MENU.FIREWOOD._:
 				text.push(MENU.FIREWOOD._text);
