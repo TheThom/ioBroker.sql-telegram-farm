@@ -162,8 +162,7 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 0.4.0 (2025-08-07)
 
 -(Thomas Kümmel)
 -Add the "hourMeterOffset" to the history output, if there is a hour Meter
