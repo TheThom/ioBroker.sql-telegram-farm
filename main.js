@@ -170,7 +170,7 @@ class SqlTelegramFarm extends utils.Adapter {
 		////			fs.mkdirSync(this.config.database.filepath + FOLDER.MACHINES.MAINTENANCE);
 		////		}
 
-		await this.updateFileSystem();
+		await this.updateFileSystem('noUser');
 
 		this.setState('info.connection', true, true);
 	}
@@ -544,10 +544,15 @@ class SqlTelegramFarm extends utils.Adapter {
 				break;
 			case MENU.FIREWOOD.EDIT.DELETE._:
 				if (command == MENU.SPECIALS.DELETE) {
-					if (await this.sql.set(user, MYSQL.SET.FIREWOOD.DELETE, userCache)) {
-						this.sendTextToUser(user, 'Eintrag wurde erfolgreich gelöscht');
-						userCache = emtyUserCache;
-						newUserMenu = MENU.FIREWOOD._;
+					userCache[MENU.FIREWOOD.EDIT.AMOUNT_DETAILED._] = 0;
+					if (await this.sql.set(user, MYSQL.SET.FIREWOOD.SAVE_EDIT, userCache)) {
+						if (await this.sql.set(user, MYSQL.SET.FIREWOOD.DELETE, userCache)) {
+							this.sendTextToUser(user, 'Eintrag wurde erfolgreich gelöscht');
+							userCache = emtyUserCache;
+							newUserMenu = MENU.FIREWOOD._;
+						} else {
+							newUserMenu = MENU.FIREWOOD.EDIT._;
+						}
 					} else {
 						newUserMenu = MENU.FIREWOOD.EDIT._;
 					}
@@ -685,9 +690,7 @@ class SqlTelegramFarm extends utils.Adapter {
 				} else if (command == MENU.SPECIALS.SAVE) {
 					if (await this.sql.set(user, MYSQL.SET.MACHINES.MAINTENANCE.SAVE_EDIT, userCache)) {
 						this.sendTextToUser(user, 'Eintrag wurde erfolgreich geändert');
-						if (!this.updateFileSystem()) {
-							this.sendTextToUser(user, '!Error while updateFileSystem()');
-						}
+						await this.updateFileSystem(user);
 						userCache = emtyUserCache;
 						newUserMenu = MENU.MACHINES_CATEGORY._;
 					} else {
@@ -1262,8 +1265,6 @@ class SqlTelegramFarm extends utils.Adapter {
 				if (fs.existsSync(command)) {
 					return command;
 				}
-				this.sendTextToUser(user, 'asdffff');
-				this.sendTextToUser(user, command);
 				return '!Datei konnte nicht empfangen werden - Datei existiert nicht: "' + command + '"';
 			}
 			case MENU.DIALOG.FILE._: {
@@ -1338,7 +1339,7 @@ class SqlTelegramFarm extends utils.Adapter {
 
 	async sendKeyboardToUser(user, text, keyboard) {
 		if (!user) {
-			this.log.warn('sendTextToUser: No user defined; text: "' + text + '"');
+			this.log.warn('sendKeyboardToUser: No user defined; text: "' + text + '"');
 		}
 
 		let displayText = '';
@@ -1389,12 +1390,20 @@ class SqlTelegramFarm extends utils.Adapter {
 		}
 		//const items = await fs.readdirSync(filePath);
 		//for (const item of items) {
-		this.sendTo(TELEGRAM_NODE + this.config.telegram.instance, 'send', { text: filePath, user: user });
+		this.sendTo(TELEGRAM_NODE + this.config.telegram.instance, 'send', {
+			text: filePath,
+			caption: 'Snapshot',
+			user: user,
+		});
 		//}
 	}
 
-	async updateFileSystem() {
+	async updateFileSystem(user) {
+		if (!user) {
+			this.log.warn('updateFileSystem: No user defined;');
+		}
 		if (!this.sql) {
+			this.sendTextToUser(user, 'updateFileSystem: No sql connection possible - return');
 			return false;
 		}
 		const maintenanceIds = await this.sql.get('noUser', MYSQL.GET.MACHINES.MAINTENANCE.ALL_IDS);
@@ -1440,12 +1449,12 @@ class SqlTelegramFarm extends utils.Adapter {
 			this.log.warn('getFiles: No user defined; filePath: "' + filePath + '"');
 			return;
 		}
+		const result = [];
 		if (!fs.existsSync(filePath)) {
-			this.sendTextToUser(user, 'getFiles: Verzeichnis existiert nicht: "' + filePath + '"');
-			return;
+			//this.sendTextToUser(user, 'getFiles: Verzeichnis existiert nicht: "' + filePath + '"');
+			return result;
 		}
 		const items = await fs.readdirSync(filePath);
-		const result = [];
 		for (const item of items) {
 			result.push(item);
 		}
@@ -1513,10 +1522,12 @@ function generateKeyboard(arrValues, columns, menu) {
 	const arrKeyboard = new Array();
 	let arrTemp = [];
 	let valuesCount = 0;
+	const arrValuesLength = arrValues ? arrValues.length : 0;
+	console.error('arrValuesLength' + arrValuesLength);
 	if (!columns) {
 		columns = 1;
 	}
-	for (let rowCount = 0; rowCount < arrValues.length / columns; rowCount++) {
+	for (let rowCount = 0; rowCount < arrValuesLength / columns; rowCount++) {
 		arrTemp = [];
 		for (let columnCount = 0; columnCount < columns; columnCount++) {
 			if (arrValues.length > valuesCount) {

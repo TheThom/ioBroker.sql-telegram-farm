@@ -92,6 +92,10 @@ important functions:
 - generateKeyboard(arrValues, columns, menu) => "arrValues" and afterwards "menu" are converted in a array:[[],[]] with the amount of "columns"
 - generateNumberedChoiseKeyboard(start, end, ...) => Used to generate a Number-selection-keyboard => See the function itself
 
+Folder path for devServer
+production: /opt/iobroker/iobroker-data/files/sql-telegram-farm.0/machines/maintenance/
+testServer: /home/pi/TKadapters/ioBroker.sql-telegram-farm/TestFiles/
+
 ### DISCLAIMER
 
 This adapter is is programmed for an individual purpose. Do not use this adapter: It will not work for anyone.
@@ -162,6 +166,20 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+
+- Fix: Firewood Delete
+- Fix: Machines Maintenance - HourMeterOffset
+- Fix: If creating a new maintenance and it is the first for this machineId
+- Fix: If there is no file in FileDialog: Error "getFiles": Path is not existing
+- Add: Wood Status - Date of creation
+
+ToDo:
+
+- check the admin mode: In main menu: Admin mode selectable if in Adapter config activated - show only active maintenances - admin mode: show all maintenances and machines
+  -Files Dialog: Delete / Archivate files in admin mode
+
 ### 0.4.0 (2025-08-07)
 
 -(Thomas Kümmel)

@@ -1,6 +1,6 @@
 {
 	"MACHINES": {
-		"_": "/machines/",
-		"MAINTENANCE": "/machines/maintenance/"
+		"_": "machines/",
+		"MAINTENANCE": "machines/maintenance/"
 	}
 }

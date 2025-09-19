@@ -44,7 +44,7 @@
 				"database.filepath": {
 					"newLine": true,
 					"type": "text",
-					"label": "Filepath to FileStorage - Standard IO Broker: /opt/iobroker/iobroker-data/files/sql-telegram-farm.0",
+					"label": "Absolute Filepath to FileStorage - Standard IO Broker: /opt/iobroker/iobroker-data/files/sql-telegram-farm.0",
 					"maxLength": 200,
 					"sm": 4
 				},
