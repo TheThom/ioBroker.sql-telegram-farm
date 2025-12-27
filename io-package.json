@@ -1,7 +1,7 @@
 {
 	"common": {
 		"name": "sql-telegram-farm",
-		"version": "0.4.0",
+		"version": "0.5.0",
 		"news": {
 			"0.4.0": {
 				"en": "\nAdd the \"hourMeterOffset\" to the history output, if there is a hour Meter\nAdd the Admin mode => Special settings that are not always visible (e.g. new Maintenance, ..)\nAdd User input of Files in an standard Dialog - It can be used for different file uploads\nAdd the Edit-function for Maintenance Plan",
