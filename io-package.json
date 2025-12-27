@@ -1,199 +1,205 @@
 {
-	"common": {
-		"name": "sql-telegram-farm",
-		"version": "0.5.0",
-		"news": {
-			"0.4.0": {
-				"en": "\nAdd the \"hourMeterOffset\" to the history output, if there is a hour Meter\nAdd the Admin mode => Special settings that are not always visible (e.g. new Maintenance, ..)\nAdd User input of Files in an standard Dialog - It can be used for different file uploads\nAdd the Edit-function for Maintenance Plan",
-				"de": "\nFügen Sie das \"hourMeterOffset\" in die Geschichte Ausgabe, wenn es eine Stunde Meter\nAdmin Modus hinzufügen => Spezielle Einstellungen, die nicht immer sichtbar sind (z.B. neue Wartung, ..)\nHinzufügen der Benutzereingabe von Dateien in einem Standarddialog - Es kann für verschiedene Datei-Uploads verwendet werden\nFügen Sie die Edit-Funktion für Wartungsplan hinzu",
-				"ru": "\nДобавьте «hourMeterOffset» к выходу истории, если есть час Meter\nДобавить режим Admin => Специальные настройки, которые не всегда видны (например, новое техническое обслуживание)\nДобавить пользовательский ввод файлов в стандартный Диалог - Может использоваться для различных загрузок файлов\nДобавить функцию редактирования для плана технического обслуживания",
-				"pt": "\nAdicionar o \"hourMeterOffset\" à saída do histórico, se houver um medidor de hora\nAdicionar o modo de administração => Configurações especiais que nem sempre são visíveis (por exemplo, nova Manutenção, ..)\nAdicionar a entrada do usuário de arquivos em uma janela padrão - Ele pode ser usado para diferentes uploads de arquivos\nAdicionar a função de edição para plano de manutenção",
-				"nl": "\nVoeg de \"hourMeterOffset\" toe aan de geschiedenisuitvoer, als er een uur Meter is\nBeheermodus => toevoegen Speciale instellingen die niet altijd zichtbaar zijn (bv. nieuw onderhoud, ..)\nGebruikersinvoer van bestanden toevoegen in een standaard dialoog - Het kan gebruikt worden voor verschillende bestandsuploads\nVoeg de Bewerken-functie voor Onderhoudsplan toe",
-				"fr": "\nAjouter le « hourMeterOffset » à la sortie historique, s'il y a une heure de compteur\nAjouter le mode Admin => Paramètres spéciaux qui ne sont pas toujours visibles (p. ex. nouvelle maintenance, ..)\nAjouter l'entrée utilisateur des fichiers dans une boîte de dialogue standard - Il peut être utilisé pour différents chargements de fichiers\nAjouter la fonction Édition pour le plan de maintenance",
-				"it": "\nAggiungi \"hourMeterOffset\" all'output di storia, se c'è un'ora Meter\nAggiungi la modalità Admin => Impostazioni speciali non sempre visibili (ad es. nuova manutenzione, ..)\nAggiungi l'ingresso utente dei file in un Dialog standard - Può essere utilizzato per diversi upload di file\nAggiungi la funzione Modifica per il piano di manutenzione",
-				"es": "\nAñadir el \"horaMeterOffset\" a la salida de la historia, si hay una hora Meter\nAñada el modo Admin = Ajustes especiales que no siempre son visibles (por ejemplo, mantenimiento nuevo, ..)\nAñadir entrada de usuario de archivos en un diagrama estándar - Se puede utilizar para diferentes subidas de archivos\nAñada la función de edición del plan de mantenimiento",
-				"pl": "\nDodaj \"hourMeterOffset\" do wyjścia historii, jeśli jest godzina Meter\nDodaj tryb admin = > Specjalne ustawienia, które nie zawsze są widoczne (np. nowa konserwacja,..)\nDodaj wejście użytkownika plików w standardowym oknie dialogowym - Może być używany do różnych plików\nDodaj funkcję Edyt- dla planu utrzymania",
-				"uk": "\nДодайте \"годуMeterOffset\" до виходу історії, якщо є година Meter\nДодати режим адміністратора => Спеціальні параметри, які не завжди видимі (наприклад, новий Обслуговування, .)\nДодати введення файлів у стандартний ділог - Він може використовуватися для отримання різних файлів\nДодати Редагування для плану обслуговування",
-				"zh-cn": "\n在历史输出中添加“ hourMeterOffset ” , 如果有一个小时Meter\n添加管理模式 QQ 并不总是可见的特殊设置(如新维护,\n在标准对话框中添加文件的用户输入 - 它可用于不同的文件上传\n添加维护计划的编辑功能"
-			},
-			"0.3.0": {
-				"en": "\nAdd the \"maintenance done\" menu\nChanged the database column \"Date\" to \"DateTime\", because of time overlapping with maintenance calculations\nAudentification optimized: Only registered users can send messages\nEnsure the connection to the mySql Server every specified interval\nHandle recieved files /opt/iobroker/iobroker-data/telegram_1 => react to \"requestRaw\" of telegram adapter\nFunction send files\nSend Files for Maintenance Tasks\nadded program description to developer manual",
-				"de": "\nFügen Sie das Menü \"Wartung erledigt\" hinzu\nÄnderte die Datenbankspalte \"Date\" auf \"DateTime\", weil die Zeit mit Wartungsberechnungen überlappt\nVersteigerung optimiert: Nur registrierte Benutzer können Nachrichten senden\nStellen Sie die Verbindung zum mySql Server jedes angegebene Intervall sicher\nDateien /opt/iobroker/iobroker-data/telegram_1 => auf \"requestRaw\" des Telegrammadapters reagieren\nFunktion senden Dateien\nDateien für Wartungsaufgaben senden\nprogrammbeschreibung zu entwicklerhandbuch hinzugefügt",
-				"ru": "\nДобавить меню «Сохранение сделано»\nИзменили столбец базы данных \"Дата\" на \"ДатаВремя\", из-за перекрытия времени с расчетами технического обслуживания\nАудитория оптимизирована: Только зарегистрированные пользователи могут отправлять сообщения\nОбеспечить подключение к серверу mySql через каждый указанный интервал\nОбработка полученных файлов /opt/iobroker/iobroker-data/telegram_1 => реагировать на \"requestRaw\"\nФункция отправки файлов\nОтправить файлы для задач технического обслуживания\nдобавлено описание программы в руководство для разработчиков",
-				"pt": "\nAdicione o menu \"maintenance done\"\nAlterou a coluna de banco de dados \"Date\" para \"DateTime\", por causa do tempo sobreposta com cálculos de manutenção\nAudentificação otimizada: Somente usuários registrados podem enviar mensagens\nAssegurar a conexão com o servidor mySql a cada intervalo especificado\nLidar com arquivos recieved /opt/iobroker/iobroker-data/telegram_1 => reagem ao \"requestRaw\" do adaptador de telegrama\nFunção enviar arquivos\nEnviar arquivos para tarefas de manutenção\ndescrição do programa adicionado ao manual do desenvolvedor",
-				"nl": "\nHet menu \"onderhoud gedaan\" toevoegen\nVeranderde de database kolom \"Date\" in \"DateTime,\" vanwege tijd overlappen met onderhoud berekeningen\nAanmelding geoptimaliseerd: Alleen geregistreerde gebruikers kunnen berichten versturen\nZorg ervoor dat de verbinding met de mySql-server elke opgegeven interval\nBehandel ontvangen bestanden /opt/iobroker/iobroker-data/telegram_1 => reageer op \"requestRaw\" van telegramadapter\nFunctie bestanden versturen\nBestanden verzenden voor onderhoudstaken\nprogrammabeschrijving toegevoegd aan ontwikkelaar handleiding",
-				"fr": "\nAjouter le menu \"entretien fait\"\nModification de la colonne de base de données \"Date\" à \"DateTime\", en raison du chevauchement du temps avec les calculs de maintenance\nAuthentification optimisée : Seuls les utilisateurs enregistrés peuvent envoyer des messages\nAssurer la connexion au serveur mySql à chaque intervalle spécifié\nGérer les fichiers reçus /opt/iobroker/iobroker-data/telegram_1 => réagir à \"requestRaw\" de l'adaptateur de télégramme\nFonction envoyer les fichiers\nEnvoyer des fichiers pour les tâches de maintenance\na ajouté la description du programme au manuel du développeur",
-				"it": "\nAggiungi il menu \"manutenzione fatto\"\nModificata la colonna del database \"Date\" in \"DateTime\", a causa di sovrapposizioni di tempo con calcoli di manutenzione\nAudentificazione ottimizzata: Solo gli utenti registrati possono inviare messaggi\nAssicurare la connessione al server mySql ogni intervallo specificato\nManigliare file /opt/iobroker/iobroker-data/telegram_1 => reagire a \"requestRaw\" dell'adattatore del telegramma\nFunzione invia file\nInvia file per attività di manutenzione\naggiunta descrizione del programma per lo sviluppatore manuale",
-				"es": "\nAñadir el menú \"mantenimiento hecho\"\nCambió la columna de base \"Fecha\" a \"DateTime\", debido al tiempo superpuesto con cálculos de mantenimiento\nAudentificación optimizada: Sólo los usuarios registrados pueden enviar mensajes\nAsegurar la conexión con el servidor mySql cada intervalo especificado\nArchivos reconstruidos /opt/iobroker/iobroker-data/telegram_1 = confianza reaccionan a \"requestRaw\" del adaptador de telegrama\nFunción enviar archivos\nEnviar archivos para tareas de mantenimiento\ndescripción del programa añadido al manual del desarrollador",
-				"pl": "\nDodaj menu \"konserwacja wykonana\"\nZmieniono kolumnę bazy danych \"Data\" na \"DateTime\" z powodu pokrywania się czasu z obliczeniami utrzymania\nAudycja zoptymalizowana: Tylko zarejestrowani użytkownicy mogą wysyłać wiadomości\nZapewnienie połączenia z serwerem mySql w każdym określonym przedziale czasu\nPoruszane pliki / opt / iobroker / iobroker- data / telegram _ 1 = > reagują na \"requestRaw\" adaptera telegramu\nFunkcja wysyłania plików\nWyślij pliki do zadań konserwacyjnych\ndodany opis programu do podręcznika programisty",
-				"uk": "\nДодати меню «Потенції зроблено»\nЗмінено колону бази даних \"Дата\" до \"DateTime\", через перекриття часу з розрахунками технічного обслуговування\nОптимізоване визначення: Тільки зареєстровані користувачі можуть надсилати повідомлення\nЗабезпечити підключення до сервера mySql вказаний інтервал\nHandle recieved files/opt/iobroker/iobroker-data/telegram_1 => реагувати на \"requestRaw\" адаптера телеграми\nФункція надсилання файлів\nВідправити файли для завдань технічного обслуговування\nдодано опис програми для керівництва розробника",
-				"zh-cn": "\n添加“ 维护完成” 菜单\n将数据库栏\"Date\"改为\"DateTime\",因为时间与维护计算重叠\n认证优化 : 只有注册用户才能发送消息\n确保每个指定间隔连接 MySql 服务器\nHandle reviewed files /opt/iobrocast/iobrocast-data/telegram_1 响应电报适配器的\"requestRaw\"\n函数发送文件\n发送文件用于维护任务\n向开发者手册添加程序描述"
-			},
-			"0.2.0": {
-				"en": "-Put all sql actions in a seperate class and seperate file\nConstants for MENU and SQL are also in seperate files\nMachine Menu created: Use machine, History, basics for Maintenance",
-				"de": "-Put alle sql Aktionen in einer seperate Klasse und seperate Datei\nKonstanten für MENU und SQL sind auch in seperate Dateien\nMaschine Menü erstellt: Gebrauchsmaschine, Geschichte, Grundlagen für Wartung",
-				"ru": "-Включите все действия по квадрату в отрывном классе и отшельном файле\nПостояны для MENU и SQL также в отрывных файлах\nМашина Меню создан: Использовать машину, История, основы для обслуживания",
-				"pt": "- Coloque todas as ações sql em uma classe seperada e arquivo seperate\nConstantes para MENU e SQL também estão em arquivos seperados\nMáquina Menu criado: Usar máquina, história, básico para manutenção",
-				"nl": "- Zet alle sql acties in een aparte klasse en apart bestand\nConstanten voor MENU en SQL zijn ook in aparte bestanden\nMachine Menu aangemaakt: Gebruik machine, geschiedenis, basis voor onderhoud",
-				"fr": "-Mettez toutes les actions sql dans un fichier de classe et de classe séparé\nLes constantes pour MENU et SQL sont également dans des fichiers séparés\nMachine Menu créé : Utiliser la machine, l'historique, les bases pour l'entretien",
-				"it": "-Put tutte le azioni sql in una classe di seperate e seperate file\nCostanti per MENU e SQL sono anche in file seperati\nMacchina Menu creato: Macchina d'uso, Storia, basi per manutenzione",
-				"es": "-Pon todas las acciones en una clase seperada y un archivo seperado\nConstantes para MENU y SQL también están en archivos seperados\nMáquina Menú creado: Uso de máquina, historia, básicos para mantenimiento",
-				"pl": "-Umieść wszystkie akcje sql w klasie seperate i seperate pliku\nStałe dla MENU i SQL są również w seperate plików\nMaszyna Menu utworzone: Użycie maszyny, Historia, podstawy do konserwacji",
-				"uk": "-Розмістіть всі рухомі дії в класі seperate і відсортувати файл\nКонстанти для MENU та SQL також у вилучених файлах\nМашини Меню створено: Використання машини, Історія, основи технічного обслуговування",
-				"zh-cn": "- 将所有 sql 动作设置在一个 seperate 类和 seperate 文件\nMENU 和 SQL 的常数也在分隔文件中\n机器 创建菜单 : 使用机器、历史、基本维护"
-			},
-			"0.1.0": {
-				"en": "Try to reconnect the database automatically + Edit Wood Menu + A lot of bug fixes",
-				"de": "Versuchen Sie, die Datenbank automatisch wiederzuschalten + Holzmenü bearbeiten + Viele Fehlerbehebungen",
-				"ru": "Попытайтесь восстановить базу данных автоматически + Edit Wood Menu + Много исправлений ошибок",
-				"pt": "Tente reconectar o banco de dados automaticamente + Editar Menu de Madeira + Muitas correções de bugs",
-				"nl": "Probeer de database automatisch opnieuw aan te sluiten + Menu Hout bewerken + Veel bugfixes",
-				"fr": "Essayez de reconnecter la base de données automatiquement + Modifier le menu bois + Beaucoup de corrections de bugs",
-				"it": "Cerca di riconnettere il database automaticamente + Modifica menu legno + Molte correzioni di bug",
-				"es": "Trate de reconectar la base de datos automáticamente + Editar menú de madera + Muchas correcciones de errores",
-				"pl": "Spróbuj ponownie połączyć bazę danych automatycznie + Edytuj menu drewna + Wiele poprawek",
-				"uk": "Намагайтеся відключати базу даних автоматично + Редагувати деревне меню + Багато виправлення помилок",
-				"zh-cn": "尝试自动重连接数据库 + 编辑 Wood 菜单+ 许多错误修正"
-			},
-			"0.0.3": {
-				"en": "Adapter state + depenecies updated",
-				"de": "Adapterzustand + Depenecies aktualisiert",
-				"ru": "Состояние адаптера + обновленные",
-				"pt": "Adapter state + depenecies Atualizado",
-				"nl": "Adapterstatus + depenecies bijgewerkt",
-				"fr": "État de l'adaptateur + dépénécies mises à jour",
-				"it": "Stato adattatore + depenenze aggiornate",
-				"es": "Estado adaptador + depenecies actualizadas",
-				"pl": "Aktualizacja stanu adaptera + zależności",
-				"uk": "Статус на сервери",
-				"zh-cn": "更新适配状态 + 减值"
-			},
-			"0.0.2": {
-				"en": "initial release",
-				"de": "erstausstrahlung",
-				"ru": "первоначальный выпуск",
-				"pt": "lançamento inicial",
-				"nl": "eerste release",
-				"fr": "libération initiale",
-				"it": "rilascio iniziale",
-				"es": "liberación inicial",
-				"pl": "początkowe zwolnienie",
-				"uk": "початковий реліз",
-				"zh-cn": "初步释放"
-			},
-			"0.0.1": {
-				"en": "initial release",
-				"de": "Erstveröffentlichung",
-				"ru": "Начальная версия",
-				"pt": "lançamento inicial",
-				"nl": "Eerste uitgave",
-				"fr": "Première version",
-				"it": "Versione iniziale",
-				"es": "Versión inicial",
-				"pl": "Pierwsze wydanie",
-				"uk": "Початкова версія",
-				"zh-cn": "首次出版"
-			}
-		},
-		"titleLang": {
-			"en": "sql-telegram-farm",
-			"de": "SQL-Telegram-Farm",
-			"ru": "sql-телеграмма-ферма",
-			"pt": "sql-telegram-farm",
-			"nl": "sql-telegram-farm",
-			"fr": "ferme de télégrammes SQL",
-			"it": "sql-telegram-farm",
-			"es": "granja-de-telegramas-sql",
-			"pl": "farma telegramów sql",
-			"uk": "sql-телеграм-ферма",
-			"zh-cn": "sql 电报农场"
-		},
-		"desc": {
-			"en": "Provide a telegram menu to operate a MySQL Database",
-			"de": "Stellen Sie ein Telegrammmenü zur Verfügung, um eine MySQL-Datenbank zu betreiben",
-			"ru": "Предоставьте меню телеграммы для работы с базой данных MySQL.",
-			"pt": "Fornece um menu de telegrama para operar um banco de dados MySQL",
-			"nl": "Zorg voor een telegrammenu om een ​​MySQL-database te bedienen",
-			"fr": "Fournir un menu de télégramme pour faire fonctionner une base de données MySQL",
-			"it": "Provide a telegram menu to operate a MySQL Database",
-			"es": "Proporcionar un menú de telegramas para operar una base de datos MySQL",
-			"pl": "Udostępnij menu telegramu do obsługi bazy danych MySQL",
-			"uk": "Надайте меню телеграми для роботи з базою даних MySQL",
-			"zh-cn": "提供电报菜单来操作MySQL数据库"
-		},
-		"authors": ["Thomas Kümmel <thomas.kuemmel@outlook.de>"],
-		"keywords": ["MySQL", "Telegram", "Menu"],
-		"licenseInformation": {
-			"type": "free",
-			"license": "MIT"
-		},
-		"platform": "Javascript/Node.js",
-		"icon": "sql-telegram-farm.png",
-		"enabled": true,
-		"extIcon": "https://raw.githubusercontent.com/TheThom/ioBroker.sql-telegram-farm/main/admin/sql-telegram-farm.jpg",
-		"readme": "https://github.com/TheThom/ioBroker.sql-telegram-farm/blob/main/README.md",
-		"loglevel": "info",
-		"tier": 3,
-		"mode": "daemon",
-		"type": "messaging",
-		"compact": true,
-		"connectionType": "cloud",
-		"dataSource": "poll",
-		"adminUI": {
-			"config": "json"
-		},
-		"dependencies": [
-			{
-				"js-controller": ">=6.0.11"
-			}
-		],
-		"globalDependencies": [
-			{
-				"admin": ">=7.6.2"
-			}
-		]
-	},
-	"native": {
-		"database": {
-			"server": "",
-			"port": 3306,
-			"database": "",
-			"user": "",
-			"password": "",
-			"filepath": "/home/pi/TKadapters/ioBroker.sql-telegram-farm/TestFiles/",
-			"intervalEnsureConnection": 60
-		},
-		"telegram": {
-			"instance": "1",
-			"users": []
-		},
-		"machines": {
-			"maintenanceReminderInterval": 7,
-			"maintenanceReminderHour": ""
-		}
-	},
-	"objects": [],
-	"instanceObjects": [
-		{
-			"_id": "info",
-			"type": "channel",
-			"common": {
-				"name": "Information"
-			},
-			"native": {}
-		},
-		{
-			"_id": "info.connection",
-			"type": "state",
-			"common": {
-				"role": "indicator.connected",
-				"name": "Device or service connected",
-				"type": "boolean",
-				"read": true,
-				"write": false,
-				"def": false
-			},
-			"native": {}
-		}
-	]
+  "common": {
+    "name": "sql-telegram-farm",
+    "version": "0.5.1",
+    "news": {
+      "0.5.1": {
+        "en": "Fix: If creating a new Maintenance and adding a file - Error because the folder path was not created yet\nFix: Machines Add use - HourMeterOffset was not working",
+        "de": "Fix: Wenn Sie eine neue Wartung erstellen und eine Datei hinzufügen - Fehler, weil der Ordnerpfad noch nicht erstellt wurde\nFix: Maschinen Verwendung hinzufügen - HourMeterOffset funktionierte nicht",
+        "ru": "Исправление: при создании нового Обслуживания и добавлении файла - Ошибка, потому что путь папки еще не создан\nИсполнитель: Machines HourMeterOffset не работает",
+        "pt": "Corrigir: Se criar uma nova Manutenção e adicionar um ficheiro - Erro porque a localização da pasta ainda não foi criada\nCorrigir: Máquinas Adicionar uso - HourMeterOffset não estava funcionando",
+        "nl": "Fix: Als een nieuw onderhoud wordt gemaakt en een bestand wordt toegevoegd - Fout omdat het mappad nog niet is aangemaakt\nFix: Machines Gebruik toevoegen - HourMeterOffset werkte niet",
+        "fr": "Correction : Si créer une nouvelle Maintenance et ajouter un fichier - Erreur parce que le chemin du dossier n'a pas encore été créé\nCorrection: Machines Ajouter l'utilisation - HourMeterOffset ne fonctionnait pas",
+        "it": "Fix: Se si crea una nuova manutenzione e si aggiunge un file - Errore perché il percorso della cartella non è stato ancora creato\nFisso: Macchine Aggiungi uso - HourMeterOffset non funzionava",
+        "es": "Fijación: Si crea un nuevo mantenimiento y añade un archivo - Error porque la ruta de la carpeta no fue creada aún\nFijación: Máquinas Add use - HourMeterOffset no estaba funcionando",
+        "pl": "Fix: Jeśli utworzyć nową obsługę techniczną i dodać plik - Błąd, ponieważ ścieżka folderu nie została jeszcze utworzona\nFix: Maszyny Dodaj użycie - HourMeterOffset nie działał",
+        "uk": "Виправлення: Якщо створення нового Обслуговування та додавання файлу - помилка, оскільки шлях папки не був створений\nФіксація: Машини Додати використання - HourMeterOffset не працює",
+        "zh-cn": "修正: 如果创建新的维护并添加文件 - 错误, 因为文件夹路径尚未创建\n修补:机器 添加使用 - HourMeterOffset 无法工作"
+      },
+      "0.4.0": {
+        "en": "\nAdd the \"hourMeterOffset\" to the history output, if there is a hour Meter\nAdd the Admin mode => Special settings that are not always visible (e.g. new Maintenance, ..)\nAdd User input of Files in an standard Dialog - It can be used for different file uploads\nAdd the Edit-function for Maintenance Plan",
+        "de": "\nFügen Sie das \"hourMeterOffset\" in die Geschichte Ausgabe, wenn es eine Stunde Meter\nAdmin Modus hinzufügen => Spezielle Einstellungen, die nicht immer sichtbar sind (z.B. neue Wartung, ..)\nHinzufügen der Benutzereingabe von Dateien in einem Standarddialog - Es kann für verschiedene Datei-Uploads verwendet werden\nFügen Sie die Edit-Funktion für Wartungsplan hinzu",
+        "ru": "\nДобавьте «hourMeterOffset» к выходу истории, если есть час Meter\nДобавить режим Admin => Специальные настройки, которые не всегда видны (например, новое техническое обслуживание)\nДобавить пользовательский ввод файлов в стандартный Диалог - Может использоваться для различных загрузок файлов\nДобавить функцию редактирования для плана технического обслуживания",
+        "pt": "\nAdicionar o \"hourMeterOffset\" à saída do histórico, se houver um medidor de hora\nAdicionar o modo de administração => Configurações especiais que nem sempre são visíveis (por exemplo, nova Manutenção, ..)\nAdicionar a entrada do usuário de arquivos em uma janela padrão - Ele pode ser usado para diferentes uploads de arquivos\nAdicionar a função de edição para plano de manutenção",
+        "nl": "\nVoeg de \"hourMeterOffset\" toe aan de geschiedenisuitvoer, als er een uur Meter is\nBeheermodus => toevoegen Speciale instellingen die niet altijd zichtbaar zijn (bv. nieuw onderhoud, ..)\nGebruikersinvoer van bestanden toevoegen in een standaard dialoog - Het kan gebruikt worden voor verschillende bestandsuploads\nVoeg de Bewerken-functie voor Onderhoudsplan toe",
+        "fr": "\nAjouter le « hourMeterOffset » à la sortie historique, s'il y a une heure de compteur\nAjouter le mode Admin => Paramètres spéciaux qui ne sont pas toujours visibles (p. ex. nouvelle maintenance, ..)\nAjouter l'entrée utilisateur des fichiers dans une boîte de dialogue standard - Il peut être utilisé pour différents chargements de fichiers\nAjouter la fonction Édition pour le plan de maintenance",
+        "it": "\nAggiungi \"hourMeterOffset\" all'output di storia, se c'è un'ora Meter\nAggiungi la modalità Admin => Impostazioni speciali non sempre visibili (ad es. nuova manutenzione, ..)\nAggiungi l'ingresso utente dei file in un Dialog standard - Può essere utilizzato per diversi upload di file\nAggiungi la funzione Modifica per il piano di manutenzione",
+        "es": "\nAñadir el \"horaMeterOffset\" a la salida de la historia, si hay una hora Meter\nAñada el modo Admin = Ajustes especiales que no siempre son visibles (por ejemplo, mantenimiento nuevo, ..)\nAñadir entrada de usuario de archivos en un diagrama estándar - Se puede utilizar para diferentes subidas de archivos\nAñada la función de edición del plan de mantenimiento",
+        "pl": "\nDodaj \"hourMeterOffset\" do wyjścia historii, jeśli jest godzina Meter\nDodaj tryb admin = > Specjalne ustawienia, które nie zawsze są widoczne (np. nowa konserwacja,..)\nDodaj wejście użytkownika plików w standardowym oknie dialogowym - Może być używany do różnych plików\nDodaj funkcję Edyt- dla planu utrzymania",
+        "uk": "\nДодайте \"годуMeterOffset\" до виходу історії, якщо є година Meter\nДодати режим адміністратора => Спеціальні параметри, які не завжди видимі (наприклад, новий Обслуговування, .)\nДодати введення файлів у стандартний ділог - Він може використовуватися для отримання різних файлів\nДодати Редагування для плану обслуговування",
+        "zh-cn": "\n在历史输出中添加“ hourMeterOffset ” , 如果有一个小时Meter\n添加管理模式 QQ 并不总是可见的特殊设置(如新维护,\n在标准对话框中添加文件的用户输入 - 它可用于不同的文件上传\n添加维护计划的编辑功能"
+      },
+      "0.3.0": {
+        "en": "\nAdd the \"maintenance done\" menu\nChanged the database column \"Date\" to \"DateTime\", because of time overlapping with maintenance calculations\nAudentification optimized: Only registered users can send messages\nEnsure the connection to the mySql Server every specified interval\nHandle recieved files /opt/iobroker/iobroker-data/telegram_1 => react to \"requestRaw\" of telegram adapter\nFunction send files\nSend Files for Maintenance Tasks\nadded program description to developer manual",
+        "de": "\nFügen Sie das Menü \"Wartung erledigt\" hinzu\nÄnderte die Datenbankspalte \"Date\" auf \"DateTime\", weil die Zeit mit Wartungsberechnungen überlappt\nVersteigerung optimiert: Nur registrierte Benutzer können Nachrichten senden\nStellen Sie die Verbindung zum mySql Server jedes angegebene Intervall sicher\nDateien /opt/iobroker/iobroker-data/telegram_1 => auf \"requestRaw\" des Telegrammadapters reagieren\nFunktion senden Dateien\nDateien für Wartungsaufgaben senden\nprogrammbeschreibung zu entwicklerhandbuch hinzugefügt",
+        "ru": "\nДобавить меню «Сохранение сделано»\nИзменили столбец базы данных \"Дата\" на \"ДатаВремя\", из-за перекрытия времени с расчетами технического обслуживания\nАудитория оптимизирована: Только зарегистрированные пользователи могут отправлять сообщения\nОбеспечить подключение к серверу mySql через каждый указанный интервал\nОбработка полученных файлов /opt/iobroker/iobroker-data/telegram_1 => реагировать на \"requestRaw\"\nФункция отправки файлов\nОтправить файлы для задач технического обслуживания\nдобавлено описание программы в руководство для разработчиков",
+        "pt": "\nAdicione o menu \"maintenance done\"\nAlterou a coluna de banco de dados \"Date\" para \"DateTime\", por causa do tempo sobreposta com cálculos de manutenção\nAudentificação otimizada: Somente usuários registrados podem enviar mensagens\nAssegurar a conexão com o servidor mySql a cada intervalo especificado\nLidar com arquivos recieved /opt/iobroker/iobroker-data/telegram_1 => reagem ao \"requestRaw\" do adaptador de telegrama\nFunção enviar arquivos\nEnviar arquivos para tarefas de manutenção\ndescrição do programa adicionado ao manual do desenvolvedor",
+        "nl": "\nHet menu \"onderhoud gedaan\" toevoegen\nVeranderde de database kolom \"Date\" in \"DateTime,\" vanwege tijd overlappen met onderhoud berekeningen\nAanmelding geoptimaliseerd: Alleen geregistreerde gebruikers kunnen berichten versturen\nZorg ervoor dat de verbinding met de mySql-server elke opgegeven interval\nBehandel ontvangen bestanden /opt/iobroker/iobroker-data/telegram_1 => reageer op \"requestRaw\" van telegramadapter\nFunctie bestanden versturen\nBestanden verzenden voor onderhoudstaken\nprogrammabeschrijving toegevoegd aan ontwikkelaar handleiding",
+        "fr": "\nAjouter le menu \"entretien fait\"\nModification de la colonne de base de données \"Date\" à \"DateTime\", en raison du chevauchement du temps avec les calculs de maintenance\nAuthentification optimisée : Seuls les utilisateurs enregistrés peuvent envoyer des messages\nAssurer la connexion au serveur mySql à chaque intervalle spécifié\nGérer les fichiers reçus /opt/iobroker/iobroker-data/telegram_1 => réagir à \"requestRaw\" de l'adaptateur de télégramme\nFonction envoyer les fichiers\nEnvoyer des fichiers pour les tâches de maintenance\na ajouté la description du programme au manuel du développeur",
+        "it": "\nAggiungi il menu \"manutenzione fatto\"\nModificata la colonna del database \"Date\" in \"DateTime\", a causa di sovrapposizioni di tempo con calcoli di manutenzione\nAudentificazione ottimizzata: Solo gli utenti registrati possono inviare messaggi\nAssicurare la connessione al server mySql ogni intervallo specificato\nManigliare file /opt/iobroker/iobroker-data/telegram_1 => reagire a \"requestRaw\" dell'adattatore del telegramma\nFunzione invia file\nInvia file per attività di manutenzione\naggiunta descrizione del programma per lo sviluppatore manuale",
+        "es": "\nAñadir el menú \"mantenimiento hecho\"\nCambió la columna de base \"Fecha\" a \"DateTime\", debido al tiempo superpuesto con cálculos de mantenimiento\nAudentificación optimizada: Sólo los usuarios registrados pueden enviar mensajes\nAsegurar la conexión con el servidor mySql cada intervalo especificado\nArchivos reconstruidos /opt/iobroker/iobroker-data/telegram_1 = confianza reaccionan a \"requestRaw\" del adaptador de telegrama\nFunción enviar archivos\nEnviar archivos para tareas de mantenimiento\ndescripción del programa añadido al manual del desarrollador",
+        "pl": "\nDodaj menu \"konserwacja wykonana\"\nZmieniono kolumnę bazy danych \"Data\" na \"DateTime\" z powodu pokrywania się czasu z obliczeniami utrzymania\nAudycja zoptymalizowana: Tylko zarejestrowani użytkownicy mogą wysyłać wiadomości\nZapewnienie połączenia z serwerem mySql w każdym określonym przedziale czasu\nPoruszane pliki / opt / iobroker / iobroker- data / telegram _ 1 = > reagują na \"requestRaw\" adaptera telegramu\nFunkcja wysyłania plików\nWyślij pliki do zadań konserwacyjnych\ndodany opis programu do podręcznika programisty",
+        "uk": "\nДодати меню «Потенції зроблено»\nЗмінено колону бази даних \"Дата\" до \"DateTime\", через перекриття часу з розрахунками технічного обслуговування\nОптимізоване визначення: Тільки зареєстровані користувачі можуть надсилати повідомлення\nЗабезпечити підключення до сервера mySql вказаний інтервал\nHandle recieved files/opt/iobroker/iobroker-data/telegram_1 => реагувати на \"requestRaw\" адаптера телеграми\nФункція надсилання файлів\nВідправити файли для завдань технічного обслуговування\nдодано опис програми для керівництва розробника",
+        "zh-cn": "\n添加“ 维护完成” 菜单\n将数据库栏\"Date\"改为\"DateTime\",因为时间与维护计算重叠\n认证优化 : 只有注册用户才能发送消息\n确保每个指定间隔连接 MySql 服务器\nHandle reviewed files /opt/iobrocast/iobrocast-data/telegram_1 响应电报适配器的\"requestRaw\"\n函数发送文件\n发送文件用于维护任务\n向开发者手册添加程序描述"
+      },
+      "0.2.0": {
+        "en": "-Put all sql actions in a seperate class and seperate file\nConstants for MENU and SQL are also in seperate files\nMachine Menu created: Use machine, History, basics for Maintenance",
+        "de": "-Put alle sql Aktionen in einer seperate Klasse und seperate Datei\nKonstanten für MENU und SQL sind auch in seperate Dateien\nMaschine Menü erstellt: Gebrauchsmaschine, Geschichte, Grundlagen für Wartung",
+        "ru": "-Включите все действия по квадрату в отрывном классе и отшельном файле\nПостояны для MENU и SQL также в отрывных файлах\nМашина Меню создан: Использовать машину, История, основы для обслуживания",
+        "pt": "- Coloque todas as ações sql em uma classe seperada e arquivo seperate\nConstantes para MENU e SQL também estão em arquivos seperados\nMáquina Menu criado: Usar máquina, história, básico para manutenção",
+        "nl": "- Zet alle sql acties in een aparte klasse en apart bestand\nConstanten voor MENU en SQL zijn ook in aparte bestanden\nMachine Menu aangemaakt: Gebruik machine, geschiedenis, basis voor onderhoud",
+        "fr": "-Mettez toutes les actions sql dans un fichier de classe et de classe séparé\nLes constantes pour MENU et SQL sont également dans des fichiers séparés\nMachine Menu créé : Utiliser la machine, l'historique, les bases pour l'entretien",
+        "it": "-Put tutte le azioni sql in una classe di seperate e seperate file\nCostanti per MENU e SQL sono anche in file seperati\nMacchina Menu creato: Macchina d'uso, Storia, basi per manutenzione",
+        "es": "-Pon todas las acciones en una clase seperada y un archivo seperado\nConstantes para MENU y SQL también están en archivos seperados\nMáquina Menú creado: Uso de máquina, historia, básicos para mantenimiento",
+        "pl": "-Umieść wszystkie akcje sql w klasie seperate i seperate pliku\nStałe dla MENU i SQL są również w seperate plików\nMaszyna Menu utworzone: Użycie maszyny, Historia, podstawy do konserwacji",
+        "uk": "-Розмістіть всі рухомі дії в класі seperate і відсортувати файл\nКонстанти для MENU та SQL також у вилучених файлах\nМашини Меню створено: Використання машини, Історія, основи технічного обслуговування",
+        "zh-cn": "- 将所有 sql 动作设置在一个 seperate 类和 seperate 文件\nMENU 和 SQL 的常数也在分隔文件中\n机器 创建菜单 : 使用机器、历史、基本维护"
+      },
+      "0.1.0": {
+        "en": "Try to reconnect the database automatically + Edit Wood Menu + A lot of bug fixes",
+        "de": "Versuchen Sie, die Datenbank automatisch wiederzuschalten + Holzmenü bearbeiten + Viele Fehlerbehebungen",
+        "ru": "Попытайтесь восстановить базу данных автоматически + Edit Wood Menu + Много исправлений ошибок",
+        "pt": "Tente reconectar o banco de dados automaticamente + Editar Menu de Madeira + Muitas correções de bugs",
+        "nl": "Probeer de database automatisch opnieuw aan te sluiten + Menu Hout bewerken + Veel bugfixes",
+        "fr": "Essayez de reconnecter la base de données automatiquement + Modifier le menu bois + Beaucoup de corrections de bugs",
+        "it": "Cerca di riconnettere il database automaticamente + Modifica menu legno + Molte correzioni di bug",
+        "es": "Trate de reconectar la base de datos automáticamente + Editar menú de madera + Muchas correcciones de errores",
+        "pl": "Spróbuj ponownie połączyć bazę danych automatycznie + Edytuj menu drewna + Wiele poprawek",
+        "uk": "Намагайтеся відключати базу даних автоматично + Редагувати деревне меню + Багато виправлення помилок",
+        "zh-cn": "尝试自动重连接数据库 + 编辑 Wood 菜单+ 许多错误修正"
+      },
+      "0.0.3": {
+        "en": "Adapter state + depenecies updated",
+        "de": "Adapterzustand + Depenecies aktualisiert",
+        "ru": "Состояние адаптера + обновленные",
+        "pt": "Adapter state + depenecies Atualizado",
+        "nl": "Adapterstatus + depenecies bijgewerkt",
+        "fr": "État de l'adaptateur + dépénécies mises à jour",
+        "it": "Stato adattatore + depenenze aggiornate",
+        "es": "Estado adaptador + depenecies actualizadas",
+        "pl": "Aktualizacja stanu adaptera + zależności",
+        "uk": "Статус на сервери",
+        "zh-cn": "更新适配状态 + 减值"
+      },
+      "0.0.2": {
+        "en": "initial release",
+        "de": "erstausstrahlung",
+        "ru": "первоначальный выпуск",
+        "pt": "lançamento inicial",
+        "nl": "eerste release",
+        "fr": "libération initiale",
+        "it": "rilascio iniziale",
+        "es": "liberación inicial",
+        "pl": "początkowe zwolnienie",
+        "uk": "початковий реліз",
+        "zh-cn": "初步释放"
+      }
+    },
+    "titleLang": {
+      "en": "sql-telegram-farm",
+      "de": "SQL-Telegram-Farm",
+      "ru": "sql-телеграмма-ферма",
+      "pt": "sql-telegram-farm",
+      "nl": "sql-telegram-farm",
+      "fr": "ferme de télégrammes SQL",
+      "it": "sql-telegram-farm",
+      "es": "granja-de-telegramas-sql",
+      "pl": "farma telegramów sql",
+      "uk": "sql-телеграм-ферма",
+      "zh-cn": "sql 电报农场"
+    },
+    "desc": {
+      "en": "Provide a telegram menu to operate a MySQL Database",
+      "de": "Stellen Sie ein Telegrammmenü zur Verfügung, um eine MySQL-Datenbank zu betreiben",
+      "ru": "Предоставьте меню телеграммы для работы с базой данных MySQL.",
+      "pt": "Fornece um menu de telegrama para operar um banco de dados MySQL",
+      "nl": "Zorg voor een telegrammenu om een ​​MySQL-database te bedienen",
+      "fr": "Fournir un menu de télégramme pour faire fonctionner une base de données MySQL",
+      "it": "Provide a telegram menu to operate a MySQL Database",
+      "es": "Proporcionar un menú de telegramas para operar una base de datos MySQL",
+      "pl": "Udostępnij menu telegramu do obsługi bazy danych MySQL",
+      "uk": "Надайте меню телеграми для роботи з базою даних MySQL",
+      "zh-cn": "提供电报菜单来操作MySQL数据库"
+    },
+    "authors": [
+      "Thomas Kümmel <thomas.kuemmel@outlook.de>"
+    ],
+    "keywords": [
+      "MySQL",
+      "Telegram",
+      "Menu"
+    ],
+    "licenseInformation": {
+      "type": "free",
+      "license": "MIT"
+    },
+    "platform": "Javascript/Node.js",
+    "icon": "sql-telegram-farm.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/TheThom/ioBroker.sql-telegram-farm/main/admin/sql-telegram-farm.jpg",
+    "readme": "https://github.com/TheThom/ioBroker.sql-telegram-farm/blob/main/README.md",
+    "loglevel": "info",
+    "tier": 3,
+    "mode": "daemon",
+    "type": "messaging",
+    "compact": true,
+    "connectionType": "cloud",
+    "dataSource": "poll",
+    "adminUI": {
+      "config": "json"
+    },
+    "dependencies": [
+      {
+        "js-controller": ">=6.0.11"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=7.6.2"
+      }
+    ]
+  },
+  "native": {
+    "database": {
+      "server": "",
+      "port": 3306,
+      "database": "",
+      "user": "",
+      "password": "",
+      "filepath": "/home/pi/TKadapters/ioBroker.sql-telegram-farm/TestFiles/",
+      "intervalEnsureConnection": 60
+    },
+    "telegram": {
+      "instance": "1",
+      "users": []
+    },
+    "machines": {
+      "maintenanceReminderInterval": 7,
+      "maintenanceReminderHour": ""
+    }
+  },
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "Device or service connected",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    }
+  ]
 }

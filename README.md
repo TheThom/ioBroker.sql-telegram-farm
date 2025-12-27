@@ -166,8 +166,7 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 0.5.1 (2025-12-27)
 
 - Fix: If creating a new Maintenance and adding a file - Error because the folder path was not created yet
 - Fix: Machines Add use - HourMeterOffset was not working
