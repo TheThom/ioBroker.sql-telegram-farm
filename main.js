@@ -715,6 +715,12 @@ class SqlTelegramFarm extends utils.Adapter {
 					}
 					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT._;
 				} else if (command.includes(MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.FILE_COUNT._text)) {
+					fs.mkdirSync(
+						this.config.database.filepath +
+							FOLDER.MACHINES.MAINTENANCE +
+							userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._],
+						{ recursive: true },
+					);
 					userCache[MENU.DIALOG.FILE.MENU_AT_EXIT] = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT._;
 					userCache[MENU.DIALOG.FILE.FILE_PATH] =
 						FOLDER.MACHINES.MAINTENANCE + userCache[MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID._] + '/';
@@ -888,7 +894,7 @@ class SqlTelegramFarm extends utils.Adapter {
 					0,
 					75,
 					25,
-					(userCache[MENU.FIREWOOD.NEW.AMOUNT] || userCache[MENU.FIREWOOD.EDIT.AMOUNT]) + '.',
+					(userCache[MENU.FIREWOOD.NEW.AMOUNT] || userCache[MENU.FIREWOOD.EDIT.AMOUNT] || 0) + '.',
 					'',
 					2,
 					MENU.SPECIALS.BACK,

@@ -166,7 +166,16 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+
+- Fix: If creating a new Maintenance and adding a file - Error because the folder path was not created yet
+- Fix: Machines Add use - HourMeterOffset was not working
+
 ### 0.5.0 (2025-09-19)
+
+=> Release 0.5 failed!!!!
+edit:iobroker [FATAL] Could not translate the news: AxiosError: Request failed with status code 503
 
 - Fix: Firewood Delete
 - Fix: Machines Maintenance - HourMeterOffset
