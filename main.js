@@ -27,6 +27,7 @@ let telegramInstanceNode = 'telegram.0.';
 const fs = require('fs');
 ////const schedule = require('node-schedule');
 const mySql = require('./lib/mySql');
+const docRec = require('./lib/documentRecognition');
 const MENU = require('./lib/menu.json');
 const MYSQL = require('./lib/mySql.json');
 const FOLDER = require('./lib/folder.json');
@@ -46,6 +47,7 @@ class SqlTelegramFarm extends utils.Adapter {
 		// this.on('message', this.onMessage.bind(this));
 		this.on('unload', this.onUnload.bind(this));
 		this.sql = null;
+		this.docRec = null;
 	}
 
 	/**
@@ -59,6 +61,8 @@ class SqlTelegramFarm extends utils.Adapter {
 			this.sql.mySqlEnsureConnection,
 			this.config.database.intervalEnsureConnection * 60000,
 		); //user input [min] interval [ms]
+
+		this.docRec = new docRec({ adapter: this });
 
 		/////////intervalMaintenanceReport = setInterval()
 		// Reset the connection indicator during startup
@@ -268,6 +272,11 @@ class SqlTelegramFarm extends utils.Adapter {
 		//let commandText = command.replace(/[^\x00-\xFF]/g,'').trim();                   //remove the emojis from the command (used to switch the command)
 		//const commandText = command;
 		if (!this.sql) {
+			this.sendTextToUser(user, 'prepareRequest: this.sql is not available');
+			return;
+		}
+		if (!this.docRec) {
+			this.sendTextToUser(user, 'prepareRequest: this.docRec is not available');
 			return;
 		}
 		console.log(this.config.telegram.users);
@@ -321,6 +330,12 @@ class SqlTelegramFarm extends utils.Adapter {
 					newUserMenu = MENU.FIREWOOD._;
 				} else if (command == MENU.MACHINES_CATEGORY._text) {
 					newUserMenu = MENU.MACHINES_CATEGORY._;
+				} else if (command == MENU.DIALOG.DOCREC._text) {
+					newUserMenu = MENU.DIALOG.DOCREC._;
+					userCache[MENU.DIALOG.DOCREC.FILE._] = '';
+					userCache[MENU.DIALOG.DOCREC.FILE_NOTE._] = '';
+					userCache[MENU.DIALOG.DOCREC.TYPE._] = '';
+					userCache[MENU.DIALOG.DOCREC.SHOW_REC._] = '';
 				} else {
 					newUserMenu = MENU._;
 				}
@@ -378,6 +393,52 @@ class SqlTelegramFarm extends utils.Adapter {
 				}
 				break;
 
+			//#region Document Recognition
+			case MENU.DIALOG.DOCREC._:
+				if (command == MENU.SPECIALS.ABORT) {
+					newUserMenu = MENU._;
+					userCache = emtyUserCache;
+				} else if (command == MENU.SPECIALS.SAVE) {
+					this.log.warn('save');
+					newUserMenu = MENU._;
+				} else if (command.includes(MENU.DIALOG.DOCREC.FILE_NOTE._text)) {
+					newUserMenu = MENU.DIALOG.DOCREC.FILE_NOTE._;
+				} else if (command.includes(MENU.DIALOG.DOCREC.FILE._text)) {
+					newUserMenu = MENU.DIALOG.DOCREC.FILE._;
+				} else if (command.includes(MENU.DIALOG.DOCREC.TYPE._text)) {
+					newUserMenu = MENU.DIALOG.DOCREC.TYPE._;
+				} else if (command.includes(MENU.DIALOG.DOCREC.SHOW_REC._text)) {
+					newUserMenu = MENU.DIALOG.DOCREC._;
+					if (userCache[MENU.DIALOG.DOCREC.TYPE._] && userCache[MENU.DIALOG.DOCREC.FILE._]) {
+						const res = await this.docRec.recognice(user, userCache);
+						userCache[MENU.DIALOG.DOCREC.SHOW_REC._] = res;
+						await this.sendTextToUser(user, res);
+					} else {
+						this.sendTextToUser(user, 'Dokumenttyp wählen und Datei hochladen');
+					}
+				}
+
+				break;
+
+			case MENU.DIALOG.DOCREC.FILE_NOTE._:
+			case MENU.DIALOG.DOCREC.TYPE._:
+				if (command == MENU.SPECIALS.BACK) {
+					newUserMenu = MENU.DIALOG.DOCREC._;
+				} else if (validInput) {
+					userCache[userMenu] = command;
+					newUserMenu = MENU.DIALOG.DOCREC._;
+				}
+				break;
+			case MENU.DIALOG.DOCREC.FILE._:
+				if (command == MENU.SPECIALS.BACK) {
+					newUserMenu = MENU.DIALOG.DOCREC._;
+				} else if (validInput) {
+					userCache[MENU.DIALOG.DOCREC.FILE._] = command;
+					newUserMenu = MENU.DIALOG.DOCREC._;
+				}
+				break;
+
+			//#endregion
 			//#endregion
 			// #region FIREWOOD
 			case MENU.FIREWOOD._:
@@ -746,6 +807,7 @@ class SqlTelegramFarm extends utils.Adapter {
 					newUserMenu = MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT._;
 				}
 				break;
+			//#endregion
 
 			default:
 				if (command == MENU._text) {
@@ -753,8 +815,6 @@ class SqlTelegramFarm extends utils.Adapter {
 					this.sendMenuToUser(user, MENU._);
 				}
 				break;
-
-			//#endregion
 		}
 		if (newUserMenu) {
 			this.sendMenuToUser(user, newUserMenu, userCache);
@@ -797,6 +857,7 @@ class SqlTelegramFarm extends utils.Adapter {
 				text.push(MENU._text);
 				keyboard.push([MENU.FIREWOOD._text]);
 				keyboard.push([MENU.MACHINES_CATEGORY._text]);
+				keyboard.push([MENU.DIALOG.DOCREC._text]);
 				if (userCache[MENU.ADMIN._]) {
 					keyboard.push([MENU.ADMIN._textTrue]);
 				} else {
@@ -826,6 +887,38 @@ class SqlTelegramFarm extends utils.Adapter {
 				text.push(MENU.DIALOG.FILE.ADD_FILE.NAME._text);
 				keyboard.push([MENU.SPECIALS.ABORT]);
 				break;
+
+			//region docRec
+			case MENU.DIALOG.DOCREC._:
+				text.push(MENU.DIALOG.DOCREC._text);
+				keyboard.push([MENU.DIALOG.DOCREC.TYPE._text + userCache[MENU.DIALOG.DOCREC.TYPE._]]);
+				if (userCache[MENU.DIALOG.DOCREC.FILE._]) {
+					keyboard.push([MENU.DIALOG.DOCREC.FILE._text + '\u{1F5CE}']);
+				} else {
+					keyboard.push([MENU.DIALOG.DOCREC.FILE._text]);
+				}
+				keyboard.push([MENU.DIALOG.DOCREC.FILE_NOTE._text + userCache[MENU.DIALOG.DOCREC.FILE_NOTE._]]);
+				keyboard.push([MENU.DIALOG.DOCREC.SHOW_REC._text]);
+				keyboard.push([MENU.SPECIALS.ABORT, MENU.SPECIALS.SAVE]);
+				break;
+
+			case MENU.DIALOG.DOCREC.FILE._:
+				text.push(MENU.DIALOG.DOCREC.FILE._text);
+				keyboard.push([MENU.SPECIALS.BACK]);
+				break;
+
+			case MENU.DIALOG.DOCREC.FILE_NOTE._:
+				text.push(MENU.DIALOG.DOCREC.FILE_NOTE._text);
+				keyboard.push([MENU.SPECIALS.BACK]);
+				break;
+
+			case MENU.DIALOG.DOCREC.TYPE._:
+				text.push(MENU.DIALOG.DOCREC.TYPE._text);
+				keyboard.push([MENU.DIALOG.DOCREC.TYPE.DEBUG]);
+				keyboard.push([MENU.SPECIALS.BACK]);
+				break;
+
+			//endregion
 
 			//#endregion
 			//#region FIREWOOD
@@ -1166,6 +1259,26 @@ class SqlTelegramFarm extends utils.Adapter {
 				}
 				return '!Ungültige Nummer: "' + command + '" - Existiert die Nummer?';
 			}
+
+			case MENU.DIALOG.DOCREC._: //Always valid (Menu navigation)
+			case MENU.FIREWOOD.EDIT._:
+			case MENU.MACHINES_CATEGORY.MACHINE.HISTORY._:
+				return command;
+
+			case MENU.DIALOG.DOCREC.FILE_NOTE._: //Text
+			case MENU.DIALOG.FILE.ADD_FILE.NAME._:
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.TITLE._:
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.DESCRIPTION._:
+			case MENU.FIREWOOD.NEW.NOTES:
+			case MENU.FIREWOOD.EDIT.NOTES._:
+			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.NOTE._:
+				if (command == MENU.SPECIALS.SKIP) {
+					return '-';
+				} else if (command == MENU.SPECIALS.SAVE) {
+					return '-';
+				}
+				return command;
+
 			case MENU.FIREWOOD.NEW.AMOUNT: //Number
 			case MENU.FIREWOOD.EDIT.AMOUNT:
 			case MENU.FIREWOOD.NEW.HUMIDITY:
@@ -1210,22 +1323,6 @@ class SqlTelegramFarm extends utils.Adapter {
 				}
 				return '!Ungültiger Typ: "' + command + '" - Bitte eine vorgeschlagenen Typ verwenden';
 			}
-			case MENU.DIALOG.FILE.ADD_FILE.NAME._:
-			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.TITLE._:
-			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.DESCRIPTION._:
-			case MENU.FIREWOOD.NEW.NOTES:
-			case MENU.FIREWOOD.EDIT.NOTES._:
-			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.NOTE._:
-				if (command == MENU.SPECIALS.SKIP) {
-					return '-';
-				} else if (command == MENU.SPECIALS.SAVE) {
-					return '-';
-				}
-				return command;
-
-			case MENU.FIREWOOD.EDIT._:
-			case MENU.MACHINES_CATEGORY.MACHINE.HISTORY._:
-				return command;
 
 			case MENU.MACHINES_CATEGORY._: {
 				const validCategory = await this.sql.get(user, MYSQL.GET.MACHINES.CATEGORY);
@@ -1267,6 +1364,7 @@ class SqlTelegramFarm extends utils.Adapter {
 				return '!Datei existiert nicht: "' + pathFile + '"';
 			}
 
+			case MENU.DIALOG.DOCREC.FILE._:
 			case MENU.DIALOG.FILE.ADD_FILE._: {
 				if (fs.existsSync(command)) {
 					return command;
@@ -1284,6 +1382,14 @@ class SqlTelegramFarm extends utils.Adapter {
 					return command;
 				}
 				return '!Ungültige Datei: "' + command + '" ausgewählt - Bitte eine vorgeschlagene Datei auswählen';
+			}
+
+			case MENU.DIALOG.DOCREC.TYPE._: {
+				switch (command) {
+					case MENU.DIALOG.DOCREC.TYPE.DEBUG:
+						return command;
+				}
+				return '!Ungültiger Typ: "' + command + '" ausgewählt - Bitte einen vorgeschlagenen Typen auswählen';
 			}
 
 			default:

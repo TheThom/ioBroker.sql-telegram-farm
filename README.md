@@ -166,6 +166,11 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+
+- Added Tresseract OCR for image recogicion => To install it, you need to run "apt-get install tesseract-ocr"
+
 ### 0.5.1 (2025-12-27)
 
 - Fix: If creating a new Maintenance and adding a file - Error because the folder path was not created yet

@@ -24,7 +24,12 @@
     "@iobroker/adapter-core": "^3.2.3",
     "mysql2": "^3.14.2",
     "node-schedule": "^2.1.1",
-    "npm-check": "^3.2.10"
+    "node-tesseract-ocr": "^2.2.1",
+    "sharp":"^0.34.5",
+    "fuse.js":"^7.1.0",
+    "npm-check": "^3.2.10",
+    "tesseract-ocr": "^1.0.0",
+    "@google/genai": "^1.40.0"
   },
   "devDependencies": {
     "@alcalzone/release-script": "^3.8.0",

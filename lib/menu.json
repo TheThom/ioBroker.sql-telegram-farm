@@ -108,6 +108,25 @@
 			"_text": "!! Auswertung !!"
 		}
 	},
+	"MASTER_DATA": {
+		"ACCOUNT": {
+			"_": "masterData.account",
+			"_text": "Accounts",
+			"EDIT": {
+				"_": "masterData.account.edit",
+				"ID": { "_": "masterData.account.edit.id", "_text": "id" },
+				"NAME": { "_": "masterData.account.edit.name", "_text": "Name" },
+				"CATEGORY": { "_": "masterData.account.edit.category", "_text": "Kategorie" },
+				"NOTE": { "_": "masterData.account.edit.note", "_text": "Notiz" },
+				"STREET": { "_": "masterData.account.edit.street", "_text": "Strasse" },
+				"HOUSENUMBER": { "_": "masterData.account.edit.houseNumber", "_text": "Hausnummer" },
+				"POSTALCODE": { "_": "masterData.account.edit.POSTALCODE", "_text": "Postleitzahl" },
+				"CITY": { "_": "masterData.account.edit.city", "_text": "Ort" },
+				"STATE": { "_": "masterData.account.edit.state", "_text": "Bundesland" },
+				"COUNTRYCODE": { "_": "masterData.account.edit", "_text": "Land" }
+			}
+		}
+	},
 	"ADMIN": {
 		"_": "adminMode",
 		"_textTrue": "Administration: Ja",
@@ -131,8 +150,30 @@
 				}
 			},
 			"USER_TEXT": "dialog.file.userText"
+		},
+		"DOCREC": {
+			"_": "dialog.docRec",
+			"_text": "Beleg Erfassung",
+			"FILE": {
+				"_": "dialog.docRec.filePath",
+				"_text": "Datei / Foto hochladen:"
+			},
+			"FILE_NOTE": {
+				"_": "dialog.docRec.note",
+				"_text": "Notiz:"
+			},
+			"TYPE": {
+				"_": "dialog.docRec.type",
+				"_text": "Dokumenttyp:",
+				"DEBUG": "Debug"
+			},
+			"SHOW_REC": {
+				"_": "dialog.docRec.showRec",
+				"_text": "Text anzeigen"
+			}
 		}
 	},
+
 	"SPECIALS": {
 		"ABORT": "Abbruch",
 		"BACK": "Zurück",

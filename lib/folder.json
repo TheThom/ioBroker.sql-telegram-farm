@@ -2,5 +2,9 @@
 	"MACHINES": {
 		"_": "machines/",
 		"MAINTENANCE": "machines/maintenance/"
+	},
+
+	"DOCREC": {
+		"DEBUG": "docRec/Debug/"
 	}
 }
