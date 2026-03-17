@@ -169,6 +169,10 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 
 ### **WORK IN PROGRESS**
 
+ToDo:
+mySql.js: Different functions get/set for a single parameter or the complete dictionary as Parameter
+table "Wood_datapoints" convert to "properties_enum"
+
 - Added Tresseract OCR for image recogicion => To install it, you need to run "apt-get install tesseract-ocr"
 
 ### 0.5.1 (2025-12-27)

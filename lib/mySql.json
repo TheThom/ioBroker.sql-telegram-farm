@@ -13,14 +13,20 @@
 			"HISTORY": "get.machines.history",
 			"HOUR_METER_OFFSET": "get.machines.hourMeterOffset",
 			"MACHINEID": "get.machines.machineId",
-			"MAINTENANCE":{
+			"MAINTENANCE": {
 				"ID": "get.machines.maintenance.id",
 				"FREE_ID": "get.machines.maintenance.free-id",
 				"ALL_IDS": "get.machines.allMaintenanceIds",
 				"DESCRIPTION": "get.machines.maintenance.description",
 				"MAINTENANCE": "get.machines.maintenance",
-				"DATASET_BY_ID": "get.machines.maintenance.dataset-by-number",
+				"DATASET_BY_ID": "get.machines.maintenance.dataset-by-id",
 				"TODO": "get.machines.maintenance.todo"
+			}
+		},
+		"MASTER_DATA": {
+			"ACCOUNTS": {
+				"ALL_ACCOUNTS": "get.masterData.accounts.all-accounts",
+				"DATASET_BY_ID": "get.masterData.accounts.dataset-by-id"
 			}
 		}
 	},
@@ -32,9 +38,36 @@
 		},
 		"MACHINES": {
 			"ADD_USE": "set.machines.addUse",
-			"MAINTENANCE":{
+			"MAINTENANCE": {
 				"DONE": "set.machines.maintenance.done",
 				"SAVE_EDIT": "set.machines.maintenance.saveEdit"
+			}
+		},
+		"RECEIPT": {
+			"SAVE_DOCREC": "set.reciept.save-docRec"
+		},
+		"MASTER_DATA": {
+			"SAVE_ACCOUNT": "set.masterData.saveAccount"
+		}
+	},
+	"ENUM": {
+		"VALID_TEXTS": {
+			"_": "get.general.enum.validTexts",
+			"P_TYPE": "get.general.enum.validTexts.pType"
+		},
+		"ID": {
+			"_": "get.general.enum.id",
+			"P_TYPE": "get.general.enum.id.pType",
+			"P_TEXT": "get.general.enum.id.pText"
+		},
+		"TYPES": {
+			"ACCOUNTS": {
+				"CATEGORY": "accounts.category",
+				"COUNTRY_CODES": "accounts.countryCode"
+			},
+			"WOOD": {
+				"TYPE": "wood.type",
+				"LOCATION": "wood.location"
 			}
 		}
 	}

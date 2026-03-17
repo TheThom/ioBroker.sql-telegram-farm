@@ -109,21 +109,28 @@
 		}
 	},
 	"MASTER_DATA": {
+		"_": "masterData",
+		"_text": "Stammdaten",
 		"ACCOUNT": {
 			"_": "masterData.account",
 			"_text": "Accounts",
+			"NEW": {
+				"_": "masterData.account.new",
+				"_text": "Neuer Account"
+			},
 			"EDIT": {
 				"_": "masterData.account.edit",
-				"ID": { "_": "masterData.account.edit.id", "_text": "id" },
-				"NAME": { "_": "masterData.account.edit.name", "_text": "Name" },
-				"CATEGORY": { "_": "masterData.account.edit.category", "_text": "Kategorie" },
-				"NOTE": { "_": "masterData.account.edit.note", "_text": "Notiz" },
-				"STREET": { "_": "masterData.account.edit.street", "_text": "Strasse" },
-				"HOUSENUMBER": { "_": "masterData.account.edit.houseNumber", "_text": "Hausnummer" },
-				"POSTALCODE": { "_": "masterData.account.edit.POSTALCODE", "_text": "Postleitzahl" },
-				"CITY": { "_": "masterData.account.edit.city", "_text": "Ort" },
-				"STATE": { "_": "masterData.account.edit.state", "_text": "Bundesland" },
-				"COUNTRYCODE": { "_": "masterData.account.edit", "_text": "Land" }
+				"_text": "Accout auswählen",
+				"ID": { "_": "masterData.account.edit.id", "_text": "Id:" },
+				"NAME": { "_": "masterData.account.edit.name", "_text": "Name:" },
+				"CATEGORY": { "_": "masterData.account.edit.category", "_text": "Kategorie:" },
+				"NOTE": { "_": "masterData.account.edit.note", "_text": "Notiz:" },
+				"STREET": { "_": "masterData.account.edit.street", "_text": "Str:" },
+				"HOUSENUMBER": { "_": "masterData.account.edit.houseNumber", "_text": "Nr:" },
+				"POSTALCODE": { "_": "masterData.account.edit.postalcode", "_text": "PLZ:" },
+				"CITY": { "_": "masterData.account.edit.city", "_text": "Ort:" },
+				"STATE": { "_": "masterData.account.edit.state", "_text": "Region:" },
+				"COUNTRYCODE": { "_": "masterData.account.edit.countrycode", "_text": "Land:" }
 			}
 		}
 	},
@@ -165,7 +172,8 @@
 			"TYPE": {
 				"_": "dialog.docRec.type",
 				"_text": "Dokumenttyp:",
-				"DEBUG": "Debug"
+				"DEBUG": "Debug",
+				"RECEIPT": "Beleg"
 			},
 			"SHOW_REC": {
 				"_": "dialog.docRec.showRec",

@@ -336,6 +336,8 @@ class SqlTelegramFarm extends utils.Adapter {
 					userCache[MENU.DIALOG.DOCREC.FILE_NOTE._] = '';
 					userCache[MENU.DIALOG.DOCREC.TYPE._] = '';
 					userCache[MENU.DIALOG.DOCREC.SHOW_REC._] = '';
+				} else if (command == MENU.MASTER_DATA._text) {
+					newUserMenu = MENU.MASTER_DATA._;
 				} else {
 					newUserMenu = MENU._;
 				}
@@ -392,15 +394,91 @@ class SqlTelegramFarm extends utils.Adapter {
 					newUserMenu = MENU.DIALOG.FILE._;
 				}
 				break;
+			//#region MASTER_DATA
 
+			case MENU.MASTER_DATA._:
+				if (command == MENU.SPECIALS.BACK) {
+					newUserMenu = MENU._;
+					userCache = emtyUserCache;
+				} else if (command == MENU.MASTER_DATA.ACCOUNT._text) {
+					newUserMenu = MENU.MASTER_DATA.ACCOUNT._;
+				}
+				break;
+
+			case MENU.MASTER_DATA.ACCOUNT._:
+				if (command == MENU.SPECIALS.BACK) {
+					newUserMenu = MENU.MASTER_DATA._;
+				} else if (command == MENU.MASTER_DATA.ACCOUNT.NEW._text) {
+					newUserMenu = MENU.MASTER_DATA.ACCOUNT.EDIT._;
+
+					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.NAME._] = '';
+					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.ID._] = '0';
+					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.CATEGORY._] = 'null';
+					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.NOTE._] = '';
+					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.STREET._] = '';
+					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.HOUSENUMBER._] = '';
+					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.POSTALCODE._] = '';
+					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.CITY._] = '';
+					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.COUNTRYCODE._] = 'DE';
+					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.STATE._] = 'BY';
+				}
+
+				break;
+
+			case MENU.MASTER_DATA.ACCOUNT.EDIT._:
+				if (command == MENU.SPECIALS.ABORT) {
+					newUserMenu = MENU.MASTER_DATA._;
+				} else if (command == MENU.SPECIALS.SAVE) {
+					await this.sql.set(user, MYSQL.SET.MASTER_DATA.SAVE_ACCOUNT, userCache);
+					newUserMenu = MENU.MASTER_DATA._;
+				} else if (command.includes(MENU.MASTER_DATA.ACCOUNT.EDIT.NAME._text)) {
+					newUserMenu = MENU.MASTER_DATA.ACCOUNT.EDIT.NAME._;
+				} else if (command.includes(MENU.MASTER_DATA.ACCOUNT.EDIT.CATEGORY._text)) {
+					newUserMenu = MENU.MASTER_DATA.ACCOUNT.EDIT.CATEGORY._;
+				} else if (command.includes(MENU.MASTER_DATA.ACCOUNT.EDIT.NOTE._text)) {
+					newUserMenu = MENU.MASTER_DATA.ACCOUNT.EDIT.NOTE._;
+				} else if (command.includes(MENU.MASTER_DATA.ACCOUNT.EDIT.STREET._text)) {
+					newUserMenu = MENU.MASTER_DATA.ACCOUNT.EDIT.STREET._;
+				} else if (command.includes(MENU.MASTER_DATA.ACCOUNT.EDIT.HOUSENUMBER._text)) {
+					newUserMenu = MENU.MASTER_DATA.ACCOUNT.EDIT.HOUSENUMBER._;
+				} else if (command.includes(MENU.MASTER_DATA.ACCOUNT.EDIT.POSTALCODE._text)) {
+					newUserMenu = MENU.MASTER_DATA.ACCOUNT.EDIT.POSTALCODE._;
+				} else if (command.includes(MENU.MASTER_DATA.ACCOUNT.EDIT.CITY._text)) {
+					newUserMenu = MENU.MASTER_DATA.ACCOUNT.EDIT.CITY._;
+				} else if (command.includes(MENU.MASTER_DATA.ACCOUNT.EDIT.COUNTRYCODE._text)) {
+					newUserMenu = MENU.MASTER_DATA.ACCOUNT.EDIT.COUNTRYCODE._;
+				} else if (command.includes(MENU.MASTER_DATA.ACCOUNT.EDIT.STATE._text)) {
+					newUserMenu = MENU.MASTER_DATA.ACCOUNT.EDIT.STATE._;
+				}
+				break;
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.CATEGORY._:
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.NAME._:
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.NOTE._:
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.POSTALCODE._:
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.CITY._:
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.STREET._:
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.HOUSENUMBER._:
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.COUNTRYCODE._:
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.STATE._:
+				if (command == MENU.SPECIALS.BACK) {
+					newUserMenu = MENU.MASTER_DATA.ACCOUNT.EDIT._;
+				} else if (validInput) {
+					userCache[userMenu] = command;
+					newUserMenu = MENU.MASTER_DATA.ACCOUNT.EDIT._;
+				}
+				break;
+			//#endregion
 			//#region Document Recognition
 			case MENU.DIALOG.DOCREC._:
 				if (command == MENU.SPECIALS.ABORT) {
 					newUserMenu = MENU._;
 					userCache = emtyUserCache;
 				} else if (command == MENU.SPECIALS.SAVE) {
-					this.log.warn('save');
-					newUserMenu = MENU._;
+					await this.sql.set(user, MYSQL.SET.RECEIPT.SAVE_DOCREC);
+					userCache[MENU.DIALOG.DOCREC.SHOW_REC._] = '';
+					userCache[MENU.DIALOG.DOCREC.FILE._] = '';
+					userCache[MENU.DIALOG.DOCREC.FILE_NOTE._] = '';
+					newUserMenu = MENU.DIALOG.DOCREC._;
 				} else if (command.includes(MENU.DIALOG.DOCREC.FILE_NOTE._text)) {
 					newUserMenu = MENU.DIALOG.DOCREC.FILE_NOTE._;
 				} else if (command.includes(MENU.DIALOG.DOCREC.FILE._text)) {
@@ -858,6 +936,7 @@ class SqlTelegramFarm extends utils.Adapter {
 				keyboard.push([MENU.FIREWOOD._text]);
 				keyboard.push([MENU.MACHINES_CATEGORY._text]);
 				keyboard.push([MENU.DIALOG.DOCREC._text]);
+				keyboard.push([MENU.MASTER_DATA._text]);
 				if (userCache[MENU.ADMIN._]) {
 					keyboard.push([MENU.ADMIN._textTrue]);
 				} else {
@@ -914,11 +993,98 @@ class SqlTelegramFarm extends utils.Adapter {
 
 			case MENU.DIALOG.DOCREC.TYPE._:
 				text.push(MENU.DIALOG.DOCREC.TYPE._text);
-				keyboard.push([MENU.DIALOG.DOCREC.TYPE.DEBUG]);
+				keyboard.push([MENU.DIALOG.DOCREC.TYPE.RECEIPT]);
 				keyboard.push([MENU.SPECIALS.BACK]);
 				break;
 
 			//endregion
+			//#region MasterData
+			case MENU.MASTER_DATA._:
+				text.push(MENU.MASTER_DATA._text);
+				keyboard.push([MENU.MASTER_DATA.ACCOUNT._text]);
+				keyboard.push([MENU.SPECIALS.BACK]);
+				break;
+
+			case MENU.MASTER_DATA.ACCOUNT._: {
+				text.push(MENU.MASTER_DATA.ACCOUNT._text);
+				keyboard.push([MENU.MASTER_DATA.ACCOUNT.NEW._text]);
+				keyboard.push([MENU.SPECIALS.BACK]);
+				break;
+			}
+
+			case MENU.MASTER_DATA.ACCOUNT.EDIT._:
+				text.push(MENU.MASTER_DATA.ACCOUNT._text);
+				keyboard.push([
+					MENU.MASTER_DATA.ACCOUNT.EDIT.ID._text + userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.ID._],
+					MENU.MASTER_DATA.ACCOUNT.EDIT.NAME._text + userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.NAME._],
+				]);
+				keyboard.push([
+					MENU.MASTER_DATA.ACCOUNT.EDIT.CATEGORY._text + userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.CATEGORY._],
+				]);
+				keyboard.push([
+					MENU.MASTER_DATA.ACCOUNT.EDIT.NOTE._text + userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.NOTE._],
+				]);
+				keyboard.push([
+					MENU.MASTER_DATA.ACCOUNT.EDIT.STREET._text + userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.STREET._],
+					MENU.MASTER_DATA.ACCOUNT.EDIT.HOUSENUMBER._text +
+						userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.HOUSENUMBER._],
+				]);
+				keyboard.push([
+					MENU.MASTER_DATA.ACCOUNT.EDIT.POSTALCODE._text +
+						userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.POSTALCODE._],
+					MENU.MASTER_DATA.ACCOUNT.EDIT.CITY._text + userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.CITY._],
+				]);
+				keyboard.push([
+					MENU.MASTER_DATA.ACCOUNT.EDIT.COUNTRYCODE._text +
+						userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.COUNTRYCODE._],
+					MENU.MASTER_DATA.ACCOUNT.EDIT.STATE._text + userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.STATE._],
+				]);
+				keyboard.push([MENU.SPECIALS.SAVE, MENU.SPECIALS.ABORT]);
+				break;
+
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.NAME._:
+				text.push('Account Namen eingeben');
+				keyboard.push([MENU.SPECIALS.BACK]);
+				break;
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.CATEGORY._: {
+				const arrCategories = await this.sql.getEnumValidTexts(user, MYSQL.ENUM.TYPES.ACCOUNTS.CATEGORY);
+				text.push('Account Kategorie eingeben');
+				for (const count in arrCategories) {
+					keyboard.push([arrCategories[count]]);
+				}
+				keyboard.push([MENU.SPECIALS.BACK]);
+				break;
+			}
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.NOTE._:
+				text.push('Account Notiz eingeben');
+				keyboard.push([MENU.SPECIALS.BACK]);
+				break;
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.STREET._:
+				text.push('Account Strasse eingeben');
+				keyboard.push([MENU.SPECIALS.BACK]);
+				break;
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.HOUSENUMBER._:
+				text.push('Account Hausnummer eingeben');
+				keyboard.push([MENU.SPECIALS.BACK]);
+				break;
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.POSTALCODE._:
+				text.push('Account Postleitzahl eingeben');
+				keyboard.push([MENU.SPECIALS.BACK]);
+				break;
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.CITY._:
+				text.push('Account Stadt eingeben');
+				keyboard.push([MENU.SPECIALS.BACK]);
+				break;
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.COUNTRYCODE._:
+				text.push('Account Land eingeben');
+				keyboard.push([MENU.SPECIALS.BACK]);
+				break;
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.STATE._:
+				text.push('Account Bundesland eingeben');
+				keyboard.push([MENU.SPECIALS.BACK]);
+				break;
+
+			//#endregion
 
 			//#endregion
 			//#region FIREWOOD
@@ -1263,8 +1429,17 @@ class SqlTelegramFarm extends utils.Adapter {
 			case MENU.DIALOG.DOCREC._: //Always valid (Menu navigation)
 			case MENU.FIREWOOD.EDIT._:
 			case MENU.MACHINES_CATEGORY.MACHINE.HISTORY._:
+			case MENU.MASTER_DATA._:
 				return command;
 
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.NAME._:
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.NOTE._:
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.POSTALCODE._:
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.CITY._:
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.STREET._:
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.HOUSENUMBER._:
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.COUNTRYCODE._:
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.STATE._:
 			case MENU.DIALOG.DOCREC.FILE_NOTE._: //Text
 			case MENU.DIALOG.FILE.ADD_FILE.NAME._:
 			case MENU.MACHINES_CATEGORY.MACHINE.MAINTENACE.ID.EDIT.TITLE._:
@@ -1312,6 +1487,15 @@ class SqlTelegramFarm extends utils.Adapter {
 				}
 				return '!Ungültiger Typ: "' + command + '" - Bitte eine vorgeschlagenen Typ verwenden';
 			}
+
+			case MENU.MASTER_DATA.ACCOUNT.EDIT.CATEGORY._: {
+				const validTypes = await this.sql.getEnumValidTexts(user, MYSQL.ENUM.TYPES.ACCOUNTS.CATEGORY);
+				if (validTypes.includes(command)) {
+					return command;
+				}
+				return '!Ungültige Kategorie: "' + command + '" - Bitte eine vorgeschlagene Kategorie verwenden';
+			}
+
 			case MENU.FIREWOOD.NEW.DATE:
 			case MENU.FIREWOOD.EDIT.DATE:
 				return command; //Is Date function implementieren!!!
@@ -1386,7 +1570,7 @@ class SqlTelegramFarm extends utils.Adapter {
 
 			case MENU.DIALOG.DOCREC.TYPE._: {
 				switch (command) {
-					case MENU.DIALOG.DOCREC.TYPE.DEBUG:
+					case MENU.DIALOG.DOCREC.TYPE.RECEIPT:
 						return command;
 				}
 				return '!Ungültiger Typ: "' + command + '" ausgewählt - Bitte einen vorgeschlagenen Typen auswählen';
