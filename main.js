@@ -333,8 +333,9 @@ class SqlTelegramFarm extends utils.Adapter {
 				} else if (command == MENU.DIALOG.DOCREC._text) {
 					newUserMenu = MENU.DIALOG.DOCREC._;
 					userCache[MENU.DIALOG.DOCREC.FILE._] = '';
-					userCache[MENU.DIALOG.DOCREC.FILE_NOTE._] = '';
-					userCache[MENU.DIALOG.DOCREC.TYPE._] = '';
+					userCache[MENU.DIALOG.DOCREC.FILE_NOTE._] = ' ';
+					userCache[MENU.DIALOG.DOCREC.TYPE._] = 'Beleg';
+					userCache[MENU.DIALOG.DOCREC.CATEGORY._] = '';
 					userCache[MENU.DIALOG.DOCREC.SHOW_REC._] = '';
 				} else if (command == MENU.MASTER_DATA._text) {
 					newUserMenu = MENU.MASTER_DATA._;
@@ -411,26 +412,25 @@ class SqlTelegramFarm extends utils.Adapter {
 				} else if (command == MENU.MASTER_DATA.ACCOUNT.NEW._text) {
 					newUserMenu = MENU.MASTER_DATA.ACCOUNT.EDIT._;
 
-					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.NAME._] = '';
-					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.ID._] = '0';
-					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.CATEGORY._] = 'null';
-					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.NOTE._] = '';
-					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.STREET._] = '';
-					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.HOUSENUMBER._] = '';
-					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.POSTALCODE._] = '';
-					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.CITY._] = '';
-					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.COUNTRYCODE._] = 'DE';
-					userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.STATE._] = 'BY';
+					userCache = resetAccount(user, userCache);
 				}
 
 				break;
 
 			case MENU.MASTER_DATA.ACCOUNT.EDIT._:
 				if (command == MENU.SPECIALS.ABORT) {
-					newUserMenu = MENU.MASTER_DATA._;
+					if (userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.MENU_AT_EXIT]) {
+						newUserMenu = userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.MENU_AT_EXIT];
+					} else {
+						newUserMenu = MENU.MASTER_DATA._;
+					}
 				} else if (command == MENU.SPECIALS.SAVE) {
 					await this.sql.set(user, MYSQL.SET.MASTER_DATA.SAVE_ACCOUNT, userCache);
-					newUserMenu = MENU.MASTER_DATA._;
+					if (userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.MENU_AT_EXIT]) {
+						newUserMenu = userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.MENU_AT_EXIT];
+					} else {
+						newUserMenu = MENU.MASTER_DATA._;
+					}
 				} else if (command.includes(MENU.MASTER_DATA.ACCOUNT.EDIT.NAME._text)) {
 					newUserMenu = MENU.MASTER_DATA.ACCOUNT.EDIT.NAME._;
 				} else if (command.includes(MENU.MASTER_DATA.ACCOUNT.EDIT.CATEGORY._text)) {
@@ -474,23 +474,69 @@ class SqlTelegramFarm extends utils.Adapter {
 					newUserMenu = MENU._;
 					userCache = emtyUserCache;
 				} else if (command == MENU.SPECIALS.SAVE) {
-					await this.sql.set(user, MYSQL.SET.RECEIPT.SAVE_DOCREC);
-					userCache[MENU.DIALOG.DOCREC.SHOW_REC._] = '';
-					userCache[MENU.DIALOG.DOCREC.FILE._] = '';
-					userCache[MENU.DIALOG.DOCREC.FILE_NOTE._] = '';
+					if (userCache[MENU.DIALOG.DOCREC.TYPE._] == '') {
+						this.sendTextToUser(user, 'Dokument Typ auswählen');
+					} else if (userCache[MENU.DIALOG.DOCREC.CATEGORY._] == '') {
+						this.sendTextToUser(user, 'Kategorie auswählen');
+					} else {
+						const sqlId = await this.sql.set(user, MYSQL.SET.RECEIPT.SAVE_DOCREC, userCache);
+						if (sqlId) {
+							this.moveFile(
+								user,
+								userCache[MENU.DIALOG.DOCREC.FILE._],
+								FOLDER.DOCREC.RECEIPT,
+								sqlId + '.jpg',
+							);
+							this.sendTextToUser(user, 'Beleg <b>' + sqlId + '</b> erfolgreich gespeichert');
+							userCache[MENU.DIALOG.DOCREC.SHOW_REC._] = '';
+							userCache[MENU.DIALOG.DOCREC.FILE._] = '';
+							userCache[MENU.DIALOG.DOCREC.FILE_NOTE._] = ' ';
+							userCache = resetAccount(user, userCache);
+						}
+					}
 					newUserMenu = MENU.DIALOG.DOCREC._;
+				} else if (command == MENU.MASTER_DATA.ACCOUNT.EDIT._text) {
+					newUserMenu = MENU.MASTER_DATA.ACCOUNT.EDIT._;
 				} else if (command.includes(MENU.DIALOG.DOCREC.FILE_NOTE._text)) {
 					newUserMenu = MENU.DIALOG.DOCREC.FILE_NOTE._;
 				} else if (command.includes(MENU.DIALOG.DOCREC.FILE._text)) {
+					userCache[MENU.DIALOG.DOCREC.FILE._] = '';
+					userCache[MENU.DIALOG.DOCREC.SHOW_REC._] = '';
+					userCache = resetAccount(user, userCache);
 					newUserMenu = MENU.DIALOG.DOCREC.FILE._;
 				} else if (command.includes(MENU.DIALOG.DOCREC.TYPE._text)) {
 					newUserMenu = MENU.DIALOG.DOCREC.TYPE._;
+				} else if (command.includes(MENU.DIALOG.DOCREC.CATEGORY._text)) {
+					newUserMenu = MENU.DIALOG.DOCREC.CATEGORY._;
 				} else if (command.includes(MENU.DIALOG.DOCREC.SHOW_REC._text)) {
 					newUserMenu = MENU.DIALOG.DOCREC._;
 					if (userCache[MENU.DIALOG.DOCREC.TYPE._] && userCache[MENU.DIALOG.DOCREC.FILE._]) {
 						const res = await this.docRec.recognice(user, userCache);
 						userCache[MENU.DIALOG.DOCREC.SHOW_REC._] = res;
 						await this.sendTextToUser(user, res);
+
+						userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.CATEGORY._] = 'Geschäft';
+						userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.CITY._] =
+							userCache[MENU.DIALOG.DOCREC.SHOW_REC._]['address']['city'];
+						userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.COUNTRYCODE._] = 'DE';
+						userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.HOUSENUMBER._] =
+							userCache[MENU.DIALOG.DOCREC.SHOW_REC._]['address']['housenumber'];
+						userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.ID._] = 0;
+						userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.NAME._] =
+							userCache[MENU.DIALOG.DOCREC.SHOW_REC._]['store_name'];
+						userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.NOTE._] = ' ';
+						userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.POSTALCODE._] =
+							userCache[MENU.DIALOG.DOCREC.SHOW_REC._]['address']['postcode'];
+						userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.STATE._] = 'BY';
+						userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.STREET._] =
+							userCache[MENU.DIALOG.DOCREC.SHOW_REC._]['address']['street'];
+						userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.MENU_AT_EXIT] = MENU.DIALOG.DOCREC._;
+
+						userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.ID._] = await this.sql.get(
+							user,
+							MYSQL.GET.MASTER_DATA.ACCOUNTS.EXISTS,
+							userCache,
+						);
 					} else {
 						this.sendTextToUser(user, 'Dokumenttyp wählen und Datei hochladen');
 					}
@@ -500,6 +546,7 @@ class SqlTelegramFarm extends utils.Adapter {
 
 			case MENU.DIALOG.DOCREC.FILE_NOTE._:
 			case MENU.DIALOG.DOCREC.TYPE._:
+			case MENU.DIALOG.DOCREC.CATEGORY._:
 				if (command == MENU.SPECIALS.BACK) {
 					newUserMenu = MENU.DIALOG.DOCREC._;
 				} else if (validInput) {
@@ -968,19 +1015,26 @@ class SqlTelegramFarm extends utils.Adapter {
 				break;
 
 			//region docRec
-			case MENU.DIALOG.DOCREC._:
+			case MENU.DIALOG.DOCREC._: {
 				text.push(MENU.DIALOG.DOCREC._text);
-				keyboard.push([MENU.DIALOG.DOCREC.TYPE._text + userCache[MENU.DIALOG.DOCREC.TYPE._]]);
+				keyboard.push([MENU.DIALOG.DOCREC.TYPE._text + ' ' + userCache[MENU.DIALOG.DOCREC.TYPE._]]);
 				if (userCache[MENU.DIALOG.DOCREC.FILE._]) {
-					keyboard.push([MENU.DIALOG.DOCREC.FILE._text + '\u{1F5CE}']);
+					keyboard.push([MENU.DIALOG.DOCREC.FILE._text + ' \u{1F5CE}']);
 				} else {
 					keyboard.push([MENU.DIALOG.DOCREC.FILE._text]);
 				}
-				keyboard.push([MENU.DIALOG.DOCREC.FILE_NOTE._text + userCache[MENU.DIALOG.DOCREC.FILE_NOTE._]]);
+				keyboard.push([MENU.DIALOG.DOCREC.CATEGORY._text + ' ' + userCache[MENU.DIALOG.DOCREC.CATEGORY._]]);
+				keyboard.push([MENU.DIALOG.DOCREC.FILE_NOTE._text + ' ' + userCache[MENU.DIALOG.DOCREC.FILE_NOTE._]]);
 				keyboard.push([MENU.DIALOG.DOCREC.SHOW_REC._text]);
-				keyboard.push([MENU.SPECIALS.ABORT, MENU.SPECIALS.SAVE]);
+				if (userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.ID._] > 0) {
+					keyboard.push([MENU.SPECIALS.ABORT, MENU.SPECIALS.SAVE]);
+				} else if (userCache[MENU.DIALOG.DOCREC.SHOW_REC._]['store_name']) {
+					keyboard.push([MENU.SPECIALS.ABORT, MENU.MASTER_DATA.ACCOUNT.EDIT._text]);
+				} else {
+					keyboard.push([MENU.SPECIALS.ABORT]);
+				}
 				break;
-
+			}
 			case MENU.DIALOG.DOCREC.FILE._:
 				text.push(MENU.DIALOG.DOCREC.FILE._text);
 				keyboard.push([MENU.SPECIALS.BACK]);
@@ -996,6 +1050,15 @@ class SqlTelegramFarm extends utils.Adapter {
 				keyboard.push([MENU.DIALOG.DOCREC.TYPE.RECEIPT]);
 				keyboard.push([MENU.SPECIALS.BACK]);
 				break;
+			case MENU.DIALOG.DOCREC.CATEGORY._: {
+				text.push(MENU.DIALOG.DOCREC.CATEGORY._text);
+				const categories = await this.sql.getEnumValidTexts(user, MYSQL.ENUM.TYPES.RECIEPT.CATEGORY);
+				for (const cat in categories) {
+					keyboard.push([categories[cat]]);
+				}
+				keyboard.push([MENU.SPECIALS.BACK]);
+				break;
+			}
 
 			//endregion
 			//#region MasterData
@@ -1039,7 +1102,9 @@ class SqlTelegramFarm extends utils.Adapter {
 						userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.COUNTRYCODE._],
 					MENU.MASTER_DATA.ACCOUNT.EDIT.STATE._text + userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.STATE._],
 				]);
+
 				keyboard.push([MENU.SPECIALS.SAVE, MENU.SPECIALS.ABORT]);
+
 				break;
 
 			case MENU.MASTER_DATA.ACCOUNT.EDIT.NAME._:
@@ -1496,6 +1561,14 @@ class SqlTelegramFarm extends utils.Adapter {
 				return '!Ungültige Kategorie: "' + command + '" - Bitte eine vorgeschlagene Kategorie verwenden';
 			}
 
+			case MENU.DIALOG.DOCREC.CATEGORY._: {
+				const validCategories = await this.sql.getEnumValidTexts(user, MYSQL.ENUM.TYPES.RECIEPT.CATEGORY);
+				if (validCategories.includes(command)) {
+					return command;
+				}
+				return '!Ungültige Kategorie: "' + command + '" - Bitte eine vorgeschlagene Kategorie verwenden';
+			}
+
 			case MENU.FIREWOOD.NEW.DATE:
 			case MENU.FIREWOOD.EDIT.DATE:
 				return command; //Is Date function implementieren!!!
@@ -1710,6 +1783,12 @@ class SqlTelegramFarm extends utils.Adapter {
 				continue;
 			}
 		}
+		try {
+			fs.mkdirSync(this.config.database.filepath + FOLDER.DOCREC.RECEIPT, { recursive: true });
+		} catch (err) {
+			1;
+		}
+
 		return true;
 	}
 
@@ -1718,6 +1797,9 @@ class SqlTelegramFarm extends utils.Adapter {
 			this.sendTextToUser(user, 'copyFiles: sourcePath - Verzeichnis existiert nicht: "' + sourcePath + '"');
 			return false;
 		}
+		if (!destinationPath.startsWith(this.config.database.filepath)) {
+			destinationPath = this.config.database.filepath + destinationPath + '/';
+		}
 		if (!fs.existsSync(destinationPath)) {
 			this.sendTextToUser(
 				user,
@@ -1725,9 +1807,7 @@ class SqlTelegramFarm extends utils.Adapter {
 			);
 			return false;
 		}
-		if (!destinationPath.startsWith(this.config.database.filepath)) {
-			destinationPath = this.config.database.filepath + destinationPath + '/';
-		}
+
 		try {
 			fs.copyFileSync(sourcePath, destinationPath + destinationFileName);
 			fs.rmSync(sourcePath);
@@ -1858,6 +1938,20 @@ function datasetToUserCash(userCache, dataset) {
 	}
 	userCache = Object.assign(userCache, dataset); // add userCash to existing dataset
 
+	return userCache;
+}
+
+function resetAccount(user, userCache) {
+	userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.NAME._] = '';
+	userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.ID._] = '0';
+	userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.CATEGORY._] = 'null';
+	userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.NOTE._] = '';
+	userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.STREET._] = '';
+	userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.HOUSENUMBER._] = '';
+	userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.POSTALCODE._] = '';
+	userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.CITY._] = '';
+	userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.COUNTRYCODE._] = 'DE';
+	userCache[MENU.MASTER_DATA.ACCOUNT.EDIT.STATE._] = 'BY';
 	return userCache;
 }
 

@@ -130,7 +130,8 @@
 				"POSTALCODE": { "_": "masterData.account.edit.postalcode", "_text": "PLZ:" },
 				"CITY": { "_": "masterData.account.edit.city", "_text": "Ort:" },
 				"STATE": { "_": "masterData.account.edit.state", "_text": "Region:" },
-				"COUNTRYCODE": { "_": "masterData.account.edit.countrycode", "_text": "Land:" }
+				"COUNTRYCODE": { "_": "masterData.account.edit.countrycode", "_text": "Land:" },
+				"MENU_AT_EXIT": "dialog.file.menuAtExit"
 			}
 		}
 	},
@@ -165,19 +166,23 @@
 				"_": "dialog.docRec.filePath",
 				"_text": "Datei / Foto hochladen:"
 			},
+			"CATEGORY": {
+				"_": "dialog.docRec.category",
+				"_text": "Kategorie:"
+			},
 			"FILE_NOTE": {
 				"_": "dialog.docRec.note",
 				"_text": "Notiz:"
 			},
 			"TYPE": {
 				"_": "dialog.docRec.type",
-				"_text": "Dokumenttyp:",
+				"_text": "Dokument Typ:",
 				"DEBUG": "Debug",
 				"RECEIPT": "Beleg"
 			},
 			"SHOW_REC": {
 				"_": "dialog.docRec.showRec",
-				"_text": "Text anzeigen"
+				"_text": "Dokument einlesen.."
 			}
 		}
 	},

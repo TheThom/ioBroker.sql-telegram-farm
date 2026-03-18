@@ -5,6 +5,6 @@
 	},
 
 	"DOCREC": {
-		"DEBUG": "docRec/Debug/"
+		"RECEIPT": "docRec/receipt/"
 	}
 }

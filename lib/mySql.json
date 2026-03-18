@@ -26,7 +26,8 @@
 		"MASTER_DATA": {
 			"ACCOUNTS": {
 				"ALL_ACCOUNTS": "get.masterData.accounts.all-accounts",
-				"DATASET_BY_ID": "get.masterData.accounts.dataset-by-id"
+				"DATASET_BY_ID": "get.masterData.accounts.dataset-by-id",
+				"EXISTS": "get.masterData.accounts.dataset-by-id"
 			}
 		}
 	},
@@ -64,6 +65,9 @@
 			"ACCOUNTS": {
 				"CATEGORY": "accounts.category",
 				"COUNTRY_CODES": "accounts.countryCode"
+			},
+			"RECIEPT": {
+				"CATEGORY": "reciept.category"
 			},
 			"WOOD": {
 				"TYPE": "wood.type",
