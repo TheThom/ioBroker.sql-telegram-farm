@@ -177,8 +177,7 @@ table "Wood_datapoints" convert to "properties_enum"
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 0.6.0 (2026-06-29)
 
 - Added gemini for document recognition - removed tresseract OCR
 - Added accounts

@@ -1,7 +1,7 @@
 {
 	"common": {
 		"name": "sql-telegram-farm",
-		"version": "0.5.1",
+		"version": "0.6.0",
 		"news": {
 			"0.5.1": {
 				"en": "Fix: If creating a new Maintenance and adding a file - Error because the folder path was not created yet\nFix: Machines Add use - HourMeterOffset was not working",
