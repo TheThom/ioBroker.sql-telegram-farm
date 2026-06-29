@@ -160,6 +160,17 @@ The ioBroker.admin interface will then be available at http://localhost:8081/
 
 Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev-server#command-line) for more details.
 
+ToDo:
+mySql.js: Different functions get/set for a single parameter or the complete dictionary as Parameter
+table "Wood_datapoints" convert to "properties_enum"
+
+- check the admin mode: In main menu: Admin mode selectable if in Adapter config activated - show only active maintenances - admin mode: show all maintenances and machines
+  -Files Dialog: Delete / Archivate files in admin mode
+  use an account, if there is just a difference in one field
+  -Edit an existing account
+  -Recognice a reciept in the background => Possibility to review it later / scan it again
+  -If the document recognicion failed: Note it in the database!
+
 ## Changelog
 
 <!--
@@ -169,11 +180,10 @@ Please refer to the [`dev-server` documentation](https://github.com/ioBroker/dev
 
 ### **WORK IN PROGRESS**
 
-ToDo:
-mySql.js: Different functions get/set for a single parameter or the complete dictionary as Parameter
-table "Wood_datapoints" convert to "properties_enum"
-
-- Added Tresseract OCR for image recogicion => To install it, you need to run "apt-get install tesseract-ocr"
+- Added gemini for document recognition - removed tresseract OCR
+- Added accounts
+- Added Database for receipt
+- API-Key and Gemini Model can be selected by settings
 
 ### 0.5.1 (2025-12-27)
 
@@ -190,11 +200,6 @@ edit:iobroker [FATAL] Could not translate the news: AxiosError: Request failed w
 - Fix: If creating a new maintenance and it is the first for this machineId
 - Fix: If there is no file in FileDialog: Error "getFiles": Path is not existing
 - Add: Wood Status - Date of creation
-
-ToDo:
-
-- check the admin mode: In main menu: Admin mode selectable if in Adapter config activated - show only active maintenances - admin mode: show all maintenances and machines
-  -Files Dialog: Delete / Archivate files in admin mode
 
 ### 0.4.0 (2025-08-07)
 

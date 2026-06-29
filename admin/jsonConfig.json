@@ -57,6 +57,24 @@
 				}
 			}
 		},
+		"tabAi": {
+			"type": "panel",
+			"label": "AI",
+			"items": {
+				"ai.model": {
+					"type": "text",
+					"label": "Gemini model",
+					"maxLength": 200,
+					"sm": 2
+				},
+				"ai.apiKey": {
+					"type": "text",
+					"label": "Gemini API Key",
+					"maxLength": 200,
+					"sm": 3
+				}
+			}
+		},
 		"tabTelegramOptions": {
 			"type": "panel",
 			"label": "Telegram - Options",
