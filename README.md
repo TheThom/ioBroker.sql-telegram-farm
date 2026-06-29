@@ -243,7 +243,7 @@ edit:iobroker [FATAL] Could not translate the news: AxiosError: Request failed w
 
 MIT License
 
-Copyright (c) 2025 Thomas Kümmel <thomas.kuemmel@outlook.de>
+Copyright (c) 2026 Thomas Kümmel <thomas.kuemmel@outlook.de>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
