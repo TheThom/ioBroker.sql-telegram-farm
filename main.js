@@ -481,7 +481,7 @@ class SqlTelegramFarm extends utils.Adapter {
 					} else {
 						const sqlId = await this.sql.set(user, MYSQL.SET.RECEIPT.SAVE_DOCREC, userCache);
 						if (sqlId) {
-							this.moveFile(
+							await this.moveFile(
 								user,
 								userCache[MENU.DIALOG.DOCREC.FILE._],
 								FOLDER.DOCREC.RECEIPT,
