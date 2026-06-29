@@ -492,6 +492,8 @@ class SqlTelegramFarm extends utils.Adapter {
 							userCache[MENU.DIALOG.DOCREC.FILE._] = '';
 							userCache[MENU.DIALOG.DOCREC.FILE_NOTE._] = ' ';
 							userCache = resetAccount(user, userCache);
+						} else {
+							this.sendTextToUser(user, 'Beleg NICHT gespeichert. Ungültige sqlId:' + sqlId);
 						}
 					}
 					newUserMenu = MENU.DIALOG.DOCREC._;
