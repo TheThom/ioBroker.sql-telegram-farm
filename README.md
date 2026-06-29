@@ -180,14 +180,11 @@ table "Wood_datapoints" convert to "properties_enum"
 
 ### **WORK IN PROGRESS**
 
-- Fix: safe docRec in files
-
-### 0.6.0 (2026-06-29)
-
 - Added gemini for document recognition - removed tresseract OCR
 - Added accounts
 - Added Database for receipt
 - API-Key and Gemini Model can be selected by settings
+- Fix: safe docRec in files
 
 ### 0.5.1 (2025-12-27)
 
