@@ -1811,8 +1811,8 @@ class SqlTelegramFarm extends utils.Adapter {
 		}
 
 		try {
-			fs.copyFileSync(sourcePath, destinationPath + destinationFileName);
-			fs.rmSync(sourcePath);
+			await fs.copyFileSync(sourcePath, destinationPath + destinationFileName);
+			await fs.rmSync(sourcePath);
 			this.log.debug('file removed: ' + sourcePath);
 		} catch (err) {
 			this.sendTextToUser(user, 'copyFiles: Fehler beim Kopieren: ' + String(err));
