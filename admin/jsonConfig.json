@@ -44,7 +44,7 @@
 				"database.filepath": {
 					"newLine": true,
 					"type": "text",
-					"label": "Absolute Filepath to FileStorage - Standard IO Broker: /opt/iobroker/iobroker-data/files/sql-telegram-farm.0",
+					"label": "Absolute Filepath to FileStorage e.g. /opt/iobroker/iobroker-data/sql-telegram-farm.0/",
 					"maxLength": 200,
 					"sm": 4
 				},
@@ -54,6 +54,41 @@
 					"min": 1,
 					"max": 1500,
 					"sm": 4
+				},
+				"headerDropbox": {
+					"newLine": true,
+					"type": "header",
+					"size": 2,
+					"text": "Backup: Dropbox"
+				},
+				"database.backup.dropbox.clientId": {
+					"newLine": true,
+					"type": "text",
+					"label": "client Id",
+					"maxLength": 100,
+					"sm": 4
+				},
+				"database.backup.dropbox.clientSecret": {
+					"newLine": false,
+					"type": "text",
+					"label": "client Secret",
+					"maxLength": 100,
+					"sm": 4
+				},
+				"database.backup.dropbox.refreshToken": {
+					"newLine": false,
+					"type": "text",
+					"label": "dropbox refresh Token",
+					"maxLength": 2000,
+					"sm": 4
+				},
+				"database.backup.backupInterval": {
+					"newLine": false,
+					"type": "number",
+					"label": "Intervall (Tage) - noch nicht programmiert",
+					"min": 0,
+					"max": 365,
+					"sm": 1
 				}
 			}
 		},

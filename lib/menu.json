@@ -140,6 +140,7 @@
 		"_textTrue": "Administration: Ja",
 		"_textFalse": "Administration: Nein"
 	},
+	"BACKUP": { "_": "backup", "_text": "Backup ablegen" },
 	"DIALOG": {
 		"FILE": {
 			"_": "dialog.file",

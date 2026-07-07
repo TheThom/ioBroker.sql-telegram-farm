@@ -153,6 +153,7 @@ Since you set up `dev-server`, you can use it to run, test and debug your adapte
 You may start `dev-server` by calling from your dev directory:
 
 ```bash
+dev-server update
 dev-server watch
 ```
 
@@ -177,11 +178,13 @@ table "Wood_datapoints" convert to "properties_enum"
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+
 ### 0.6.0 (2026-06-29)
 
 - Added gemini for document recognition - removed tresseract OCR
 - Added accounts
 - Added Database for receipt
+- Added Backup Class
 - API-Key and Gemini Model can be selected by settings
 - Fix: safe docRec in files
 

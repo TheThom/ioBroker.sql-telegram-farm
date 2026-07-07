@@ -1,10 +1,17 @@
 {
 	"MACHINES": {
-		"_": "machines/",
-		"MAINTENANCE": "machines/maintenance/"
+		"_": "files/machines/",
+		"MAINTENANCE": "files/machines/maintenance/"
 	},
 
 	"DOCREC": {
-		"RECEIPT": "docRec/receipt/"
+		"RECEIPT": "files/docRec/receipt/"
+	},
+	"BACKUP": {
+		"LOCAL": {
+			"FOLDERS": "files/",
+			"STORAGE": "backups/"
+		},
+		"CLOUD": "/backups/"
 	}
 }

@@ -161,7 +161,15 @@
 			"user": "",
 			"password": "",
 			"filepath": "/home/pi/TKadapters/ioBroker.sql-telegram-farm/TestFiles/",
-			"intervalEnsureConnection": 60
+			"intervalEnsureConnection": 60,
+			"backup": {
+				"dropbox": {
+					"clientId": "",
+					"clientSecret": "",
+					"refreshToken": "",
+					"backupInterval": "0"
+				}
+			}
 		},
 		"ai": {
 			"apiKey": "",

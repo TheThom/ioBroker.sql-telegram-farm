@@ -28,6 +28,7 @@ const fs = require('fs');
 ////const schedule = require('node-schedule');
 const mySql = require('./lib/mySql');
 const docRec = require('./lib/documentRecognition');
+const backup = require('./lib/backup');
 const MENU = require('./lib/menu.json');
 const MYSQL = require('./lib/mySql.json');
 const FOLDER = require('./lib/folder.json');
@@ -48,6 +49,7 @@ class SqlTelegramFarm extends utils.Adapter {
 		this.on('unload', this.onUnload.bind(this));
 		this.sql = null;
 		this.docRec = null;
+		this.backup = null;
 	}
 
 	/**
@@ -63,6 +65,7 @@ class SqlTelegramFarm extends utils.Adapter {
 		); //user input [min] interval [ms]
 
 		this.docRec = new docRec({ adapter: this });
+		this.backup = new backup({ adapter: this });
 
 		/////////intervalMaintenanceReport = setInterval()
 		// Reset the connection indicator during startup
@@ -339,6 +342,10 @@ class SqlTelegramFarm extends utils.Adapter {
 					userCache[MENU.DIALOG.DOCREC.SHOW_REC._] = '';
 				} else if (command == MENU.MASTER_DATA._text) {
 					newUserMenu = MENU.MASTER_DATA._;
+				} else if (command == MENU.BACKUP._text) {
+					await this.backup.backupToDropbox(user);
+					newUserMenu = MENU._;
+					break;
 				} else {
 					newUserMenu = MENU._;
 				}
@@ -988,6 +995,7 @@ class SqlTelegramFarm extends utils.Adapter {
 				keyboard.push([MENU.MASTER_DATA._text]);
 				if (userCache[MENU.ADMIN._]) {
 					keyboard.push([MENU.ADMIN._textTrue]);
+					keyboard.push([MENU.BACKUP._text]);
 				} else {
 					keyboard.push([MENU.ADMIN._textFalse]);
 				}
@@ -1777,18 +1785,21 @@ class SqlTelegramFarm extends utils.Adapter {
 			this.sendTextToUser(user, 'updateFileSystem: No sql connection possible - return');
 			return false;
 		}
+
 		const maintenanceIds = await this.sql.get('noUser', MYSQL.GET.MACHINES.MAINTENANCE.ALL_IDS);
 		for (const id of maintenanceIds) {
 			try {
 				fs.mkdirSync(this.config.database.filepath + FOLDER.MACHINES.MAINTENANCE + id, { recursive: true });
 			} catch (err) {
+				this.log.warn(err);
 				continue;
 			}
 		}
 		try {
 			fs.mkdirSync(this.config.database.filepath + FOLDER.DOCREC.RECEIPT, { recursive: true });
+			fs.mkdirSync(this.config.database.filepath + FOLDER.BACKUP.STORAGE, { recursive: true });
 		} catch (err) {
-			1;
+			this.log.warn(err);
 		}
 
 		return true;
