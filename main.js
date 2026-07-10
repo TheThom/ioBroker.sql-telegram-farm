@@ -679,7 +679,8 @@ class SqlTelegramFarm extends utils.Adapter {
 					newUserMenu = MENU.FIREWOOD._;
 					userCache = emtyUserCache;
 				} else if (validInput) {
-					userCache = await this.sql.get(user, MYSQL.GET.FIREWOOD.DATASET_BY_NUMBER, command);
+					userCache[MENU.FIREWOOD.EDIT.NUMBER._] = command;
+					userCache = await this.sql.get(user, MYSQL.GET.FIREWOOD.DATASET_BY_NUMBER, userCache);
 					newUserMenu = MENU.FIREWOOD.EDIT._;
 				}
 				break;
