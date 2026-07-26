@@ -337,7 +337,7 @@ class SqlTelegramFarm extends utils.Adapter {
 					newUserMenu = MENU.DIALOG.DOCREC._;
 					userCache[MENU.DIALOG.DOCREC.FILE._] = '';
 					userCache[MENU.DIALOG.DOCREC.FILE_NOTE._] = ' ';
-					userCache[MENU.DIALOG.DOCREC.TYPE._] = 'Beleg';
+					userCache[MENU.DIALOG.DOCREC.TYPE._] = MENU.DIALOG.DOCREC.TYPE.RECEIPT;
 					userCache[MENU.DIALOG.DOCREC.CATEGORY._] = MENU.DIALOG.DOCREC.CATEGORY.NO_CATEGORY;
 					userCache[MENU.DIALOG.DOCREC.SHOW_REC._] = '';
 				} else if (command == MENU.MASTER_DATA._text) {

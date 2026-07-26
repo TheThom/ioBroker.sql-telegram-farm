@@ -180,7 +180,7 @@
 				"_": "dialog.docRec.type",
 				"_text": "Dokument Typ:",
 				"DEBUG": "Debug",
-				"RECEIPT": "Beleg"
+				"RECEIPT": "Beleg(Bild), Rechnung(PDF)"
 			},
 			"SHOW_REC": {
 				"_": "dialog.docRec.showRec",
