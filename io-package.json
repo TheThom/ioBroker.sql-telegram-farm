@@ -127,6 +127,7 @@
 			"type": "free",
 			"license": "MIT"
 		},
+		"webExtension": "www/index.html",
 		"platform": "Javascript/Node.js",
 		"icon": "sql-telegram-farm.png",
 		"enabled": true,
@@ -204,6 +205,22 @@
 				"read": true,
 				"write": false,
 				"def": false
+			},
+			"native": {}
+		},
+		{
+			"_id": "info.localLink",
+			"type": "state",
+			"common": {
+				"name": {
+					"en": "Link to frontend",
+					"de": "Link zur Oberfläche"
+				},
+				"type": "string",
+				"role": "text",
+				"read": true,
+				"write": false,
+				"def": "http://%ip%:%web_port%/sql-telegram-farm/"
 			},
 			"native": {}
 		}

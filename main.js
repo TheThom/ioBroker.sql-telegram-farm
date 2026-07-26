@@ -492,7 +492,7 @@ class SqlTelegramFarm extends utils.Adapter {
 								user,
 								userCache[MENU.DIALOG.DOCREC.FILE._],
 								FOLDER.DOCREC.RECEIPT,
-								sqlId + '.jpg',
+								sqlId + '.' + userCache[MENU.DIALOG.DOCREC.FILE._].split('.').pop(),
 							);
 							this.sendTextToUser(user, 'Beleg <b>' + sqlId + '</b> erfolgreich gespeichert');
 							userCache[MENU.DIALOG.DOCREC.SHOW_REC._] = '';
@@ -1798,7 +1798,7 @@ class SqlTelegramFarm extends utils.Adapter {
 		}
 		try {
 			fs.mkdirSync(this.config.database.filepath + FOLDER.DOCREC.RECEIPT, { recursive: true });
-			fs.mkdirSync(this.config.database.filepath + FOLDER.BACKUP.STORAGE, { recursive: true });
+			fs.mkdirSync(this.config.database.filepath + FOLDER.BACKUP.LOCAL.STORAGE, { recursive: true });
 		} catch (err) {
 			this.log.warn(err);
 		}

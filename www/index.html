@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="de">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Mein Adapter Web UI</title>
+
+		<!-- Diese Skripte stellt der ioBroker.web Adapter automatisch bereit -->
+		<script type="text/javascript" src="/_socket/info.js"></script>
+		<script type="text/javascript" src="../../lib/js/socket.io.js"></script>
+
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				background-color: #f4f4f9;
+				color: #333;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height: 100vh;
+				margin: 0;
+			}
+			.container {
+				text-align: center;
+				background: white;
+				padding: 30px;
+				border-radius: 12px;
+				box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			}
+			h1 {
+				color: #3399cc;
+			}
+			.status {
+				font-weight: bold;
+				color: red;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Hello World! 👋</h1>
+			<p>Dies ist die eigene Webpage deines ioBroker-Adapters.</p>
+			<p>Verbindungsstatus: <span id="connection-status" class="status">Verbinde...</span></p>
+		</div>
+
+		<script>
+			// Verbindung zum ioBroker Web-Socket aufbauen
+			const socket = io.connect();
+			const statusElement = document.getElementById('connection-status');
+
+			socket.on('connect', () => {
+				statusElement.innerText = 'Verbunden mit ioBroker! 🎉';
+				statusElement.style.color = 'green';
+				console.log('Erfolgreich mit dem ioBroker-Web-Socket verbunden.');
+			});
+
+			socket.on('disconnect', () => {
+				statusElement.innerText = 'Getrennt';
+				statusElement.style.color = 'red';
+			});
+		</script>
+	</body>
+</html>
