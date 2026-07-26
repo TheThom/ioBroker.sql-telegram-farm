@@ -169,7 +169,8 @@
 			},
 			"CATEGORY": {
 				"_": "dialog.docRec.category",
-				"_text": "Kategorie:"
+				"_text": "Kategorie:",
+				"NO_CATEGORY": "Keine Kategorie"
 			},
 			"FILE_NOTE": {
 				"_": "dialog.docRec.note",

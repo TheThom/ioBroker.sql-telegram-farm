@@ -338,7 +338,7 @@ class SqlTelegramFarm extends utils.Adapter {
 					userCache[MENU.DIALOG.DOCREC.FILE._] = '';
 					userCache[MENU.DIALOG.DOCREC.FILE_NOTE._] = ' ';
 					userCache[MENU.DIALOG.DOCREC.TYPE._] = 'Beleg';
-					userCache[MENU.DIALOG.DOCREC.CATEGORY._] = '';
+					userCache[MENU.DIALOG.DOCREC.CATEGORY._] = MENU.DIALOG.DOCREC.CATEGORY.NO_CATEGORY;
 					userCache[MENU.DIALOG.DOCREC.SHOW_REC._] = '';
 				} else if (command == MENU.MASTER_DATA._text) {
 					newUserMenu = MENU.MASTER_DATA._;
@@ -483,8 +483,6 @@ class SqlTelegramFarm extends utils.Adapter {
 				} else if (command == MENU.SPECIALS.SAVE) {
 					if (userCache[MENU.DIALOG.DOCREC.TYPE._] == '') {
 						this.sendTextToUser(user, 'Dokument Typ auswählen');
-					} else if (userCache[MENU.DIALOG.DOCREC.CATEGORY._] == '') {
-						this.sendTextToUser(user, 'Kategorie auswählen');
 					} else {
 						const sqlId = await this.sql.set(user, MYSQL.SET.RECEIPT.SAVE_DOCREC, userCache);
 						if (sqlId) {
@@ -1063,7 +1061,8 @@ class SqlTelegramFarm extends utils.Adapter {
 				break;
 			case MENU.DIALOG.DOCREC.CATEGORY._: {
 				text.push(MENU.DIALOG.DOCREC.CATEGORY._text);
-				const categories = await this.sql.getEnumValidTexts(user, MYSQL.ENUM.TYPES.RECIEPT.CATEGORY);
+				keyboard.push([MENU.DIALOG.DOCREC.CATEGORY.NO_CATEGORY]);
+				const categories = await this.sql.getEnumValidTexts(user, MYSQL.ENUM.TYPES.RECIEPT.MAPPING.ENTITY_TYPE);
 				for (const cat in categories) {
 					keyboard.push([categories[cat]]);
 				}
@@ -1573,8 +1572,11 @@ class SqlTelegramFarm extends utils.Adapter {
 			}
 
 			case MENU.DIALOG.DOCREC.CATEGORY._: {
-				const validCategories = await this.sql.getEnumValidTexts(user, MYSQL.ENUM.TYPES.RECIEPT.CATEGORY);
-				if (validCategories.includes(command)) {
+				const validCategories = await this.sql.getEnumValidTexts(
+					user,
+					MYSQL.ENUM.TYPES.RECIEPT.MAPPING.ENTITY_TYPE,
+				);
+				if (validCategories.includes(command) || MENU.DIALOG.DOCREC.CATEGORY.NO_CATEGORY.includes(command)) {
 					return command;
 				}
 				return '!Ungültige Kategorie: "' + command + '" - Bitte eine vorgeschlagene Kategorie verwenden';

@@ -45,7 +45,14 @@
 			}
 		},
 		"RECEIPT": {
-			"SAVE_DOCREC": "set.reciept.save-docRec"
+			"SAVE_DOCREC": "set.reciept.saveDocRec",
+			"ADD_MAPPING": {
+				"_": "set.reciept.addMapping",
+				"receiptId": "set.reciept.addMapping.receiptId",
+				"itemId": "set.reciept.addMapping.itemId",
+				"entityType": "set.reciept.addMapping.entityType",
+				"entityId": "set.reciept.addMapping.entityId"
+			}
 		},
 		"MASTER_DATA": {
 			"SAVE_ACCOUNT": "set.masterData.saveAccount"
@@ -67,7 +74,10 @@
 				"COUNTRY_CODES": "accounts.countryCode"
 			},
 			"RECIEPT": {
-				"CATEGORY": "reciept.category"
+				"CATEGORY": "reciept.categoryNOT NEEDED ANY LONGER!!!!!!!!!!!!!!!!!!!!!!!!!!",
+				"MAPPING": {
+					"ENTITY_TYPE": "reciept.mapping.entityType"
+				}
 			},
 			"WOOD": {
 				"TYPE": "wood.type",
